@@ -1,0 +1,12 @@
+---
+- name: Require signatures for local RPM files
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/dnf.conf
+    regexp: '(?i)^\s*localpkg_gpgcheck\s*[:=]'
+    insertafter: '^\s*\[main\]\s*(?:[#;].*)?$'
+    line: localpkg_gpgcheck=True
+  register: signature_policy
+
+- name: Preserve signature-policy change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ signature_policy.changed }}"

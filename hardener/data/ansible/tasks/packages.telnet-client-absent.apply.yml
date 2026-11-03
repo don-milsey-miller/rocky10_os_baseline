@@ -1,0 +1,14 @@
+---
+- name: Recheck Telnet package state
+  ansible.builtin.include_tasks: packages.telnet-client-absent.inspect.yml
+
+- name: Remove only Telnet while enforcing RPM dependency checks
+  ansible.builtin.command:
+    argv: [/usr/bin/rpm, --erase, telnet]
+  when: telnet_query.rc == 0
+  changed_when: true
+  register: telnet_removal
+
+- name: Preserve package-removal evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ telnet_removal.changed }}"

@@ -28,4 +28,5 @@ order. The profile SHA-256 covers the exact input bytes, including comments
 and formatting. Engine and catalog versions plus a source digest identify the
 implementation used. Keep source and profiles in version control.
 
-Example: `profiles/examples/server-minimal.yaml`.
+Examples: `profiles/examples/server-minimal.yaml` selects one control.
+`profiles/examples/server-five-controls.yaml` selects all five.

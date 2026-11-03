@@ -1,0 +1,17 @@
+---
+- name: Inspect debug console state from systemd
+  ansible.builtin.command:
+    argv: [/usr/bin/systemctl, show, debug-shell.service, --property=ActiveState, --property=UnitFileState]
+  register: debug_audit
+  changed_when: false
+
+- name: Report debug console audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if 'ActiveState=inactive' in debug_audit.stdout_lines and 'UnitFileState=masked' in debug_audit.stdout_lines else 'fail' }}"
+      observed: "{{ debug_audit.stdout_lines | join(' ') }}"
+      expected: ActiveState=inactive UnitFileState=masked
+      changed: false
+      reason: null
+      reboot_required: false

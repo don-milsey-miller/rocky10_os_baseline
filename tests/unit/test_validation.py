@@ -101,6 +101,7 @@ def test_parameters_are_strict(profile, catalog):
 
 def test_unimplemented_not_selectable(profile, catalog):
     profile["controls"][1]["enabled"] = True
+    catalog[profile["controls"][1]["id"]]["implemented"] = False
     with pytest.raises(ValidationError, match="unavailable"):
         validate(profile, catalog)
 

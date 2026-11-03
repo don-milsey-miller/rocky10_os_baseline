@@ -1,10 +1,10 @@
 # Rocky Linux 10 OS baseline
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The first milestone implements one control: `files.passwd-permissions`.
-It audits and sets `/etc/passwd` to root:root, mode 0644, then verifies the
-result independently. Four additional owner-approved controls are cataloged
-but cannot be enabled until implemented and tested.
+The five-control engine audits and hardens account-file permissions, hard-link
+protection, the debug console, Telnet presence, and local RPM signature checks.
+Each control has independent verification and can be selected or excluded.
+See [exact behaviors and restoration](docs/m2-controls.md).
 
 The project currently has **no license grant**, by owner decision. This is an
 initial development milestone, not an open-source release or certification.
@@ -16,7 +16,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m2-five-controls https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
@@ -35,12 +35,12 @@ untrusted profile input.
 ## Run
 
 ```bash
-hardener validate --profile profiles/examples/server-minimal.yaml
-hardener preflight --profile profiles/examples/server-minimal.yaml --inventory inventory.local.ini --target test-vm --output reports/preflight
-hardener audit --profile profiles/examples/server-minimal.yaml --inventory inventory.local.ini --target test-vm --output reports/before
-hardener apply --profile profiles/examples/server-minimal.yaml --inventory inventory.local.ini --target test-vm --output reports/apply
-hardener verify --profile profiles/examples/server-minimal.yaml --inventory inventory.local.ini --target test-vm --output reports/after
-hardener apply --profile profiles/examples/server-minimal.yaml --inventory inventory.local.ini --target test-vm --output reports/second-apply
+hardener validate --profile profiles/examples/server-five-controls.yaml
+hardener preflight --profile profiles/examples/server-five-controls.yaml --inventory inventory.local.ini --target test-vm --output reports/preflight
+hardener audit --profile profiles/examples/server-five-controls.yaml --inventory inventory.local.ini --target test-vm --output reports/before
+hardener apply --profile profiles/examples/server-five-controls.yaml --inventory inventory.local.ini --target test-vm --output reports/apply
+hardener verify --profile profiles/examples/server-five-controls.yaml --inventory inventory.local.ini --target test-vm --output reports/after
+hardener apply --profile profiles/examples/server-five-controls.yaml --inventory inventory.local.ini --target test-vm --output reports/second-apply
 ```
 
 Every remote operation requires an inventory file, one literal inventory host,
@@ -50,7 +50,8 @@ directory when retaining evidence.
 
 Apply prints its target and selected controls, runs read-only preflight,
 then remediates only explicitly enabled controls. Independent verification
-runs after apply. Audit uses Ansible stat, while verification uses GNU stat.
+runs after apply. For the account-file control, audit uses Ansible stat and
+verification uses GNU stat.
 Ansible task success alone never counts as verified compliance.
 
 Preflight checks SSH, privilege escalation, Rocky 10, KVM guest identity,
@@ -70,7 +71,7 @@ ansible-playbook -i inventory.example.ini hardener/data/ansible/run.yml --syntax
 python tests/integration/vs1.py --inventory inventory.local.ini --target test-vm --disposable
 ```
 
-The integration test proves before/after state, independent verification,
+The original integration test proves before/after state, independent verification,
 idempotence, unchanged account-file content and unrelated state, explicit
 exclusion, and preflight refusal for missing server role or privileges.
 It restores mode 0644 on exit when SSH remains available. Snapshot recovery
@@ -81,6 +82,10 @@ Exit codes: **0** successful operation, **2** invalid profile/catalog/inventory,
 state in audit, apply verification, or verify. A successful preflight does
 not mean controls are compliant.
 
+Run the [five-control integration suite](docs/m2-testing.md) for per-control
+exclusions, configuration conflicts, dependency refusal, unsigned RPM rejection,
+and reboot persistence. The profile editor remains outside this milestone.
+
 See [profile format](docs/profile-format.md), [operations](docs/operations.md),
 [architecture and authoring](docs/architecture.md), and
-[demonstration evidence](docs/m1-demonstration.md).
+[M2 demonstration evidence](docs/m2-demonstration.md).

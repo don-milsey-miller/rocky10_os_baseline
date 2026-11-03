@@ -1,0 +1,20 @@
+---
+- name: Read current hard-link protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_hardlinks]
+  register: hardlinks_live
+  changed_when: false
+
+- name: Inspect persistent hard-link policy
+  ansible.builtin.include_tasks: kernel.protected-hardlinks.inspect.yml
+
+- name: Report hard-link policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if hardlinks_live.stdout == '1' and hardlinks_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ hardlinks_live.stdout }} persistent={{ hardlinks_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: false
+      reason: null
+      reboot_required: false

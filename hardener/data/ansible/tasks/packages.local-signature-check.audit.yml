@@ -1,0 +1,14 @@
+---
+- name: Inspect local package signature policy
+  ansible.builtin.include_tasks: packages.local-signature-check.inspect.yml
+
+- name: Report local package signature audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if local_signature.stdout == '1' else 'fail' }}"
+      observed: "localpkg_gpgcheck={{ local_signature.stdout }}"
+      expected: localpkg_gpgcheck=1
+      changed: false
+      reason: null
+      reboot_required: false

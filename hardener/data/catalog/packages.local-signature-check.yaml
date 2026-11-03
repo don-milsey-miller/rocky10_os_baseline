@@ -23,7 +23,11 @@
     "additionalProperties": false,
     "properties": {}
   },
-  "implemented": false,
+  "implemented": true,
   "reboot_required": false,
-  "implementation": {}
+  "implementation": {
+    "audit": "ansible/tasks/packages.local-signature-check.audit.yml",
+    "apply": "ansible/tasks/packages.local-signature-check.apply.yml",
+    "verify": "ansible/tasks/packages.local-signature-check.verify.yml"
+  }
 }

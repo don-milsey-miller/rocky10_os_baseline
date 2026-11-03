@@ -1,0 +1,14 @@
+---
+- name: Independently inspect Telnet removal through RPM CLI
+  ansible.builtin.include_tasks: packages.telnet-client-absent.inspect.yml
+
+- name: Report Telnet client verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if telnet_query.rc == 1 else 'fail' }}"
+      observed: "{{ 'absent' if telnet_query.rc == 1 else 'installed' }}"
+      expected: telnet absent
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

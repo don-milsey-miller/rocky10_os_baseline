@@ -1,0 +1,31 @@
+---
+- name: Inspect DNF configuration file
+  ansible.builtin.stat:
+    path: /etc/dnf/dnf.conf
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: dnf_file
+
+- name: Require a regular single-link DNF configuration
+  ansible.builtin.assert:
+    that:
+      - dnf_file.stat.isreg | default(false)
+      - dnf_file.stat.nlink | default(0) == 1
+    fail_msg: Restore a regular DNF configuration before applying this control.
+
+- name: Read DNF configuration privately
+  ansible.builtin.slurp:
+    src: /etc/dnf/dnf.conf
+  register: dnf_configuration
+  no_log: true
+
+- name: Require unambiguous main-section signature configuration
+  ansible.builtin.assert:
+    that: dnf_configuration.content | b64decode | hardener_dnf_editable
+    fail_msg: Remove duplicate keys or signature settings outside the main section before applying.
+  when: hardener_mode in ['preflight', 'apply']
+
+- name: Confirm DNF can read its effective configuration
+  ansible.builtin.include_tasks: ../tasks/packages.local-signature-check.inspect.yml

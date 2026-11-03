@@ -1,0 +1,15 @@
+---
+- name: Inspect installed packages through RPM bindings
+  ansible.builtin.package_facts:
+    manager: rpm
+
+- name: Report Telnet client audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if 'telnet' not in ansible_facts.packages else 'fail' }}"
+      observed: "{{ 'absent' if 'telnet' not in ansible_facts.packages else 'installed' }}"
+      expected: telnet absent
+      changed: false
+      reason: null
+      reboot_required: false

@@ -23,7 +23,11 @@
     "additionalProperties": false,
     "properties": {}
   },
-  "implemented": false,
+  "implemented": true,
   "reboot_required": false,
-  "implementation": {}
+  "implementation": {
+    "audit": "ansible/tasks/kernel.protected-hardlinks.audit.yml",
+    "apply": "ansible/tasks/kernel.protected-hardlinks.apply.yml",
+    "verify": "ansible/tasks/kernel.protected-hardlinks.verify.yml"
+  }
 }

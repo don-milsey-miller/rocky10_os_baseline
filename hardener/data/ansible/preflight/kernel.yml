@@ -1,0 +1,30 @@
+---
+- name: Inspect managed sysctl configuration path
+  ansible.builtin.stat:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: hardlinks_path
+
+- name: Require absent or regular single-link managed sysctl file
+  ansible.builtin.assert:
+    that:
+      - not hardlinks_path.stat.exists or (hardlinks_path.stat.isreg | default(false) and hardlinks_path.stat.nlink | default(0) == 1)
+    fail_msg: Restore a regular managed sysctl file before applying this control.
+  when: hardener_mode in ['preflight', 'apply']
+
+- name: Check kernel hard-link parameter availability
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_hardlinks]
+  changed_when: false
+
+- name: Inspect effective sysctl file ordering
+  ansible.builtin.include_tasks: ../tasks/kernel.protected-hardlinks.inspect.yml
+
+- name: Refuse later conflicting hard-link assignments
+  ansible.builtin.assert:
+    that: hardlinks_config.blockers | length == 0
+    fail_msg: Remove or reconcile later hard-link assignments before applying this profile.
+  when: hardener_mode in ['preflight', 'apply']

@@ -9,9 +9,14 @@ from hardener.validation import DATA
 def test_read_operations_have_no_remediation():
     files = list((DATA / "ansible/tasks").glob("*.audit.yml"))
     files += list((DATA / "ansible/tasks").glob("*.verify.yml"))
+    files += list((DATA / "ansible/tasks").glob("*.inspect.yml"))
+    files += list((DATA / "ansible/preflight").glob("*.yml"))
     files += [DATA / "ansible/preflight.yml"]
     allowed = {
         "ansible.builtin.stat",
+        "ansible.builtin.include_tasks",
+        "ansible.builtin.slurp",
+        "ansible.builtin.package_facts",
         "ansible.builtin.command",
         "ansible.builtin.assert",
         "ansible.builtin.setup",

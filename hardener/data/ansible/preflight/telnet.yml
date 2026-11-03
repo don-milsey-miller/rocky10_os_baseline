@@ -1,0 +1,9 @@
+---
+- name: Inspect Telnet package availability
+  ansible.builtin.include_tasks: ../tasks/packages.telnet-client-absent.inspect.yml
+
+- name: Refuse Telnet removal if RPM dependencies would break
+  ansible.builtin.command:
+    argv: [/usr/bin/rpm, --erase, --test, telnet]
+  changed_when: false
+  when: telnet_query.rc == 0 and hardener_mode in ['preflight', 'apply']

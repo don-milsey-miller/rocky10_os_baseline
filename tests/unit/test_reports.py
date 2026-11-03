@@ -61,7 +61,7 @@ def test_version_and_profile_identity():
     result = report({})
     assert result["engine_version"] == result["catalog_version"]
     assert len(result["engine_sha256"]) == 64
-    assert result["profile_revision"] == 1
+    assert result["profile_revision"] == 2
     assert result["profile_sha256"] == "a" * 64
     assert result["timestamp_utc"].endswith("Z")
 
