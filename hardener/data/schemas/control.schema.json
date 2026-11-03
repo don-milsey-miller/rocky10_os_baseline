@@ -122,6 +122,9 @@
         },
         "verify": {
           "type": "string"
+        },
+        "preflight": {
+          "type": "string"
         }
       }
     }

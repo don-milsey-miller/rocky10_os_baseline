@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected kptr-restrict setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?kernel[./]kptr_restrict\s*='
+    line: kernel.kptr_restrict = 2
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: kptr_restrict_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ kptr_restrict_file.changed }}"
+
+- name: Read current kptr-restrict setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.kptr_restrict]
+  register: kptr_restrict_before
+  changed_when: false
+
+- name: Activate only the selected kptr-restrict setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, kernel.kptr_restrict=2]
+  when: kptr_restrict_before.stdout != '2'
+  changed_when: true
+  register: kptr_restrict_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or kptr_restrict_activation.changed }}"

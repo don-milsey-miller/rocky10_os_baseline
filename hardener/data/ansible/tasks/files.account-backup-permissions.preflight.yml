@@ -1,0 +1,50 @@
+- name: Inspect existing identity backups
+  ansible.builtin.stat:
+    path: '{{ backup.path }}'
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  loop:
+  - path: /etc/passwd-
+    mode: '0644'
+  - path: /etc/group-
+    mode: '0644'
+  - path: /etc/shadow-
+    mode: '0000'
+  - path: /etc/gshadow-
+    mode: '0000'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.path }}'
+  register: backup_files
+- name: Require existing backups to be regular single-link files
+  ansible.builtin.assert:
+    that:
+    - not backup.stat.exists or (backup.stat.isreg | default(false) and backup.stat.nlink
+      | default(0) == 1)
+  loop: '{{ backup_files.results }}'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.backup.path }}'
+- name: Inspect backup ACLs without content
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - import os,sys; print('system.posix_acl_access' in os.listxattr(sys.argv[1],follow_symlinks=False))
+    - '{{ backup.backup.path }}'
+  loop: '{{ backup_files.results }}'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.backup.path }}'
+  when: backup.stat.exists
+  register: backup_acls
+  changed_when: false
+- name: Refuse custom backup ACL policy
+  ansible.builtin.assert:
+    that: backup.stdout | default('False') == 'False'
+  loop: '{{ backup_acls.results }}'
+  loop_control:
+    loop_var: backup
+    label: ACL inspection

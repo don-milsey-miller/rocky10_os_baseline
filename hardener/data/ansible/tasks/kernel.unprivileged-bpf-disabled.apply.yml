@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected unprivileged-bpf-disabled setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?kernel[./]unprivileged_bpf_disabled\s*='
+    line: kernel.unprivileged_bpf_disabled = 2
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: unprivileged_bpf_disabled_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ unprivileged_bpf_disabled_file.changed }}"
+
+- name: Read current unprivileged-bpf-disabled setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.unprivileged_bpf_disabled]
+  register: unprivileged_bpf_disabled_before
+  changed_when: false
+
+- name: Activate only the selected unprivileged-bpf-disabled setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, kernel.unprivileged_bpf_disabled=2]
+  when: unprivileged_bpf_disabled_before.stdout != '2'
+  changed_when: true
+  register: unprivileged_bpf_disabled_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or unprivileged_bpf_disabled_activation.changed }}"

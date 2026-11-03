@@ -1,0 +1,23 @@
+- name: Inspect identity file metadata
+  ansible.builtin.stat:
+    path: /etc/gshadow
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: identity_file
+- name: Record independently observed control state
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if identity_file.stat.isreg | default(false) and identity_file.stat.nlink
+        | default(0) == 1 and identity_file.stat.uid | default(-1) == 0 and identity_file.stat.gid
+        | default(-1) == 0 and identity_file.stat.mode | default('''') == ''0000''
+        else ''fail'' }}'
+      observed: uid={{ identity_file.stat.uid | default('missing') }} gid={{ identity_file.stat.gid
+        | default('missing') }} mode={{ identity_file.stat.mode | default('missing')
+        }}
+      expected: root:root 0000
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

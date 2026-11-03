@@ -1,0 +1,37 @@
+- name: Inspect existing identity backups
+  ansible.builtin.stat:
+    path: '{{ backup.path }}'
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  loop:
+  - path: /etc/passwd-
+    mode: '0644'
+  - path: /etc/group-
+    mode: '0644'
+  - path: /etc/shadow-
+    mode: '0000'
+  - path: /etc/gshadow-
+    mode: '0000'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.path }}'
+  register: backup_files
+- name: Protect existing backup metadata
+  ansible.builtin.file:
+    path: '{{ backup.backup.path }}'
+    state: file
+    follow: false
+    owner: root
+    group: root
+    mode: '{{ backup.backup.mode }}'
+  loop: '{{ backup_files.results }}'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.backup.path }}'
+  when: backup.stat.exists
+  register: backup_updates
+- name: Preserve backup change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ backup_updates.changed }}'

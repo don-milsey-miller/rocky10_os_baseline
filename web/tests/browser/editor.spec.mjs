@@ -21,14 +21,14 @@ test("offline browser export is deterministic, CLI-valid and round-trips",async(
   page.on("request",r=>{if(/^https?:/.test(r.url())) requests.push(r.url());});
   page.on("pageerror",e=>errors.push(e.message));
   await page.goto(url);
-  await expect(page.locator(".control-card")).toHaveCount(5);
+  await expect(page.locator(".control-card")).toHaveCount(data.controls.length);
   await page.locator("#profile-id").fill(expected.id);
   await page.locator("#profile-name").fill(expected.name);
   for (const c of expected.controls) await select(page,c.id).selectOption(c.enabled?"enabled":"excluded");
   await page.getByLabel("Exclusion reason for "+data.controls.find(c=>c.id==="packages.telnet-client-absent").title).fill(expected.controls[2].reason);
   await expect(page.locator("#included-count")).toHaveText("3");
   await expect(page.locator("#excluded-count")).toHaveText("1");
-  await expect(page.locator("#omitted-count")).toHaveText("1");
+  await expect(page.locator("#omitted-count")).toHaveText(String(data.controls.length - expected.controls.length));
   const download=page.waitForEvent("download");
   await page.locator("#export").click();
   const saved=await download;
@@ -58,8 +58,8 @@ test("filters compose without losing selections",async({page})=>{
   await page.goto(url);
   await select(page,"files.passwd-permissions").selectOption("enabled");
   await page.locator("#category").selectOption("packages");
-  await expect(page.locator(".control-card")).toHaveCount(2);
-  await page.locator("#search").fill("signature");
+  await expect(page.locator(".control-card")).toHaveCount(data.controls.filter(c=>c.id.startsWith("packages.")).length);
+  await page.locator("#search").fill("local-signature-check");
   await expect(page.locator(".control-card")).toHaveCount(1);
   await page.locator("#availability").selectOption("unavailable");
   await expect(page.locator("#empty-state")).toBeVisible();
@@ -71,7 +71,7 @@ test("filters compose without losing selections",async({page})=>{
   await page.locator("#applicability").selectOption("");
   await expect(select(page,"files.passwd-permissions")).toHaveValue("enabled");
   await page.locator("#impact").selectOption("high");
-  await expect(page.locator(".control-card")).toHaveCount(0);
+  await expect(page.locator(".control-card")).toHaveCount(data.controls.filter(c=>c.impact==="high").length);
 });
 test("errors block export and invalid import preserves the current draft",async({page})=>{
   await page.goto(url);

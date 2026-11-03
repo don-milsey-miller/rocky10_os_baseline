@@ -1,0 +1,10 @@
+---
+- name: Read ordered boot-time sysctl configuration
+  ansible.builtin.command:
+    argv: [/usr/lib/systemd/systemd-sysctl, --cat-config, --tldr]
+  register: sysctl_configuration
+  changed_when: false
+
+- name: Interpret randomize-address-space configuration precedence
+  ansible.builtin.set_fact:
+    randomize_address_space_config: "{{ sysctl_configuration.stdout | hardener_sysctl_state('kernel.randomize_va_space', '2') }}"

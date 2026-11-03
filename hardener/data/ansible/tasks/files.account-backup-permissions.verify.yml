@@ -1,0 +1,27 @@
+- name: Independently inspect backup metadata with lstat
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - "import json,os,stat\nresult=[]\nfor path,mode in [('/etc/passwd-',0o644),('/etc/group-',0o644),('/etc/shadow-',0),('/etc/gshadow-',0)]:\n\
+      \    try: s=os.lstat(path)\n    except FileNotFoundError: continue\n    result.append({'path':path,'uid':s.st_uid,'gid':s.st_gid,'mode':format(stat.S_IMODE(s.st_mode),'04o'),'ok':stat.S_ISREG(s.st_mode)\
+      \ and s.st_nlink==1 and s.st_uid==0 and s.st_gid==0 and stat.S_IMODE(s.st_mode)==mode})\n\
+      print(json.dumps(result))\n"
+  changed_when: false
+  register: backup_verified
+- name: Read independent backup evidence
+  ansible.builtin.set_fact:
+    backup_state: '{{ backup_verified.stdout | from_json }}'
+- name: Record backup protection evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''not_applicable'' if backup_state | length == 0 else (''pass''
+        if backup_state | rejectattr(''ok'') | list | length == 0 else ''fail'') }}'
+      observed: '{{ backup_state }}'
+      expected: Existing passwd/group backups root:root 0644. Existing shadow/gshadow
+        backups root:root 0000.
+      changed: '{{ hardener_changed }}'
+      reason: '{{ ''No standard identity backups exist.'' if backup_state | length
+        == 0 else none }}'
+      reboot_required: false

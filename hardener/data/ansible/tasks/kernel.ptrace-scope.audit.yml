@@ -1,0 +1,20 @@
+---
+- name: Read current ptrace-scope protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.yama.ptrace_scope]
+  register: ptrace_scope_live
+  changed_when: false
+
+- name: Inspect persistent ptrace-scope policy
+  ansible.builtin.include_tasks: kernel.ptrace-scope.inspect.yml
+
+- name: Report ptrace-scope policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if ptrace_scope_live.stdout == '1' and ptrace_scope_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ ptrace_scope_live.stdout }} persistent={{ ptrace_scope_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: false
+      reason: null
+      reboot_required: false

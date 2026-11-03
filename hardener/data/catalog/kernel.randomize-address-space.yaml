@@ -1,0 +1,28 @@
+id: kernel.randomize-address-space
+title: Use full supported process address-space randomization
+summary: Set kernel.randomize_va_space=2 in runtime and persistent configuration.
+rationale: Use full supported process address-space randomization.
+benefits:
+- Use full supported process address-space randomization.
+tradeoffs:
+- Changes only the named kernel setting. Privileged dump policy can affect diagnostics.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Changes only the named kernel setting. Privileged dump policy can affect
+  diagnostics.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.randomize-address-space.audit.yml
+  apply: ansible/tasks/kernel.randomize-address-space.apply.yml
+  verify: ansible/tasks/kernel.randomize-address-space.verify.yml
+  preflight: ansible/tasks/kernel.randomize-address-space.preflight.yml

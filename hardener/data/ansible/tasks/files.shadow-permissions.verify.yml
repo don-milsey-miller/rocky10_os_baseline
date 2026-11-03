@@ -1,0 +1,22 @@
+- name: Independently inspect file type links owner group and mode
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/stat
+    - -c
+    - '%F:%h:%u:%g:%a'
+    - /etc/shadow
+  changed_when: false
+  register: identity_verified
+  environment:
+    LC_ALL: C
+- name: Record independently observed control state
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if identity_verified.stdout == ''regular file:1:0:0:0''
+        else ''fail'' }}'
+      observed: '{{ identity_verified.stdout }}'
+      expected: regular file:1:0:0:0
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

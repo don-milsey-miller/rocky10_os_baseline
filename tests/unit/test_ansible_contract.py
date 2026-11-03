@@ -10,6 +10,7 @@ def test_read_operations_have_no_remediation():
     files = list((DATA / "ansible/tasks").glob("*.audit.yml"))
     files += list((DATA / "ansible/tasks").glob("*.verify.yml"))
     files += list((DATA / "ansible/tasks").glob("*.inspect.yml"))
+    files += list((DATA / "ansible/tasks").glob("*.preflight.yml"))
     files += list((DATA / "ansible/preflight").glob("*.yml"))
     files += [DATA / "ansible/preflight.yml"]
     allowed = {

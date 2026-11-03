@@ -1,0 +1,34 @@
+schema_version: 1
+id: server-files-kernel
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: files.account-backup-permissions
+  enabled: true
+- id: files.group-permissions
+  enabled: true
+- id: files.gshadow-permissions
+  enabled: true
+- id: files.shadow-permissions
+  enabled: true
+- id: kernel.dmesg-restrict
+  enabled: true
+- id: kernel.kptr-restrict
+  enabled: true
+- id: kernel.protected-fifos
+  enabled: true
+- id: kernel.protected-regular
+  enabled: true
+- id: kernel.protected-symlinks
+  enabled: true
+- id: kernel.ptrace-scope
+  enabled: true
+- id: kernel.randomize-address-space
+  enabled: true
+- id: kernel.suid-dumpable
+  enabled: true
+- id: kernel.unprivileged-bpf-disabled
+  enabled: true

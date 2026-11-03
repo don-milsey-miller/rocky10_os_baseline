@@ -1,0 +1,29 @@
+id: files.account-backup-permissions
+title: Protect existing identity database backups
+summary: Restrict ownership and permissions on existing standard identity database
+  backups.
+rationale: Backup identity databases need the same protection as active records.
+benefits:
+- Preserves backup content while restricting metadata.
+tradeoffs:
+- Absent backups are not created. Extended ACLs and unusual file types are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Rejects extended ACLs and non-regular or multiply-linked files. File
+  contents are preserved.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/files.account-backup-permissions.audit.yml
+  apply: ansible/tasks/files.account-backup-permissions.apply.yml
+  verify: ansible/tasks/files.account-backup-permissions.verify.yml
+  preflight: ansible/tasks/files.account-backup-permissions.preflight.yml

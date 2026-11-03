@@ -18,14 +18,14 @@ test.beforeAll(async()=>{
     import {data} from "./src/core.mjs";
     import {parameterValidators} from "./.generated/validators.mjs";
     import check from "./.generated/fixture-validator.mjs";
-    data.controls[0].parameters=${JSON.stringify(schema)};
-    parameterValidators[data.controls[0].id]=check;
-    data.controls[1].implemented=false;
-    data.controls[2].applies_to.major_version=9;
-    data.controls[3].requires=[data.controls[4].id];
-    data.controls[3].conflicts_with=[data.controls[0].id];
-    data.controls[3].impact="high";
-    data.controls[3].impact_note="Test-only high-impact warning";
+    data.controls.find(c=>c.id==="files.passwd-permissions").parameters=${JSON.stringify(schema)};
+    parameterValidators[data.controls.find(c=>c.id==="files.passwd-permissions").id]=check;
+    data.controls.find(c=>c.id==="kernel.protected-hardlinks").implemented=false;
+    data.controls.find(c=>c.id==="packages.local-signature-check").applies_to.major_version=9;
+    data.controls.find(c=>c.id==="packages.telnet-client-absent").requires=[data.controls.find(c=>c.id==="services.debug-shell-disabled").id];
+    data.controls.find(c=>c.id==="packages.telnet-client-absent").conflicts_with=[data.controls.find(c=>c.id==="files.passwd-permissions").id];
+    data.controls.find(c=>c.id==="packages.telnet-client-absent").impact="high";
+    data.controls.find(c=>c.id==="packages.telnet-client-absent").impact_note="Test-only high-impact warning";
     import("./src/app.mjs");
   `;
   const result=await build({stdin:{contents:source,resolveDir:process.cwd()},

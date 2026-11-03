@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/kernel/randomize_va_space]
+  register: randomize_address_space_verified
+  changed_when: false
+
+- name: Independently reinspect persistent randomize-address-space policy
+  ansible.builtin.include_tasks: kernel.randomize-address-space.inspect.yml
+
+- name: Report randomize-address-space policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if randomize_address_space_verified.stdout == '2' and randomize_address_space_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ randomize_address_space_verified.stdout }} persistent={{ randomize_address_space_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

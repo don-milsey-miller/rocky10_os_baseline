@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected dmesg-restrict setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?kernel[./]dmesg_restrict\s*='
+    line: kernel.dmesg_restrict = 1
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: dmesg_restrict_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ dmesg_restrict_file.changed }}"
+
+- name: Read current dmesg-restrict setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.dmesg_restrict]
+  register: dmesg_restrict_before
+  changed_when: false
+
+- name: Activate only the selected dmesg-restrict setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, kernel.dmesg_restrict=1]
+  when: dmesg_restrict_before.stdout != '1'
+  changed_when: true
+  register: dmesg_restrict_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or dmesg_restrict_activation.changed }}"

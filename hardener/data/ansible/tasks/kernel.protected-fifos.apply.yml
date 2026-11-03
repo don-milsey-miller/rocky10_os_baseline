@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected protected-fifos setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?fs[./]protected_fifos\s*='
+    line: fs.protected_fifos = 2
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: protected_fifos_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ protected_fifos_file.changed }}"
+
+- name: Read current protected-fifos setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_fifos]
+  register: protected_fifos_before
+  changed_when: false
+
+- name: Activate only the selected protected-fifos setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, fs.protected_fifos=2]
+  when: protected_fifos_before.stdout != '2'
+  changed_when: true
+  register: protected_fifos_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or protected_fifos_activation.changed }}"

@@ -86,6 +86,18 @@
   ansible.builtin.include_tasks: preflight/dnf-signatures.yml
   when: "'packages.local-signature-check' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
+- name: Inspect all additional control prerequisites before any writes
+  ansible.builtin.include_tasks: "{{ prerequisite.implementation.preflight }}"
+  loop: "{{ hardener_controls }}"
+  loop_control:
+    loop_var: prerequisite
+    label: "{{ prerequisite.id }}"
+  vars:
+    control: "{{ prerequisite }}"
+  when:
+    - hardener_mode in ['apply', 'preflight']
+    - "'preflight' in prerequisite.implementation"
+
 - name: Record successful preflight
   ansible.builtin.set_fact:
     hardener_preflight_passed: true

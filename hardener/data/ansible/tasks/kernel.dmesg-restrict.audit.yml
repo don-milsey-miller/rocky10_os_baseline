@@ -1,0 +1,20 @@
+---
+- name: Read current dmesg-restrict protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.dmesg_restrict]
+  register: dmesg_restrict_live
+  changed_when: false
+
+- name: Inspect persistent dmesg-restrict policy
+  ansible.builtin.include_tasks: kernel.dmesg-restrict.inspect.yml
+
+- name: Report dmesg-restrict policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if dmesg_restrict_live.stdout == '1' and dmesg_restrict_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ dmesg_restrict_live.stdout }} persistent={{ dmesg_restrict_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: false
+      reason: null
+      reboot_required: false

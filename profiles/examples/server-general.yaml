@@ -1,0 +1,32 @@
+schema_version: 1
+id: server-general
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: files.account-backup-permissions
+  enabled: true
+- id: files.group-permissions
+  enabled: true
+- id: files.gshadow-permissions
+  enabled: true
+- id: files.passwd-permissions
+  enabled: true
+- id: files.shadow-permissions
+  enabled: true
+- id: kernel.protected-hardlinks
+  enabled: true
+- id: kernel.protected-symlinks
+  enabled: true
+- id: kernel.randomize-address-space
+  enabled: true
+- id: kernel.suid-dumpable
+  enabled: true
+- id: packages.local-signature-check
+  enabled: true
+- id: packages.telnet-client-absent
+  enabled: true
+- id: services.debug-shell-disabled
+  enabled: true
