@@ -1,0 +1,37 @@
+- name: Read existing time configuration privately
+  ansible.builtin.slurp:
+    src: /etc/chrony.conf
+  register: chrony_config
+  no_log: true
+- name: Apply validated approved time source policy
+  ansible.builtin.copy:
+    dest: /etc/chrony.conf
+    content: '{{ (chrony_config.content | b64decode) | hardener_chrony_edit(control.effective_parameters)
+      }}'
+    validate: /usr/sbin/chronyd -p -f %s
+  register: chrony_write
+  no_log: true
+- name: Record clock configuration change
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ chrony_write.changed }}'
+- name: Inspect configuration load state
+  ansible.builtin.include_tasks: chrony.inspect.yml
+- name: Load approved sources
+  ansible.builtin.systemd_service:
+    name: chronyd
+    state: restarted
+  when: hardener_changed or not chrony_state.loaded or not chrony_state.runtime_match
+  register: chrony_restart
+- name: Record clock restart
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or chrony_restart.changed }}'
+- name: Wait up to thirty seconds for clock synchronization
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/chronyc
+    - waitsync
+    - '30'
+    - '0.1'
+    - '0'
+    - '1'
+  changed_when: false

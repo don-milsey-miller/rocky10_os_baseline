@@ -1,0 +1,14 @@
+- name: Inspect explicit log paths
+  ansible.builtin.include_tasks: logfiles.inspect.yml
+- name: Inspect rotation conflicts and scheduler
+  ansible.builtin.include_tasks: rotation.inspect.yml
+- name: Require supported unclaimed logs and active rotation timer
+  ansible.builtin.assert:
+    that:
+    - logfiles_state | rejectattr('safe') | list | length == 0
+    - rotation_state.safe
+    - rotation_state.native_valid
+    - rotation_state.timer_active
+    - rotation_state.timer_enabled
+    fail_msg: Resolve log ownership, parser conflicts, custom includes, or inactive rotation scheduling
+      before applying.

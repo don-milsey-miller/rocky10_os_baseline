@@ -225,4 +225,4 @@ M13 is complete when every agreed inventory entry has implemented guest evidence
 
 For each milestone, publish the reviewed source and concise demonstration record to GitHub, save private evidence separately, and append the project journal. Maintain a branch per implementation batch and preserve the tested release candidate as the regression reference.
 
-The next implementation task is M5, followed by the six named M6 controls. Approval of broader coverage does not supply site-specific authentication, firewall, logging, or storage policy values.
+M5 through M7 are implemented. Continue with M8 after the M7 publication gate. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.

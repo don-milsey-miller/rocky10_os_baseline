@@ -53,7 +53,12 @@ function parameterFields(control, item) {
     const label = element("label", "", schema.title || key);
     let input;
     const current = item.parameters?.[key];
-    if (schema.enum || schema.type === "boolean") {
+    if (schema.type === "array" && schema.items?.type === "string") {
+      input = element("textarea");
+      input.rows = 3;
+      input.value = (current || []).join("\n");
+      input.placeholder = "One value per line";
+    } else if (schema.enum || schema.type === "boolean") {
       input = element("select");
       input.append(new Option("Not specified", ""));
       if (schema.enum) {
@@ -158,6 +163,8 @@ function renderControls() {
     details.append(grid, element("p", "impact-note", control.impact_note));
     if (control.requires.length) details.append(element("p", "dependencies", "Requires: " + control.requires.join(", ")));
     if (control.conflicts_with.length) details.append(element("p", "dependencies", "Conflicts with: " + control.conflicts_with.join(", ")));
+    if (control.supported_modes && !control.supported_modes.includes("apply"))
+      details.append(element("p", "dependencies", "Assessment only. Use audit or verify. Apply will refuse this selection."));
     if (control.reboot_required) details.append(element("p", "dependencies", "A reboot may be required."));
     card.append(details);
     if (state === "excluded") {

@@ -1,0 +1,4 @@
+- name: Run selected repository policy
+  ansible.builtin.include_tasks: repositories.verify.yml
+  vars:
+    repository_option: gpgcheck

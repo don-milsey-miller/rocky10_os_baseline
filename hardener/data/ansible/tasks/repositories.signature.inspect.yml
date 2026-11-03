@@ -1,0 +1,22 @@
+- name: Verify metadata signatures using isolated temporary DNF state
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import json,os,subprocess,sys,tempfile
+      ids=json.loads(sys.argv[1])
+      with tempfile.TemporaryDirectory(prefix='hardener-repomd-') as tmp:
+          for name in ('cache','persist','log'):os.mkdir(tmp+'/'+name)
+          cmd=['/usr/bin/dnf','-q','-y','--noplugins','--setopt=cachedir='+tmp+'/cache',
+               '--setopt=persistdir='+tmp+'/persist','--setopt=logdir='+tmp+'/log',
+               '--setopt=timeout=10','--setopt=retries=1','--disablerepo=*']
+          for rid in ids:
+              cmd+=['--enablerepo='+rid,'--setopt='+rid+'.repo_gpgcheck=True',
+                    '--setopt='+rid+'.skip_if_unavailable=False']
+          result=subprocess.run(cmd+['makecache'],capture_output=True,timeout=90)
+          if result.returncode:raise SystemExit('Repository metadata signature verification failed')
+      print('verified')
+    - '{{ control.effective_parameters.repositories | to_json }}'
+  changed_when: false
+  no_log: true

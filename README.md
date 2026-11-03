@@ -1,10 +1,12 @@
 # Rocky Linux 10 OS baseline
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The five-control engine audits and hardens account-file permissions, hard-link
-protection, the debug console, Telnet presence, and local RPM signature checks.
-Each control has independent verification and can be selected or excluded.
-See [exact behaviors and restoration](docs/m2-controls.md).
+The catalog contains 30 controls covering account files, kernel safeguards, package
+trust, optional services, time, and local logging. Each can be selected or excluded.
+Security-update status is assessment-only. Other implemented controls support
+independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
+[M6 file and kernel controls](docs/m6-demonstration.md), and
+[M7 operations controls](docs/m7-demonstration.md) for behavior and recovery.
 
 The project currently has **no license grant**, by owner decision. This is an
 release candidate, not an open-source release or certification.
@@ -17,7 +19,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch v0.4.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m7-packages-services-logging https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate

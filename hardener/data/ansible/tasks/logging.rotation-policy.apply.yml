@@ -1,0 +1,12 @@
+- name: Install only the selected rotation stanza
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/90-rocky10-hardener
+    content: '{{ control.effective_parameters | hardener_rotation_policy }}'
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /usr/sbin/logrotate --debug %s
+  register: rotation_write
+- name: Record rotation policy change
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ rotation_write.changed }}'

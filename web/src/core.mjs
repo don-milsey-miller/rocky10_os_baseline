@@ -61,6 +61,8 @@ export function validateProfile(profile, controls = data.controls,
     for (const conflict of control.conflicts_with) {
       if (selected.has(conflict)) errors.push(item.id + ": conflicts with " + conflict);
     }
+    if (control.supported_modes && !control.supported_modes.includes("apply"))
+      warnings.push(control.title + ": assessment only. Use audit or verify. Apply refuses this selection.");
     if (control.impact === "high") warnings.push(control.title + ": " + control.impact_note);
     if (control.reboot_required) warnings.push(control.title + ": may require a reboot");
   }
@@ -130,6 +132,8 @@ export function importProfile(raw) {
 
 export function parameterValue(schema, text) {
   if (text === "") return undefined;
+  if (schema.type === "array" && schema.items?.type === "string")
+    return text.split(/\r?\n/).map(value => value.trim()).filter(Boolean);
   if (schema.enum) return schema.enum[Number(text)];
   if (schema.type === "boolean") return text === "true";
   if (schema.type === "integer" || schema.type === "number") {

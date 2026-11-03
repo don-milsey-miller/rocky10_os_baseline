@@ -1,0 +1,15 @@
+- name: Independently inspect journal state
+  ansible.builtin.include_tasks: journal.inspect.yml
+- name: Record journal policy evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if journal_state.values_match and journal_state.active and journal_state.loaded
+        and (control.id != ''logging.journal-persistent'' or journal_state.persistent) else ''fail'' }}'
+      observed: '{{ journal_state }}'
+      expected: Selected journal policy loaded by the active service. Persistent storage present when
+        selected.
+      changed: '{{ hardener_changed }}'
+      reason: '{{ ''Restart the journal service to load changed configuration.'' if not journal_state.loaded
+        else none }}'
+      reboot_required: false

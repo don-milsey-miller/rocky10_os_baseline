@@ -101,6 +101,10 @@ def load_catalog(root=DATA):
             Draft202012Validator.check_schema(control["parameters"])
         except Exception as exc:
             raise ValidationError(f"{cid}: invalid parameter schema") from exc
+        if control["implemented"]:
+            for mode in control.get("supported_modes", ["audit", "apply", "verify"]):
+                if mode not in control["implementation"]:
+                    raise ValidationError(f"{cid}: missing {mode} implementation")
         params = control["parameters"]
         if params.get("type") != "object" or params.get("additionalProperties") is not False:
             raise ValidationError(f"{cid}: parameters must be a closed object schema")
@@ -121,7 +125,7 @@ def load_catalog(root=DATA):
     return result
 
 
-def validate(profile, catalog):
+def validate(profile, catalog, mode="validate"):
     check_schema(profile, read_schema("profile.schema.json"), "profile")
     selected = set()
     seen = set()
@@ -140,6 +144,10 @@ def validate(profile, catalog):
                 raise ValidationError(f"{cid}: implementation unavailable")
             if control["applies_to"] != profile["target"]:
                 raise ValidationError(f"{cid}: incompatible target")
+            if mode == "apply" and "apply" not in control.get(
+                "supported_modes", ["audit", "apply", "verify"]
+            ):
+                raise ValidationError(f"{cid}: assessment-only control cannot be applied")
             selected.add(cid)
     for cid in sorted(selected):
         control = catalog[cid]

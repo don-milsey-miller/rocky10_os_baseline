@@ -1,0 +1,44 @@
+id: logging.journal-retention
+title: Bound persistent journal disk use and retention
+summary: Bound persistent journal disk use and retention.
+rationale: Bound persistent journal disk use and retention.
+benefits:
+- Bound persistent journal disk use and retention.
+tradeoffs:
+- Changes the explicitly selected service policy. Test workload compatibility and preserve recovery access.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Service restarts may be required. Site-specific policy values are explicit.
+requires:
+- logging.journal-persistent
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  required:
+  - max_use_mib
+  - keep_free_mib
+  - retention_days
+  properties:
+    max_use_mib:
+      type: integer
+      minimum: 16
+      maximum: 1048576
+    keep_free_mib:
+      type: integer
+      minimum: 16
+      maximum: 1048576
+    retention_days:
+      type: integer
+      minimum: 1
+      maximum: 3650
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/logging.journal-retention.audit.yml
+  apply: ansible/tasks/logging.journal-retention.apply.yml
+  verify: ansible/tasks/logging.journal-retention.verify.yml
+  preflight: ansible/tasks/logging.journal-retention.preflight.yml

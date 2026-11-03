@@ -1,0 +1,6 @@
+- name: Inspect local unit policy before changes
+  ansible.builtin.include_tasks: optional-services.inspect.yml
+- name: Refuse to overwrite custom service units
+  ansible.builtin.assert:
+    that: optional_state | rejectattr('safe') | list | length == 0
+    fail_msg: Preserve and reconcile custom local unit files before applying.

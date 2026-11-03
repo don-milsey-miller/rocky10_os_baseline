@@ -1,0 +1,13 @@
+- name: Inspect selected logs independently
+  ansible.builtin.include_tasks: logfiles.inspect.yml
+- name: Record log file evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if (logfiles_state | rejectattr(''safe'') | list | length == 0) and (logfiles_state
+        | rejectattr(''matches'') | list | length == 0) else ''fail'' }}'
+      observed: '{{ logfiles_state }}'
+      expected: Explicit log modes, preserving owner, group, and contents.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

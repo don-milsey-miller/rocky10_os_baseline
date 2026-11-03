@@ -1,0 +1,32 @@
+- name: Reinspect optional units
+  ansible.builtin.include_tasks: optional-services.inspect.yml
+- name: Stop optional activation units before the daemon
+  ansible.builtin.systemd_service:
+    name: '{{ optional_unit.unit }}'
+    state: stopped
+  loop: '{{ optional_state | selectattr("present") | list }}'
+  loop_control:
+    loop_var: optional_unit
+    label: '{{ optional_unit.unit }}'
+  register: optional_stops
+- name: Retain stopped-service change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ optional_stops.changed }}'
+- name: Persistently mask installed optional units
+  ansible.builtin.file:
+    path: /etc/systemd/system/{{ optional_unit.unit }}
+    src: /dev/null
+    state: link
+    force: false
+  loop: '{{ optional_state | selectattr("present") | list }}'
+  loop_control:
+    loop_var: optional_unit
+    label: '{{ optional_unit.unit }}'
+  register: optional_masks
+- name: Retain mask change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or optional_masks.changed }}'
+- name: Reload unit definitions after mask changes
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: optional_masks.changed

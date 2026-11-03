@@ -1,0 +1,9 @@
+- name: Inspect time source safety
+  ansible.builtin.include_tasks: chrony.inspect.yml
+- name: Require supported configuration and default service invocation
+  ansible.builtin.assert:
+    that:
+    - chrony_state.safe
+    - chrony_state.supported
+    fail_msg: Resolve custom chrony includes, reference clocks, file metadata, or daemon arguments before
+      applying.

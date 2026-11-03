@@ -53,8 +53,8 @@ def execute(args, profile, digest, catalog):
         ANSIBLE_NOCOLOR="1",
         ANSIBLE_HOST_KEY_CHECKING="True",
     )
+    selected = validate(profile, catalog, mode=args.mode)
     inventory = inventory_target(args.inventory, args.target, env)
-    selected = validate(profile, catalog)
     print(
         f"Target: {args.target}. Mode: {args.mode}. Controls: {', '.join(selected) or '(none)'}.",
         flush=True,

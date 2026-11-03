@@ -15,7 +15,7 @@ test("empty selection warns and never auto-enables controls",()=>{
   assert.deepEqual(importProfile(exportProfile(p)),p);
 });
 test("all catalog controls validate and exported YAML passes independent CLI",()=>{
-  const p=base(); p.controls=data.controls.map(c=>entry(c.id));
+  const p=base(); p.controls=data.controls.map(c=>entry(c.id, !(c.parameters.required?.length)));
   const yaml=exportProfile(p); valid(p);
   const result=spawnSync("../.venv/bin/python",["-c",
     "import sys; from hardener.validation import parse_yaml,validate,load_catalog; validate(parse_yaml(sys.stdin.read()),load_catalog())"],
@@ -146,4 +146,16 @@ test("excluded controls do not require absent site policies",()=>{
   assert.deepEqual(validateProfile(p,controls,params).errors,[]);
   p.controls[0].enabled=true;
   assert.ok(validateProfile(p,controls,params).errors.length);
+});
+
+test("bounded list parameters preserve values and assessment warnings",()=>{
+  const schema={type:"array",items:{type:"string"}};
+  assert.deepEqual(parameterValue(schema,"baseos\r\nappstream\n"),["baseos","appstream"]);
+  const p=base();
+  p.controls=[{id:"packages.security-update-status",enabled:true,parameters:{repositories:["baseos","appstream"]}}];
+  valid(p);
+  assert.match(validateProfile(p).warnings.join(),/assessment only/);
+  assert.deepEqual(importProfile(exportProfile(p)).controls,p.controls);
+  p.controls[0].parameters.repositories=["baseos","baseos"];
+  assert.ok(validateProfile(p).errors.length);
 });

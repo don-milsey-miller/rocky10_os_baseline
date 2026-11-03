@@ -1,0 +1,19 @@
+- name: Inspect chrony service state
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/systemctl
+    - show
+    - chronyd.service
+    - -p
+    - LoadState
+    - -p
+    - ActiveState
+    - -p
+    - UnitFileState
+  changed_when: false
+  failed_when: false
+  register: chrony_service
+- name: Refuse deliberate chrony masks
+  ansible.builtin.assert:
+    that: '''LoadState=masked'' not in chrony_service.stdout_lines'
+    fail_msg: Review and remove the deliberate chronyd mask before selecting this control.

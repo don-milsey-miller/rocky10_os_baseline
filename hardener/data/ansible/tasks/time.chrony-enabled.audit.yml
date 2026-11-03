@@ -1,0 +1,27 @@
+- name: Inspect chrony service state
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/systemctl
+    - show
+    - chronyd.service
+    - -p
+    - LoadState
+    - -p
+    - ActiveState
+    - -p
+    - UnitFileState
+  changed_when: false
+  failed_when: false
+  register: chrony_service
+- name: Record chrony service state
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if ''LoadState=loaded'' in chrony_service.stdout_lines and ''ActiveState=active''
+        in chrony_service.stdout_lines and ''UnitFileState=enabled'' in chrony_service.stdout_lines else
+        ''fail'' }}'
+      observed: '{{ chrony_service.stdout_lines }}'
+      expected: Chronyd installed, active, and enabled.
+      changed: '{{ hardener_changed }}'
+      reason: Clock synchronization is assessed by time.approved-sources.
+      reboot_required: false

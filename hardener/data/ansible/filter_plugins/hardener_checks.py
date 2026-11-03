@@ -2,6 +2,7 @@
 
 import configparser
 import fnmatch
+import re
 from pathlib import PurePosixPath
 
 KEY = "fs/protected_hardlinks"
@@ -83,10 +84,90 @@ def backup_state(results):
     return state
 
 
+def repository_edit(text, repositories, path, option):
+    """Edit only one boolean option in explicit sections, preserving other text."""
+    if option not in {"gpgcheck", "repo_gpgcheck", "sslverify"}:
+        raise ValueError("Unsupported repository option")
+    parser = configparser.ConfigParser(interpolation=None, strict=True)
+    parser.read_string(text)
+    if parser.defaults():
+        raise ValueError("Inherited repository defaults are ambiguous")
+    sections = {r["id"] for r in repositories if r["path"] == path}
+    if not sections <= set(parser.sections()):
+        raise ValueError("Repository section missing")
+    lines = text.splitlines(keepends=True)
+    for section in sorted(sections):
+        start = next(
+            i
+            for i, line in enumerate(lines)
+            if re.fullmatch(r"\s*\[" + re.escape(section) + r"\]\s*(?:[#;].*)?", line.strip())
+        )
+        end = next(
+            (i for i in range(start + 1, len(lines)) if re.match(r"\s*\[", lines[i])), len(lines)
+        )
+        matches = [
+            i
+            for i in range(start + 1, end)
+            if re.match(r"\s*" + re.escape(option) + r"\s*=", lines[i], re.IGNORECASE)
+        ]
+        if len(matches) > 1:
+            raise ValueError("Ambiguous repository option")
+        if matches:
+            lines[matches[0]] = option + "=True\n"
+        else:
+            if not lines[start].endswith("\n"):
+                lines[start] += "\n"
+            lines.insert(start + 1, option + "=True\n")
+    return "".join(lines)
+
+
+def chrony_edit(text, policy):
+    """Replace only source selection, preserving unrelated clock configuration."""
+    lines = []
+    for line in text.splitlines(keepends=True):
+        words = line.split()
+        if words and words[0] in {"include", "confdir", "refclock"}:
+            raise ValueError("Unsupported chrony source configuration")
+        if words and words[0] in {"server", "pool", "peer", "sourcedir"}:
+            continue
+        lines.append(line)
+    result = "".join(lines)
+    if result and not result.endswith("\n"):
+        result += "\n"
+    return result + "".join(
+        f"{policy['source_type']} {source} iburst\n" for source in policy["sources"]
+    )
+
+
+def rotation_policy(policy):
+    """Render a fixed directive vocabulary. No profile-supplied scripts."""
+    lines = [
+        " ".join(policy["paths"]) + " {",
+        "    " + policy["frequency"],
+        "    rotate " + str(policy["retain"]),
+        "    missingok",
+        "    notifempty",
+        "    compress",
+        "    delaycompress",
+        "    create " + policy["mode"],
+    ]
+    if policy["reopen"] == "rsyslog":
+        lines += [
+            "    sharedscripts",
+            "    postrotate",
+            "        /usr/bin/systemctl kill --kill-whom=main -s HUP rsyslog.service",
+            "    endscript",
+        ]
+    return "\n".join(lines + ["}", ""])
+
+
 class FilterModule:
     def filters(self):
         return {
             "hardener_sysctl_state": sysctl_state,
             "hardener_dnf_editable": dnf_editable,
             "hardener_backup_state": backup_state,
+            "hardener_repository_edit": repository_edit,
+            "hardener_chrony_edit": chrony_edit,
+            "hardener_rotation_policy": rotation_policy,
         }

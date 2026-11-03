@@ -30,3 +30,37 @@ controls:
   enabled: true
 - id: services.debug-shell-disabled
   enabled: true
+- id: time.chrony-enabled
+  enabled: true
+- id: logging.journal-persistent
+  enabled: true
+- id: logging.journal-retention
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: logging.logfile-permissions
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: logging.rotation-policy
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-metadata-signature
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-signature-check
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-tls-verification
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: services.avahi-disabled
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: services.cups-disabled
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: time.approved-sources
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.security-update-status
+  enabled: false
+  reason: Assessment-only, requires an explicit repository list.

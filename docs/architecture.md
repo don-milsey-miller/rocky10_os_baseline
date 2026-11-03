@@ -14,7 +14,10 @@ platform, impact, dependencies, conflicts, parameter schema, reboot requirement,
 availability, and task references. References must remain within the packaged
 task directory and point to existing files.
 
-Implemented controls require separate audit, apply, and verify task files.
+Implemented controls require separate task files for each supported mode.
+The default modes are audit, apply, and verify. Assessment-only controls explicitly
+declare audit and verify. Optional per-control preflight tasks run before all selected
+writes. The CLI rejects assessment-only apply selections before inventory access.
 Audit and verify must inspect effective state without invoking mutation
 handlers. Apply must be idempotent. Verification must run after apply and
 cannot infer compliance from the changed flag. Failures must produce partial

@@ -1,0 +1,6 @@
+- name: Enforce explicitly selected service restriction
+  ansible.builtin.include_tasks: optional-services.verify.yml
+  vars:
+    optional_units:
+    - avahi-daemon.socket
+    - avahi-daemon.service

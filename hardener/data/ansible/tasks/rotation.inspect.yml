@@ -1,0 +1,44 @@
+- name: Validate proposed rotation against existing native configuration
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import json,os,re,stat,subprocess,sys,tempfile
+      from pathlib import Path
+      candidate=sys.argv[1];managed=Path('/etc/logrotate.d/90-rocky10-hardener')
+      def safe(p,directory=False):
+       if not os.path.lexists(p):return False
+       s=p.lstat()
+       return p.resolve()==p and (stat.S_ISDIR(s.st_mode) if directory else stat.S_ISREG(s.st_mode) and s.st_nlink==1) and s.st_uid==0 and not(s.st_mode & 0o022) and 'system.posix_acl_access' not in os.listxattr(p)
+      main=Path('/etc/logrotate.conf');folder=Path('/etc/logrotate.d')
+      layout=safe(main) and safe(folder,True) and (not os.path.lexists(managed) or safe(managed))
+      native=False;exact=managed.is_file() and managed.read_text()==candidate
+      if layout:
+       content=main.read_text()
+       # Support the distribution's single include directory and refuse hidden nested sources.
+       includes=re.findall(r'(?m)^\s*include\s+(.+?)\s*$',content)
+       layout=includes==['/etc/logrotate.d']
+       with tempfile.TemporaryDirectory(prefix='hardener-logrotate-') as temporary:
+        dest=Path(temporary);drop=dest/'conf.d';drop.mkdir()
+        for file in folder.iterdir():
+         if file==managed:continue
+         if not safe(file):layout=False;break
+         text=file.read_text()
+         if re.search(r'(?m)^\s*include\s+',text):layout=False;break
+         (drop/file.name).write_text(text)
+        if layout:
+         (drop/managed.name).write_text(candidate)
+         maincopy=dest/'logrotate.conf'
+         maincopy.write_text(re.sub(r'(?m)^(\s*include\s+)/etc/logrotate.d\s*$',lambda m:m[1]+str(drop),content))
+         probe=subprocess.run(['/usr/sbin/logrotate','--debug','--state',str(dest/'state'),str(maincopy)],capture_output=True,text=True)
+         native=probe.returncode==0
+      state=subprocess.run(['/usr/bin/systemctl','show','logrotate.timer','-p','ActiveState','-p','UnitFileState'],capture_output=True,text=True)
+      parts=dict(line.split('=',1) for line in state.stdout.splitlines() if '=' in line)
+      print(json.dumps({'safe':layout,'native_valid':native,'matches':exact,'timer_active':parts.get('ActiveState')=='active','timer_enabled':parts.get('UnitFileState')=='enabled'}))
+    - '{{ control.effective_parameters | hardener_rotation_policy }}'
+  changed_when: false
+  register: rotation_inspection
+- name: Read rotation evidence
+  ansible.builtin.set_fact:
+    rotation_state: '{{ rotation_inspection.stdout | from_json }}'

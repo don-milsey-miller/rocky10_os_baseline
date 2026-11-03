@@ -1,0 +1,60 @@
+- name: Create the standard journal drop-in directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  register: journal_directory
+- name: Retain journal directory change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ journal_directory.changed }}'
+- name: Initialize the managed journal section without replacing existing policy
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/99-rocky10-hardener.conf
+    content: |
+      [Journal]
+    owner: root
+    group: root
+    mode: '0644'
+    force: false
+  register: journal_file
+- name: Retain journal file change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or journal_file.changed }}'
+- name: Apply only selected journal settings
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf.d/99-rocky10-hardener.conf
+    regexp: ^\s*{{ journal_setting.key }}\s*=
+    line: '{{ journal_setting.key }}={{ journal_setting.value }}'
+    insertafter: ^\[Journal\]
+  loop: '{{ journal_values | dict2items }}'
+  loop_control:
+    loop_var: journal_setting
+    label: '{{ journal_setting.key }}'
+  register: journal_settings
+- name: Retain journal setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or journal_settings.changed }}'
+- name: Inspect whether running service has loaded the selected policy
+  ansible.builtin.include_tasks: journal.inspect.yml
+- name: Restart journald only for changed or not-yet-loaded policy
+  ansible.builtin.systemd_service:
+    name: systemd-journald.service
+    state: restarted
+  when: hardener_changed or not journal_state.loaded
+  register: journal_restart
+- name: Retain journal restart evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or journal_restart.changed }}'
+- name: Flush volatile entries when enabling persistent storage
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/journalctl
+    - --flush
+  when: control.id == 'logging.journal-persistent' and (hardener_changed or not journal_state.persistent)
+  changed_when: true
+  register: journal_flush
+- name: Retain persistent storage activation evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or journal_flush.changed }}'

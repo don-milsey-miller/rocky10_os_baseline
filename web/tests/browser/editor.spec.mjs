@@ -100,3 +100,30 @@ test("untrusted text renders literally and mobile layout fits",async({page})=>{
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:path.join(evidence,"editor-mobile.png"),fullPage:true});
 });
+
+test("real bounded lists and assessment-only mode round-trip offline",async({page,context})=>{
+  await context.setOffline(true);
+  await page.goto(url);
+  const cid="packages.security-update-status";
+  await select(page,cid).selectOption("enabled");
+  const title=data.controls.find(c=>c.id===cid).title;
+  await expect(page.locator("#export")).toBeDisabled();
+  await page.getByLabel(title+": repositories").fill("baseos\nappstream\n");
+  await expect(page.locator("#export")).toBeEnabled();
+  await expect(page.locator("#validation")).toContainText("assessment only");
+  const raw=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(raw).controls[0].parameters.repositories).toEqual(["baseos","appstream"]);
+  const folder=path.resolve("../reports/m7");
+  await mkdir(folder,{recursive:true});
+  const filename=path.join(folder,"browser-assessment.yaml");
+  await writeFile(filename,raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(raw);
+  await page.locator("#confirm-import").click();
+  await expect(page.getByLabel(title+": repositories")).toHaveValue("baseos\nappstream");
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+  await page.getByLabel(title+": repositories").fill("baseos\nbaseos");
+  await expect(page.locator("#export")).toBeDisabled();
+});

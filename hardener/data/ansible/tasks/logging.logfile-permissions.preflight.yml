@@ -1,0 +1,7 @@
+- name: Inspect log paths
+  ansible.builtin.include_tasks: logfiles.inspect.yml
+- name: Require existing regular logs with unambiguous permissions
+  ansible.builtin.assert:
+    that: logfiles_state | rejectattr('safe') | list | length == 0
+    fail_msg: Resolve missing files, symlinks, hardlinks, custom ACLs, or writable parent directories
+      before applying.

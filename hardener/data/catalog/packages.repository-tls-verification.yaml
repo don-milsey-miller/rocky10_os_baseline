@@ -1,0 +1,40 @@
+id: packages.repository-tls-verification
+title: Verify HTTPS repository certificates
+summary: Verify HTTPS repository certificates.
+rationale: Verify HTTPS repository certificates.
+benefits:
+- Verify HTTPS repository certificates.
+tradeoffs:
+- Requires an explicit repository list. Other repositories and operator command-line overrides are outside
+  this control.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Requires an explicit repository list. Other repositories and operator command-line overrides
+  are outside this control.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  required:
+  - repositories
+  properties:
+    repositories:
+      type: array
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+      items:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$
+      description: Explicit repository IDs covered by this control. Other repositories are untouched.
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/packages.repository-tls-verification.audit.yml
+  apply: ansible/tasks/packages.repository-tls-verification.apply.yml
+  verify: ansible/tasks/packages.repository-tls-verification.verify.yml
+  preflight: ansible/tasks/packages.repository-tls-verification.preflight.yml

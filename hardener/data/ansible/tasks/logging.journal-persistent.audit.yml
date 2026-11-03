@@ -1,0 +1,5 @@
+- name: Manage selected journal policy
+  ansible.builtin.include_tasks: journal.audit.yml
+  vars:
+    journal_values:
+      Storage: persistent

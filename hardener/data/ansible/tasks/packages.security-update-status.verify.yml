@@ -1,0 +1,43 @@
+- name: Read fresh advisory metadata without a package transaction
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import dnf,json,sys,tempfile,os
+      ids=json.loads(sys.argv[1])
+      with tempfile.TemporaryDirectory(prefix='hardener-advisories-') as tmp:
+          for name in ('cache','persist','log'):os.mkdir(tmp+'/'+name)
+          with dnf.Base() as b:
+              b.conf.read();b.conf.cachedir=tmp+'/cache';b.conf.persistdir=tmp+'/persist';b.conf.logdir=tmp+'/log'
+              b.conf.substitutions.update_from_etc(b.conf.installroot,varsdir=b.conf.varsdir);b.read_all_repos()
+              for r in b.repos.values():
+                  if r.id not in ids:r.disable()
+              for rid in ids:
+                  if rid not in b.repos or not b.repos[rid].enabled:raise ValueError('Selected repository unavailable')
+                  b.repos[rid].skip_if_unavailable=False
+                  b.repos[rid].add_metadata_type_to_download('updateinfo')
+              b.fill_sack(load_system_repo=True)
+              missing=[rid for rid in ids if not b.repos[rid].get_metadata_path('updateinfo')]
+              if missing:raise ValueError('Security advisory metadata unavailable for selected repository')
+              updates=list(b.sack.query().upgrades().filter(advisory_type='security').latest())
+              print(json.dumps({'pending':len(updates),'packages':sorted({p.name for p in updates})[:64],'repositories':len(ids)}))
+    - '{{ control.effective_parameters.repositories | to_json }}'
+  changed_when: false
+  no_log: true
+  register: security_update_query
+- name: Read advisory assessment facts
+  ansible.builtin.set_fact:
+    security_update_state: '{{ security_update_query.stdout | from_json }}'
+  no_log: true
+- name: Record security update assessment
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if security_update_state.pending == 0 else ''fail'' }}'
+      observed: '{{ security_update_state }}'
+      expected: No published pending security updates in selected repository metadata.
+      changed: false
+      reason: Install required security updates during an approved maintenance window. This control never
+        installs them.
+      reboot_required: false

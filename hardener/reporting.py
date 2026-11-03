@@ -59,6 +59,10 @@ def make_report(mode, target, profile, profile_digest, catalog, evidence):
                     "reason": "No control evidence. Preflight or execution did not complete.",
                     "reboot_required": catalog[cid]["reboot_required"],
                 }
+        record = {
+            **record,
+            "supported_modes": catalog[cid].get("supported_modes", ["audit", "apply", "verify"]),
+        }
         records.append(record)
     counts = Counter(r["status"] for r in records)
     return {
