@@ -1,0 +1,31 @@
+id: auth.ssh-config-permissions
+title: Protect SSH daemon configuration
+summary: Protect SSH daemon configuration with root ownership and mode 0600 while preserving contents
+  and security labels.
+rationale: Prevent unprivileged modification of daemon policy while retaining the installed configuration.
+benefits:
+- Prevent unprivileged modification of daemon policy while retaining the installed configuration.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-config-permissions.audit.yml
+  apply: ansible/tasks/auth.ssh-config-permissions.apply.yml
+  verify: ansible/tasks/auth.ssh-config-permissions.verify.yml
+  preflight: ansible/tasks/auth.ssh-config-permissions.preflight.yml

@@ -1,0 +1,15 @@
+- name: Inspect local sudo file metadata
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+  vars:
+    sudo_kind: permissions
+- name: Record sudo configuration metadata
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not sudo_state.layout_supported else (''pass'' if sudo_state.matches
+        else ''fail'') }}'
+      observed: '{{ sudo_state.files }}'
+      expected: Root-owned active local sudo files with mode 0440.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

@@ -1,0 +1,47 @@
+- name: Rebuild the selected candidate immediately before replacement
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+- name: Recheck candidate safety
+  ansible.builtin.assert:
+    that:
+    - ssh_state.layout_supported
+    - ssh_state.safe
+    - ssh_state.candidate_valid
+    - ssh_state.administrator_allowed
+- name: Install only selected SSH directives
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-rocky10-hardener.conf
+    content: '{{ ssh_state.candidate }}'
+    owner: root
+    group: root
+    mode: '0600'
+  register: ssh_write
+  no_log: true
+- name: Retain SSH configuration change
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ ssh_write.changed }}'
+- name: Reload the SSH daemon when configuration changed or load evidence is absent
+  ansible.builtin.systemd_service:
+    name: sshd.service
+    state: reloaded
+  when: hardener_changed or not ssh_state.loaded
+  register: ssh_reload
+- name: Retain SSH reload change
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or ssh_reload.changed }}'
+- name: Check recovery after the access change
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Wait for native SSH load evidence
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/ssh_policy.py'') }}'
+    - '{{ ssh_values | to_json }}'
+    - '{{ access_context | to_json }}'
+    - inspect
+  changed_when: false
+  register: ssh_loaded
+  until: (ssh_loaded.stdout | from_json).loaded
+  retries: 10
+  delay: 1
+  no_log: true

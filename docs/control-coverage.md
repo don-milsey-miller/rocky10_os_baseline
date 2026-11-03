@@ -31,19 +31,19 @@ not automatic selection. M8 through M12 remain planned until their own guest evi
 | logging.journal-retention | M7 | Implemented | [M7](m7-demonstration.md) |
 | logging.logfile-permissions | M7 | Implemented | [M7](m7-demonstration.md) |
 | logging.rotation-policy | M7 | Implemented | [M7](m7-demonstration.md) |
-| auth.ssh-config-permissions | M8 | Planned | — |
-| auth.ssh-hostkey-permissions | M8 | Planned | — |
-| auth.ssh-empty-passwords | M8 | Planned | — |
-| auth.ssh-hostbased-auth | M8 | Planned | — |
-| auth.ssh-root-login | M8 | Planned | — |
-| auth.ssh-password-login | M8 | Planned | — |
-| auth.ssh-access-policy | M8 | Planned | — |
-| auth.ssh-forwarding-policy | M8 | Planned | — |
-| auth.ssh-session-limits | M8 | Planned | — |
-| auth.sudo-config-permissions | M8 | Planned | — |
-| auth.sudo-use-pty | M8 | Planned | — |
-| auth.sudo-authentication | M8 | Planned | — |
-| auth.sudo-timeout | M8 | Planned | — |
+| auth.ssh-config-permissions | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-hostkey-permissions | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-empty-passwords | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-hostbased-auth | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-root-login | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-password-login | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-access-policy | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-forwarding-policy | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.ssh-session-limits | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.sudo-config-permissions | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.sudo-use-pty | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.sudo-authentication | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
+| auth.sudo-timeout | M8 | Planned | [Implementation checkpoint, validation incomplete](m8-demonstration.md#validation-record) |
 | network.ipv4-source-route-disabled | M9 | Planned | — |
 | network.ipv6-source-route-disabled | M9 | Planned | — |
 | network.ipv4-redirects-disabled | M9 | Planned | — |

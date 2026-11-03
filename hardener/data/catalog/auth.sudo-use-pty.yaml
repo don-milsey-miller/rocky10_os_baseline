@@ -1,0 +1,32 @@
+id: auth.sudo-use-pty
+title: Require explicit sudo pseudo-terminal policy
+summary: Enable pseudo-terminal isolation without overriding scoped exceptions silently.
+rationale: Place interactive privileged commands in a separate pseudo-terminal when sudo supports it.
+benefits:
+- Place interactive privileged commands in a separate pseudo-terminal when sudo supports it.
+tradeoffs:
+- Automatic policy changes support standard local unrestricted administrators only. Domain sources, restricted
+  command grants, special authentication defaults, and changes to the active recovery identity require
+  operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.sudo-config-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.sudo-use-pty.audit.yml
+  apply: ansible/tasks/auth.sudo-use-pty.apply.yml
+  verify: ansible/tasks/auth.sudo-use-pty.verify.yml
+  preflight: ansible/tasks/auth.sudo-use-pty.preflight.yml

@@ -38,3 +38,11 @@ A profile can contain at most 128 control entries and remains limited to 64 KiB.
 Assessment-only catalog entries declare `supported_modes: [audit, verify]`.
 They can be exported and assessed, but selecting one for apply fails offline before
 inventory access. Use a separate assessment profile when applying other controls.
+
+## Access policy parameters
+
+The [M8 access example](../profiles/examples/server-access-lab.yaml) supplies every
+required access value for disposable lab identities. Site profiles must replace those
+identities and limits. User and group lists use exact names, forwarding choices are
+explicit, and zero is a valid sudo cache duration. Timeout subjects must also be
+selected for authentication policy. Passwords and private keys never belong in profiles.

@@ -226,3 +226,7 @@ M13 is complete when every agreed inventory entry has implemented guest evidence
 For each milestone, publish the reviewed source and concise demonstration record to GitHub, save private evidence separately, and append the project journal. Maintain a branch per implementation batch and preserve the tested release candidate as the regression reference.
 
 M5 through M7 are implemented. Continue with M8 after the M7 publication gate. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.
+
+Work paused at the owner’s request on 2026-11-03. M8 implementation is saved on
+`codex/m8-ssh-sudo` with acceptance work remaining. M9–M13 implementation has not
+started. See the [M8 checkpoint](m8-demonstration.md#validation-record) before resuming.

@@ -54,7 +54,7 @@
 
     - name: Stop after administrative access failure
       ansible.builtin.meta: end_host
-      when: ansible_failed_task.name == 'Check administrative access before remediation'
+      when: ansible_failed_task.name in ['Check administrative access before remediation', 'Check fresh administrative access']
 
 - name: Remember independently verified dependencies
   ansible.builtin.set_fact:

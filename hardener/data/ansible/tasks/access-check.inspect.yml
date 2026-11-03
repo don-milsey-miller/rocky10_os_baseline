@@ -1,0 +1,11 @@
+- name: Check fresh administrative access
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/id
+    - -u
+  changed_when: false
+  register: fresh_admin_result
+  failed_when: fresh_admin_result.stdout != '0'
+  vars:
+    ansible_ssh_args: -o ControlMaster=no -o ControlPath=none -o BatchMode=yes -o PreferredAuthentications=publickey
+      -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o StrictHostKeyChecking=yes

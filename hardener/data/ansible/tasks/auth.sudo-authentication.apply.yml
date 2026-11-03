@@ -1,0 +1,4 @@
+- name: Manage selected local sudo policy
+  ansible.builtin.include_tasks: sudo-policy.apply.yml
+  vars:
+    sudo_kind: authentication

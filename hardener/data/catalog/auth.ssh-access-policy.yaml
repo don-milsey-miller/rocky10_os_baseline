@@ -1,0 +1,52 @@
+id: auth.ssh-access-policy
+title: Restrict SSH to named local identities
+summary: Admit only explicitly named users and optional local groups.
+rationale: Limit remote login eligibility to explicitly approved account and group names.
+benefits:
+- Limit remote login eligibility to explicitly approved account and group names.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.ssh-config-permissions
+- auth.ssh-hostkey-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    users:
+      type: array
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+      items:
+        type: string
+        maxLength: 32
+        pattern: ^[a-z_][a-z0-9_-]*[$]?$
+    groups:
+      type: array
+      minItems: 0
+      maxItems: 32
+      uniqueItems: true
+      items:
+        type: string
+        maxLength: 32
+        pattern: ^[a-z_][a-z0-9_-]*[$]?$
+  required:
+  - users
+  - groups
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-access-policy.audit.yml
+  apply: ansible/tasks/auth.ssh-access-policy.apply.yml
+  verify: ansible/tasks/auth.ssh-access-policy.verify.yml
+  preflight: ansible/tasks/auth.ssh-access-policy.preflight.yml

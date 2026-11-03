@@ -1,14 +1,17 @@
 # Rocky Linux 10 OS baseline
 
+**M8 work checkpoint:** implementation is saved for continuation. M8 acceptance and release validation are incomplete. M5–M7 remain the last completed milestones. See [checkpoint and remaining work](docs/m8-demonstration.md#validation-record).
+
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The catalog contains 30 controls covering account files, kernel safeguards, package
-trust, optional services, time, and local logging. Each can be selected or excluded.
+The catalog contains 43 controls covering account files, kernel safeguards, package
+trust, optional services, time, local logging, SSH, and sudo policy. Each can be selected or excluded.
 Security-update status is assessment-only. Other implemented controls support
 independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
 [M6 file and kernel controls](docs/m6-demonstration.md), and
-[M7 operations controls](docs/m7-demonstration.md) for behavior and recovery.
+[M7 operations controls](docs/m7-demonstration.md), and
+[M8 access controls](docs/m8-demonstration.md) for behavior and recovery.
 
-The project currently has **no license grant**, by owner decision. This is an
+The project currently has **no license grant**, by owner decision. This is a
 release candidate, not an open-source release or certification.
 See [M4 checks and complete reproduction](docs/m4-release-readiness.md).
 
@@ -19,7 +22,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m7-packages-services-logging https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m8-ssh-sudo https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate

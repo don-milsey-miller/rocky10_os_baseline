@@ -1,0 +1,45 @@
+- name: Revalidate sudo candidate immediately before replacement
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+- name: Require the current candidate to remain safe
+  ansible.builtin.assert:
+    that:
+    - sudo_state.layout_supported
+    - sudo_state.safe
+    - sudo_state.eligible
+    - sudo_state.candidate_valid
+- name: Install only the selected sudo policy
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/99-rocky10-hardener-{{ sudo_kind }}
+    content: '{{ sudo_state.candidate }}'
+    owner: root
+    group: root
+    mode: '0440'
+    validate: /usr/sbin/visudo -c -f %s
+  register: sudo_write
+  no_log: true
+  when: sudo_kind != 'authentication'
+- name: Retag existing direct administrator grants without adding privileges
+  ansible.builtin.copy:
+    dest: '{{ sudo_candidate.path }}'
+    content: '{{ sudo_candidate.content }}'
+    owner: root
+    group: root
+    mode: '0440'
+  loop: '{{ sudo_state.candidates | default([]) }}'
+  loop_control:
+    loop_var: sudo_candidate
+    label: '{{ sudo_candidate.path }}'
+  register: sudo_auth_write
+  no_log: true
+  when: sudo_kind == 'authentication'
+- name: Retain sudo policy change
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ sudo_write.changed or sudo_auth_write.changed }}'
+- name: Validate the installed complete sudo policy
+  ansible.builtin.command:
+    argv:
+    - /usr/sbin/visudo
+    - -c
+  changed_when: false
+- name: Prove independent recovery after sudo changes
+  ansible.builtin.include_tasks: access-check.inspect.yml

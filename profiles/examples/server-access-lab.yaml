@@ -1,0 +1,60 @@
+# Disposable lab policy. Replace identities and limits before site use.
+schema_version: 1
+id: server-access-lab
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: auth.ssh-config-permissions
+  enabled: true
+- id: auth.ssh-hostkey-permissions
+  enabled: true
+- id: auth.ssh-empty-passwords
+  enabled: true
+- id: auth.ssh-hostbased-auth
+  enabled: true
+- id: auth.ssh-root-login
+  enabled: true
+- id: auth.ssh-password-login
+  enabled: true
+- id: auth.ssh-access-policy
+  enabled: true
+  parameters:
+    users:
+    - zero
+    - m8admin
+    groups:
+    - wheel
+- id: auth.ssh-forwarding-policy
+  enabled: true
+  parameters:
+    tcp: 'no'
+    streamlocal: 'no'
+    agent: false
+    x11: false
+    tunnel: false
+- id: auth.ssh-session-limits
+  enabled: true
+  parameters:
+    max_auth_tries: 2
+    max_sessions: 2
+    max_startups: 3
+    login_grace_seconds: 30
+    idle_session_seconds: 300
+- id: auth.sudo-config-permissions
+  enabled: true
+- id: auth.sudo-use-pty
+  enabled: true
+- id: auth.sudo-authentication
+  enabled: true
+  parameters:
+    users:
+    - m8admin
+- id: auth.sudo-timeout
+  enabled: true
+  parameters:
+    users:
+    - m8admin
+    minutes: 0

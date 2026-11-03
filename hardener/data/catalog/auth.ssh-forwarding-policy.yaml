@@ -1,0 +1,57 @@
+id: auth.ssh-forwarding-policy
+title: Apply explicit SSH forwarding policy
+summary: Apply the selected TCP, local-socket, agent, X11, and tunnel permissions.
+rationale: Expose only the forwarding capabilities required by the server workload.
+benefits:
+- Expose only the forwarding capabilities required by the server workload.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.ssh-config-permissions
+- auth.ssh-hostkey-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    tcp:
+      type: string
+      enum:
+      - 'no'
+      - local
+      - remote
+      - 'yes'
+    streamlocal:
+      type: string
+      enum:
+      - 'no'
+      - local
+      - remote
+      - 'yes'
+    agent:
+      type: boolean
+    x11:
+      type: boolean
+    tunnel:
+      type: boolean
+  required:
+  - tcp
+  - streamlocal
+  - agent
+  - x11
+  - tunnel
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-forwarding-policy.audit.yml
+  apply: ansible/tasks/auth.ssh-forwarding-policy.apply.yml
+  verify: ansible/tasks/auth.ssh-forwarding-policy.verify.yml
+  preflight: ansible/tasks/auth.ssh-forwarding-policy.preflight.yml

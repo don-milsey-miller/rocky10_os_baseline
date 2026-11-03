@@ -1,0 +1,4 @@
+- name: Manage selected local sudo policy
+  ansible.builtin.include_tasks: sudo-policy.verify.yml
+  vars:
+    sudo_kind: timeout

@@ -1,0 +1,31 @@
+id: auth.ssh-hostkey-permissions
+title: Protect existing SSH host private keys
+summary: Protect existing SSH host private keys with root ownership and mode 0600 while preserving contents
+  and security labels.
+rationale: Prevent disclosure or replacement of existing server private keys without rotating server identity.
+benefits:
+- Prevent disclosure or replacement of existing server private keys without rotating server identity.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-hostkey-permissions.audit.yml
+  apply: ansible/tasks/auth.ssh-hostkey-permissions.apply.yml
+  verify: ansible/tasks/auth.ssh-hostkey-permissions.verify.yml
+  preflight: ansible/tasks/auth.ssh-hostkey-permissions.preflight.yml

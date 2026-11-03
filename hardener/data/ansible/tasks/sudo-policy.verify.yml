@@ -1,0 +1,17 @@
+- name: Inspect effective sudo policy independently
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+- name: Record effective local sudo policy
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not sudo_state.layout_supported else (''pass'' if sudo_state.matches
+        else ''fail'') }}'
+      observed:
+        users: '{{ sudo_state.users }}'
+        matches: '{{ sudo_state.matches }}'
+        scoped_pty_conflict: '{{ sudo_state.scoped_pty_conflict | default(false) }}'
+        layout_supported: '{{ sudo_state.layout_supported }}'
+      expected: Explicit local sudo policy for the selected scope, retaining existing privileges and recovery.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

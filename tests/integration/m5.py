@@ -216,12 +216,33 @@ def main():
             assert execute("apply", "recovered-rerun")["changed_tasks"] == 0
             # Inject an access probe failure in the temporary engine only.
             guard = data / "ansible/control.yml"
+            original_guard = guard.read_text()
             guard.write_text(
-                guard.read_text().replace("argv: [/usr/bin/id, -u]", "argv: [/usr/bin/false]")
+                original_guard.replace("argv: [/usr/bin/id, -u]", "argv: [/usr/bin/false]")
             )
             for item in profile["controls"]:
                 item["parameters"]["value"] = 3
             stopped = execute("apply", "administrative-access-lost", 4)
+            assert stopped["changed_tasks"] == 0
+            for cid in ids:
+                assert (
+                    run(ssh + ["sudo cat " + shlex.quote(remote_dir + "/" + cid)]).strip()
+                    == "2:false"
+                )
+            guard.write_text(original_guard)
+            for cid in ids:
+                apply_path = data / f"ansible/tasks/{cid}.apply.yml"
+                tasks = yaml.safe_load(apply_path.read_text())
+                tasks.insert(
+                    0,
+                    {
+                        "name": "Check fresh administrative access",
+                        "ansible.builtin.command": {"argv": ["/usr/bin/false"]},
+                        "changed_when": False,
+                    },
+                )
+                apply_path.write_text(yaml.safe_dump(tasks))
+            stopped = execute("apply", "fresh-administrative-access-lost", 4)
             assert stopped["changed_tasks"] == 0
             for cid in ids:
                 assert (

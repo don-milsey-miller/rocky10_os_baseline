@@ -1,0 +1,31 @@
+id: auth.sudo-config-permissions
+title: Protect local sudo configuration
+summary: Protect active local sudo files with root ownership and mode 0440.
+rationale: Protect privileged policy inputs while retaining their content and local authorization semantics.
+benefits:
+- Protect privileged policy inputs while retaining their content and local authorization semantics.
+tradeoffs:
+- Automatic policy changes support standard local unrestricted administrators only. Domain sources, restricted
+  command grants, special authentication defaults, and changes to the active recovery identity require
+  operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.sudo-config-permissions.audit.yml
+  apply: ansible/tasks/auth.sudo-config-permissions.apply.yml
+  verify: ansible/tasks/auth.sudo-config-permissions.verify.yml
+  preflight: ansible/tasks/auth.sudo-config-permissions.preflight.yml

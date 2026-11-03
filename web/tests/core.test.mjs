@@ -23,7 +23,7 @@ test("all catalog controls validate and exported YAML passes independent CLI",()
   assert.equal(result.status,0,result.stderr);
 });
 test("ordering and exclusions round-trip deterministically",()=>{
-  const p=base(); p.controls=[entry(data.controls[4].id),{...entry(data.controls[0].id,false),reason:"on"}];
+  const p=base(); p.controls=[entry("kernel.protected-hardlinks"),{...entry("files.passwd-permissions",false),reason:"on"}];
   const first=exportProfile(p); p.controls.reverse();
   assert.equal(exportProfile(p),first);
   assert.equal(exportProfile(importProfile(first)),first);
@@ -53,7 +53,7 @@ for (const [label,raw] of [
   ["deep nesting","[".repeat(100)+"0"+"]".repeat(100)],
 ]) test("rejects "+label,()=>assert.throws(()=>importProfile(raw)));
 test("availability, dependencies, conflicts and high impact use catalog metadata",()=>{
-  const controls=structuredClone(data.controls),p=base();
+  const controls=structuredClone(["files.passwd-permissions","kernel.protected-hardlinks"].map(id=>data.controls.find(c=>c.id===id))),p=base();
   p.controls=[entry(controls[0].id)];
   controls[0].implemented=false;
   assert.equal(available(controls[0],p.target),false);
@@ -71,7 +71,7 @@ test("availability, dependencies, conflicts and high impact use catalog metadata
   assert.equal(validateProfile(p,controls).warnings.length,2);
 });
 test("typed parameters validate without coercion or invented defaults",()=>{
-  const controls=structuredClone(data.controls),p=base(),id=controls[0].id;
+  const controls=structuredClone([data.controls.find(c=>c.id==="files.passwd-permissions")]),p=base(),id=controls[0].id;
   const schema={type:"object",additionalProperties:false,required:["port"],properties:{
     port:{type:"integer",minimum:1,maximum:65535},strict:{type:"boolean"},mode:{enum:["one","two"]}}};
   const check=new Ajv2020().compile(schema);

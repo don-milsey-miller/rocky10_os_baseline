@@ -45,3 +45,8 @@ The additional M2 controls and their configuration boundaries are described in
 [m2-controls.md](m2-controls.md). Read-only filter helpers interpret ordered
 sysctl output and reject ambiguous DNF edits. No additional runtime dependency
 or service was introduced.
+
+M8 access helpers validate complete native SSH and sudo candidates before replacement.
+Fresh administrative probes disable SSH multiplexing. Failure stops subsequent writes.
+Native daemon load evidence distinguishes effective SSH policy from pending reloads.
+See [M8 support boundaries](m8-demonstration.md) for supported local layouts.

@@ -64,3 +64,36 @@ controls:
 - id: packages.security-update-status
   enabled: false
   reason: Assessment-only, requires an explicit repository list.
+- id: auth.ssh-access-policy
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-config-permissions
+  enabled: true
+- id: auth.ssh-empty-passwords
+  enabled: true
+- id: auth.ssh-forwarding-policy
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-hostbased-auth
+  enabled: true
+- id: auth.ssh-hostkey-permissions
+  enabled: true
+- id: auth.ssh-password-login
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-root-login
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-session-limits
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-authentication
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-config-permissions
+  enabled: true
+- id: auth.sudo-timeout
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-use-pty
+  enabled: true

@@ -1,0 +1,15 @@
+- name: Read actual SSH connection context
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - import json,os,pwd; print(json.dumps({'user':pwd.getpwuid(os.getuid()).pw_name,'connection':os.environ['SSH_CONNECTION'].split()}))
+  become: false
+  changed_when: false
+  register: access_context_result
+  vars:
+    ansible_ssh_args: -o ControlMaster=no -o ControlPath=none -o StrictHostKeyChecking=yes
+- name: Retain connection context privately
+  ansible.builtin.set_fact:
+    access_context: '{{ access_context_result.stdout | from_json }}'
+  no_log: true

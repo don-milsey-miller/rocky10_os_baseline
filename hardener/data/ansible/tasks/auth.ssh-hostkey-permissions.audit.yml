@@ -1,0 +1,15 @@
+- name: Inspect actual SSH metadata
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+  vars:
+    ssh_values: {}
+- name: Record SSH file metadata
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not ssh_state.keys_supported else (''pass'' if (ssh_state[''keys'']
+        | rejectattr(''matches'') | list | length == 0) else ''fail'') }}'
+      observed: '{{ ssh_state[''keys''] }}'
+      expected: Existing supported SSH files owned by root:root with mode 0600.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

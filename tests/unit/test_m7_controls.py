@@ -135,7 +135,12 @@ def test_embedded_python_inspections_are_valid_python():
         for task in yaml.safe_load(path.read_text()):
             argv = task.get("ansible.builtin.command", {}).get("argv", [])
             if len(argv) > 2 and argv[:2] == ["/usr/bin/python3", "-c"]:
-                compile(argv[2], str(path), "exec")
+                if argv[2].startswith("{{ lookup("):
+                    assert "/helpers/" in argv[2]
+                else:
+                    compile(argv[2], str(path), "exec")
+    for path in (DATA / "ansible/helpers").glob("*.py"):
+        compile(path.read_text(), str(path), "exec")
 
 
 def test_advisory_inspection_loads_site_variables_before_repositories(monkeypatch, capsys):

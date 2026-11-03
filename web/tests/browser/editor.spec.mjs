@@ -127,3 +127,33 @@ test("real bounded lists and assessment-only mode round-trip offline",async({pag
   await page.getByLabel(title+": repositories").fill("baseos\nbaseos");
   await expect(page.locator("#export")).toBeDisabled();
 });
+
+test("access-policy lists, false values and zero timeout survive browser export",async({page,context})=>{
+  await context.setOffline(true);
+  await page.goto(url);
+  const source=await readFile("../profiles/examples/server-access-lab.yaml","utf8");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(source);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#export")).toBeEnabled();
+  const title=id=>data.controls.find(c=>c.id===id).title;
+  await page.getByLabel(title("auth.ssh-access-policy")+": users").fill("zero\nm8admin");
+  await page.getByLabel(title("auth.ssh-session-limits")+": max_sessions").fill("2");
+  await page.getByLabel(title("auth.sudo-timeout")+": minutes").fill("0");
+  await expect(page.getByLabel(title("auth.ssh-forwarding-policy")+": agent")).toHaveValue("false");
+  const raw=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(raw)).toEqual(importProfile(source));
+  const folder=path.resolve("../reports/m8");
+  await mkdir(folder,{recursive:true});
+  const filename=path.join(folder,"browser-access.yaml");
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  await (await download).saveAs(filename);
+  expect(await readFile(filename,"utf8")).toBe(raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(raw);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+});

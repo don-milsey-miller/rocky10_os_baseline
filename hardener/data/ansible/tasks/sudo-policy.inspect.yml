@@ -1,0 +1,19 @@
+- name: Read independent recovery identity
+  ansible.builtin.include_tasks: access-context.inspect.yml
+- name: Inspect native local sudo policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/sudo_policy.py'') }}'
+    - '{{ sudo_kind }}'
+    - '{{ control.effective_parameters | to_json }}'
+    - '{{ access_context | to_json }}'
+    - '{{ ''candidate'' if hardener_mode in [''apply'', ''preflight''] else ''inspect'' }}'
+  changed_when: false
+  register: sudo_inspection
+  no_log: true
+- name: Retain sudo policy evidence privately
+  ansible.builtin.set_fact:
+    sudo_state: '{{ sudo_inspection.stdout | from_json }}'
+  no_log: true
