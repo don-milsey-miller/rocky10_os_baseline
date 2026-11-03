@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+<title>Rocky server profile editor</title>
+<style>{{STYLE}}</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">R10</span><span>Server baseline<span class="brand-sub">PROFILE EDITOR</span></span></a>
+  <div class="top-actions"><span class="local-badge">Local only</span><button id="open-import" class="button secondary">Import YAML</button></div>
+</header>
+<main id="main">
+  <section class="intro"><div><p class="eyebrow">ROCKY LINUX 10 / SERVER</p><h1>Build a deliberate baseline.</h1><p class="lede">Choose the controls your server needs. Save the decisions as a reusable profile.</p></div><div class="catalog-note"><strong id="catalog-count">Loading catalog</strong><span id="catalog-version"></span></div></section>
+  <div class="workspace">
+    <section class="catalog" aria-labelledby="catalog-heading">
+      <div class="section-heading"><div><h2 id="catalog-heading">Control catalog</h2><p>Review the effect and trade-off before including a control.</p></div><span id="visible-count" class="count"></span></div>
+      <div class="filters">
+        <label class="search-label">Search controls<input id="search" type="search" placeholder="Title, ID, or description"></label>
+        <div class="filter-row">
+          <label>Category<select id="category"><option value="">All categories</option></select></label>
+          <label>Impact<select id="impact"><option value="">All impacts</option><option>low</option><option>medium</option><option>high</option></select></label>
+          <label>Availability<select id="availability"><option value="">All controls</option><option value="available">Available</option><option value="unavailable">Unavailable</option></select></label>
+          <label>Applicability<select id="applicability"><option value="">All targets</option><option value="applicable">Rocky 10 server</option><option value="inapplicable">Other targets</option></select></label>
+        </div>
+      </div>
+      <div id="controls" class="control-list"></div>
+      <p id="empty-state" class="empty-state" hidden>No controls match these filters. Try another search or clear a filter.</p>
+    </section>
+    <aside class="profile-panel" aria-labelledby="profile-heading">
+      <div class="panel-heading"><p class="eyebrow">YOUR PROFILE</p><h2 id="profile-heading">Selection &amp; export</h2></div>
+      <div class="profile-fields">
+        <label>Profile name<input id="profile-name" maxlength="160" value="My server profile" autocomplete="off"></label>
+        <div class="identity-row"><label>Stable ID<input id="profile-id" maxlength="80" value="rocky10-custom" spellcheck="false" autocomplete="off"><span class="hint">Lowercase letters, numbers, and hyphens.</span></label><label class="revision-field">Revision<input id="revision" type="number" min="1" step="1" value="1"></label></div>
+      </div>
+      <dl class="selection-counts"><div><dt>Included</dt><dd id="included-count">0</dd></div><div><dt>Excluded</dt><dd id="excluded-count">0</dd></div><div><dt>Not selected</dt><dd id="omitted-count">5</dd></div></dl>
+      <div id="validation" class="validation" aria-live="polite"></div>
+      <details class="yaml-details" open><summary>YAML preview</summary><textarea id="yaml-preview" readonly spellcheck="false" aria-label="YAML preview"></textarea></details>
+      <button id="export" class="button primary">Export YAML</button>
+      <p class="export-note">Validate the exported profile with the CLI before applying it. This editor does not connect to or audit servers.</p>
+    </aside>
+  </div>
+  <footer><span id="footer-version"></span><details><summary>Third-party notices</summary><pre>{{NOTICES}}</pre></details></footer>
+</main>
+<dialog id="import-dialog" aria-labelledby="import-title">
+  <div class="dialog-heading"><h2 id="import-title">Import a profile</h2><button id="close-import" class="button quiet" aria-label="Close import">Close</button></div>
+  <p>Choose a YAML file or paste a profile. Invalid imports leave your current selection unchanged.</p>
+  <label class="file-label">Choose a YAML file<input id="import-file" type="file" accept=".yaml,.yml,.json,text/yaml,application/json"></label>
+  <label>Profile YAML<textarea id="import-text" spellcheck="false" placeholder="schema_version: 1"></textarea></label>
+  <p id="import-error" class="error-text" role="alert"></p>
+  <button id="confirm-import" class="button primary">Import profile</button>
+</dialog>
+<script>{{SCRIPT}}</script>
+</body>
+</html>

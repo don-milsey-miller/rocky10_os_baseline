@@ -1,0 +1,102 @@
+import { test, expect } from "@playwright/test";
+import { readFile, mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { spawnSync } from "node:child_process";
+import { data, importProfile, exportProfile } from "../../src/core.mjs";
+const url=pathToFileURL(path.resolve("dist/index.html")).href;
+const evidence=path.resolve("../reports/m3");
+const select=(page,id)=>page.locator('select[data-control="'+id+'"]');
+const expected={schema_version:1,id:"m3-browser-profile",name:"Three-control demonstration",revision:1,
+  target:{os:"rocky",major_version:10,role:"server"},controls:[
+    {id:"files.passwd-permissions",enabled:true},
+    {id:"kernel.protected-hardlinks",enabled:true},
+    {id:"packages.telnet-client-absent",enabled:false,reason:"Keep package policy outside this three-control demonstration"},
+    {id:"services.debug-shell-disabled",enabled:true}
+  ]};
+test.beforeAll(async()=>mkdir(evidence,{recursive:true}));
+test("offline browser export is deterministic, CLI-valid and round-trips",async({page,context})=>{
+  await context.setOffline(true);
+  const requests=[],errors=[];
+  page.on("request",r=>{if(/^https?:/.test(r.url())) requests.push(r.url());});
+  page.on("pageerror",e=>errors.push(e.message));
+  await page.goto(url);
+  await expect(page.locator(".control-card")).toHaveCount(5);
+  await page.locator("#profile-id").fill(expected.id);
+  await page.locator("#profile-name").fill(expected.name);
+  for (const c of expected.controls) await select(page,c.id).selectOption(c.enabled?"enabled":"excluded");
+  await page.getByLabel("Exclusion reason for "+data.controls.find(c=>c.id==="packages.telnet-client-absent").title).fill(expected.controls[2].reason);
+  await expect(page.locator("#included-count")).toHaveText("3");
+  await expect(page.locator("#excluded-count")).toHaveText("1");
+  await expect(page.locator("#omitted-count")).toHaveText("1");
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const saved=await download;
+  expect(saved.suggestedFilename()).toBe(expected.id+".yaml");
+  const filename=path.join(evidence,saved.suggestedFilename());
+  await saved.saveAs(filename);
+  const raw=await readFile(filename,"utf8");
+  expect(raw).toBe(exportProfile(expected));
+  expect(importProfile(raw)).toEqual(expected);
+  const validation=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(validation.status,validation.stdout+validation.stderr).toBe(0);
+  await writeFile(path.join(evidence,"browser-validation.txt"),validation.stdout+validation.stderr);
+  await page.locator("#open-import").click();
+  await page.locator("#import-file").setInputFiles(filename);
+  await expect(page.locator("#import-text")).toHaveValue(raw);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#import-dialog")).not.toBeVisible();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+  const secondDownload=page.waitForEvent("download");
+  await page.locator("#export").click();
+  await (await secondDownload).saveAs(path.join(evidence,"round-trip.yaml"));
+  expect(await readFile(path.join(evidence,"round-trip.yaml"),"utf8")).toBe(raw);
+  expect(requests).toEqual([]); expect(errors).toEqual([]);
+  await page.screenshot({path:path.join(evidence,"editor-desktop.png"),fullPage:true});
+});
+test("filters compose without losing selections",async({page})=>{
+  await page.goto(url);
+  await select(page,"files.passwd-permissions").selectOption("enabled");
+  await page.locator("#category").selectOption("packages");
+  await expect(page.locator(".control-card")).toHaveCount(2);
+  await page.locator("#search").fill("signature");
+  await expect(page.locator(".control-card")).toHaveCount(1);
+  await page.locator("#availability").selectOption("unavailable");
+  await expect(page.locator("#empty-state")).toBeVisible();
+  await page.locator("#availability").selectOption("");
+  await page.locator("#category").selectOption("");
+  await page.locator("#search").fill("");
+  await page.locator("#applicability").selectOption("inapplicable");
+  await expect(page.locator(".control-card")).toHaveCount(0);
+  await page.locator("#applicability").selectOption("");
+  await expect(select(page,"files.passwd-permissions")).toHaveValue("enabled");
+  await page.locator("#impact").selectOption("high");
+  await expect(page.locator(".control-card")).toHaveCount(0);
+});
+test("errors block export and invalid import preserves the current draft",async({page})=>{
+  await page.goto(url);
+  const before=await page.locator("#yaml-preview").inputValue();
+  await page.locator("#profile-id").fill("../invalid");
+  await expect(page.locator("#export")).toBeDisabled();
+  await expect(page.locator("#validation")).toContainText("Review profile issues");
+  await page.locator("#profile-id").fill("rocky10-custom");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(before+"command: unsafe\n");
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#import-error")).toContainText("Import rejected");
+  await page.locator("#close-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(before);
+  await expect(page.locator("#export")).toBeEnabled();
+});
+test("untrusted text renders literally and mobile layout fits",async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(url);
+  const p=structuredClone(expected);p.name="<img src=x onerror=alert(1)>";
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(exportProfile(p));
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#profile-name")).toHaveValue(p.name);
+  expect(await page.locator("img").count()).toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({path:path.join(evidence,"editor-mobile.png"),fullPage:true});
+});

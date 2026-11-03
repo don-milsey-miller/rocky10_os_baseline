@@ -16,7 +16,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m2-five-controls https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m3-profile-editor https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
@@ -84,7 +84,9 @@ not mean controls are compliant.
 
 Run the [five-control integration suite](docs/m2-testing.md) for per-control
 exclusions, configuration conflicts, dependency refusal, unsigned RPM rejection,
-and reboot persistence. The profile editor remains outside this milestone.
+and reboot persistence. The optional [local profile editor](web/README.md)
+builds to one offline HTML file and exports YAML for this same CLI. See the
+[M3 editor-to-engine demonstration](docs/m3-demonstration.md).
 
 See [profile format](docs/profile-format.md), [operations](docs/operations.md),
 [architecture and authoring](docs/architecture.md), and
