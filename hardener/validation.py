@@ -1,5 +1,6 @@
 """Strict offline profile and catalog validation."""
 
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -55,6 +56,39 @@ def read_schema(name):
     return json.loads((DATA / "schemas" / name).read_text())
 
 
+def parameter_defaults(schema, supplied):
+    """Apply explicit property defaults without changing caller-owned data."""
+    value = copy.deepcopy(supplied)
+    if isinstance(value, dict):
+        for key, child in schema.get("properties", {}).items():
+            if key not in value and "default" in child:
+                value[key] = copy.deepcopy(child["default"])
+            if key in value:
+                value[key] = parameter_defaults(child, value[key])
+    elif isinstance(value, list):
+        value = [parameter_defaults(schema.get("items", {}), item) for item in value]
+    return value
+
+
+def effective_parameters(control, supplied):
+    value = parameter_defaults(control["parameters"], supplied)
+    check_schema(value, control["parameters"], control["id"])
+    return value
+
+
+def dependency_order(selected, catalog):
+    """Dependencies precede dependents, with stable ordering for unrelated IDs."""
+    remaining = set(selected)
+    ordered = []
+    while remaining:
+        ready = sorted(cid for cid in remaining if not (set(catalog[cid]["requires"]) & remaining))
+        if not ready:
+            raise ValidationError("Catalog dependency cycle")
+        ordered.extend(ready)
+        remaining.difference_update(ready)
+    return ordered
+
+
 def load_catalog(root=DATA):
     result = {}
     for path in sorted((root / "catalog").glob("*.yaml")):
@@ -83,6 +117,7 @@ def load_catalog(root=DATA):
         for ref in control["requires"] + control["conflicts_with"]:
             if ref not in result or ref == control["id"]:
                 raise ValidationError("Invalid catalog dependency or conflict")
+    dependency_order(result, result)
     return result
 
 
@@ -98,7 +133,8 @@ def validate(profile, catalog):
         if cid not in catalog:
             raise ValidationError(f"Unknown control: {cid}")
         control = catalog[cid]
-        check_schema(item.get("parameters", {}), control["parameters"], cid)
+        if item["enabled"] or item.get("parameters"):
+            effective_parameters(control, item.get("parameters", {}))
         if item["enabled"]:
             if not control["implemented"]:
                 raise ValidationError(f"{cid}: implementation unavailable")
@@ -111,7 +147,7 @@ def validate(profile, catalog):
             raise ValidationError(f"{cid}: missing enabled dependency")
         if set(control["conflicts_with"]) & selected:
             raise ValidationError(f"{cid}: conflicting selection")
-    return sorted(selected)
+    return dependency_order(selected, catalog)
 
 
 def load_profile(path, catalog):

@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import Ajv2020 from "ajv/dist/2020.js";
-import { data, available, validateProfile, exportProfile, importProfile, normalize, parameterValue } from "../src/core.mjs";
+import { data, available, validateProfile, exportProfile, importProfile, normalize, parameterValue, parameterDefaults } from "../src/core.mjs";
 
 const base = () => ({schema_version:1,id:"test-profile",name:"Test profile",revision:1,
   target:{os:"rocky",major_version:10,role:"server"},controls:[]});
@@ -108,4 +108,42 @@ test("YAML strings preserve their types and values in the Python parser",()=>{
   assert.equal(result.status,0,result.stderr);
   assert.deepEqual(JSON.parse(result.stdout),p);
   assert.throws(()=>importProfile(exportProfile(base()).replace("revision: 1","revision: 9007199254740993")));
+});
+
+test("defaults preserve explicit zero and false without mutating input",()=>{
+  const schema={type:"object",properties:{count:{type:"integer",default:7},
+    enabled:{type:"boolean",default:true}, list:{type:"array",default:[1]}}};
+  const supplied={count:0,enabled:false};
+  const result=parameterDefaults(schema,supplied);
+  assert.deepEqual(result,{count:0,enabled:false,list:[1]});
+  result.list.push(2);
+  assert.deepEqual(schema.properties.list.default,[1]);
+  assert.deepEqual(supplied,{count:0,enabled:false});
+});
+test("selection bounds match CLI at 128 and 129",()=>{
+  const schema=JSON.parse(readFileSync("../hardener/data/schemas/profile.schema.json","utf8"));
+  const check=new Ajv2020({strict:false}).compile(schema);
+  const p=base();
+  p.controls=Array.from({length:128},(_,i)=>entry("fixture.item-"+i,false));
+  assert.equal(check(p),true);
+  p.controls.push(entry("fixture.extra",false));
+  assert.equal(check(p),false);
+});
+test("dependency cycles cannot be exported",()=>{
+  const controls=structuredClone(data.controls.slice(0,2));
+  controls[0].requires=[controls[1].id]; controls[1].requires=[controls[0].id];
+  const p=base(); p.controls=controls.map(c=>entry(c.id));
+  assert.match(validateProfile(p,controls).errors.join(),/cycle/);
+});
+
+test("excluded controls do not require absent site policies",()=>{
+  const controls=structuredClone(data.controls.slice(0,1));
+  controls[0].parameters={type:"object",additionalProperties:false,
+    required:["policy"],properties:{policy:{type:"string"}}};
+  const ajv=new Ajv2020({strict:false});
+  const params={[controls[0].id]:ajv.compile(controls[0].parameters)};
+  const p=base();p.controls=[entry(controls[0].id,false)];
+  assert.deepEqual(validateProfile(p,controls,params).errors,[]);
+  p.controls[0].enabled=true;
+  assert.ok(validateProfile(p,controls,params).errors.length);
 });

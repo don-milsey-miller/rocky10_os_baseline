@@ -108,6 +108,10 @@ def exit_code(evidence, report, process_code):
         return 3
     if process_code or evidence.get("errors") or report["summary"]["error"]:
         return 4
-    if report["summary"]["fail"]:
+    if (
+        report["summary"]["fail"]
+        or report["summary"]["unsupported"]
+        or (report["mode"] != "preflight" and report["summary"]["skipped"])
+    ):
         return 5
     return 0

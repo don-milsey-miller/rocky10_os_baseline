@@ -59,7 +59,7 @@
     get_mime: false
     get_attributes: false
   register: account_file
-  when: "'files.passwd-permissions' in hardener_selected"
+  when: "'files.passwd-permissions' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Require an existing regular account file
   ansible.builtin.assert:
@@ -68,23 +68,23 @@
       - not (account_file.stat.islnk | default(false))
       - account_file.stat.nlink | default(0) == 1
     fail_msg: Restore a regular, single-link /etc/passwd before continuing.
-  when: "'files.passwd-permissions' in hardener_selected"
+  when: "'files.passwd-permissions' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Check prerequisites for kernel.protected-hardlinks
   ansible.builtin.include_tasks: preflight/kernel.yml
-  when: "'kernel.protected-hardlinks' in hardener_selected"
+  when: "'kernel.protected-hardlinks' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Check prerequisites for services.debug-shell-disabled
   ansible.builtin.include_tasks: preflight/debug-shell.yml
-  when: "'services.debug-shell-disabled' in hardener_selected"
+  when: "'services.debug-shell-disabled' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Check prerequisites for packages.telnet-client-absent
   ansible.builtin.include_tasks: preflight/telnet.yml
-  when: "'packages.telnet-client-absent' in hardener_selected"
+  when: "'packages.telnet-client-absent' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Check prerequisites for packages.local-signature-check
   ansible.builtin.include_tasks: preflight/dnf-signatures.yml
-  when: "'packages.local-signature-check' in hardener_selected"
+  when: "'packages.local-signature-check' in hardener_selected and hardener_mode in ['apply', 'preflight']"
 
 - name: Record successful preflight
   ansible.builtin.set_fact:

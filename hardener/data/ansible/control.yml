@@ -1,16 +1,45 @@
 ---
-- name: Reset per-control change evidence
+- name: Reset per-control execution evidence
   ansible.builtin.set_fact:
     hardener_changed: false
+    hardener_record: {}
+    hardener_dependency_blocked: "{{ hardener_mode == 'apply' and (control.requires | difference(hardener_passed | default([])) | length > 0) }}"
+
+- name: Record a blocked dependency
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: skipped
+      observed: null
+      expected: "{{ control.summary }}"
+      changed: false
+      reason: A required control did not pass. No dependent changes were attempted.
+      reboot_required: "{{ control.reboot_required }}"
+  when: hardener_dependency_blocked
 
 - name: Run control and isolate failure
+  when: not hardener_dependency_blocked
   block:
+    - name: Check administrative access before remediation
+      ansible.builtin.command:
+        argv: [/usr/bin/id, -u]
+      changed_when: false
+      register: hardener_admin_access
+      failed_when: hardener_admin_access.stdout != '0'
+      when: hardener_mode == 'apply'
+
     - name: Run selected operation
       ansible.builtin.include_tasks: "{{ control.implementation[hardener_mode] }}"
 
     - name: Independently verify applied control
       ansible.builtin.include_tasks: "{{ control.implementation.verify }}"
       when: hardener_mode == 'apply'
+
+    - name: Require complete control evidence
+      ansible.builtin.assert:
+        that:
+          - hardener_record.id | default('') == control.id
+          - hardener_record.status | default('') in ['pass', 'fail', 'not_applicable', 'error', 'unsupported']
   rescue:
     - name: Record control execution error
       ansible.builtin.set_fact:
@@ -22,3 +51,12 @@
           changed: "{{ true if hardener_changed else none }}"
           reason: A control task failed and may have partially changed state. Inspect the target and rerun audit.
           reboot_required: "{{ control.reboot_required }}"
+
+    - name: Stop after administrative access failure
+      ansible.builtin.meta: end_host
+      when: ansible_failed_task.name == 'Check administrative access before remediation'
+
+- name: Remember independently verified dependencies
+  ansible.builtin.set_fact:
+    hardener_passed: "{{ (hardener_passed | default([])) + [control.id] }}"
+  when: hardener_record.status == 'pass'

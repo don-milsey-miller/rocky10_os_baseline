@@ -51,7 +51,7 @@
     },
     "controls": {
       "type": "array",
-      "maxItems": 100,
+      "maxItems": 128,
       "items": {
         "type": "object",
         "additionalProperties": false,

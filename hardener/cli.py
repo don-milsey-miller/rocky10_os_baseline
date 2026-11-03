@@ -10,7 +10,14 @@ import tempfile
 from pathlib import Path
 
 from hardener.reporting import exit_code, make_report, write_report
-from hardener.validation import DATA, ValidationError, load_catalog, load_profile, validate
+from hardener.validation import (
+    DATA,
+    ValidationError,
+    effective_parameters,
+    load_catalog,
+    load_profile,
+    validate,
+)
 
 
 def run_command(argv, env, timeout=300):
@@ -52,12 +59,16 @@ def execute(args, profile, digest, catalog):
         f"Target: {args.target}. Mode: {args.mode}. Controls: {', '.join(selected) or '(none)'}.",
         flush=True,
     )
+    selections = {item["id"]: item for item in profile["controls"]}
     controls = []
     for cid in selected:
         control = dict(catalog[cid])
         control["implementation"] = {
             mode: str(DATA / path) for mode, path in control["implementation"].items()
         }
+        control["effective_parameters"] = effective_parameters(
+            control, selections[cid].get("parameters", {})
+        )
         controls.append(control)
     variables = {
         "hardener_target": args.target,

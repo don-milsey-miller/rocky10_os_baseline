@@ -1,6 +1,6 @@
 # Remaining server controls implementation plan
 
-Status: Proposed implementation plan. Broad server coverage with workload-dependent controls explicitly optional, selected by the owner on 2026-11-03.
+Status: Implementation authorized on 2026-11-03. Milestones are delivered sequentially with recorded acceptance evidence. Broad server coverage with workload-dependent controls explicitly optional, selected by the owner on 2026-11-03.
 
 Start with M5 engine prerequisites, then deliver small tested control batches through M12. M13 closes coverage and release validation. Preserve the five existing behaviors and schema compatibility wherever possible. This plan authorizes no target hardening by itself.
 
