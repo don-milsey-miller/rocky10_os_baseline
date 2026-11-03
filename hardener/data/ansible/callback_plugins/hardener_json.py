@@ -28,6 +28,7 @@ class CallbackModule(CallbackBase):
             self.records[record["id"]] = record
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
+        self.changed += int(bool(result._result.get("changed", False)))
         self.errors.append({"task": result._task.get_name(), "kind": "failed"})
 
     def v2_runner_on_unreachable(self, result):

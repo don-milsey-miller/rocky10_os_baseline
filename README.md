@@ -7,7 +7,8 @@ Each control has independent verification and can be selected or excluded.
 See [exact behaviors and restoration](docs/m2-controls.md).
 
 The project currently has **no license grant**, by owner decision. This is an
-initial development milestone, not an open-source release or certification.
+release candidate, not an open-source release or certification.
+See [M4 checks and complete reproduction](docs/m4-release-readiness.md).
 
 ## Install on a development guest
 
@@ -16,12 +17,12 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m3-profile-editor https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch v0.4.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-tested.txt
-pip install -e '.[test]'
+pip install --no-build-isolation -e '.[test]'
 cp inventory.example.ini inventory.local.ini
 # Edit inventory.local.ini with the test guest address and SSH user.
 ```
@@ -57,14 +58,14 @@ Ansible task success alone never counts as verified compliance.
 Preflight checks SSH, privilege escalation, Rocky 10, KVM guest identity,
 explicit server role, multi-user boot target, DNF availability, and the
 selected control's prerequisites. Bare metal targets are refused.
-This milestone deliberately supports KVM guests only.
+This release candidate supports KVM guests only.
 
 ## Tests
 
 ```bash
 pytest -q
-ruff check hardener tests
-ruff format --check hardener tests
+ruff check hardener tests web/prepare.py
+ruff format --check hardener tests web/prepare.py
 ansible-playbook -i inventory.example.ini hardener/data/ansible/run.yml --syntax-check -e hardener_target=test-vm
 
 # Only after snapshotting a disposable guest. Temporarily changes /etc/passwd mode.

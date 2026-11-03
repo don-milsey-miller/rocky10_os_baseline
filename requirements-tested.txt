@@ -20,3 +20,4 @@ resolvelib==1.2.1
 rpds-py==2026.9.1
 ruff==0.17.3
 typing_extensions==4.16.0
+setuptools==84.2.1
