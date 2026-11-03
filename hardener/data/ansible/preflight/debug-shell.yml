@@ -1,0 +1,27 @@
+---
+- name: Inspect debug console unit availability
+  ansible.builtin.command:
+    argv: [/usr/bin/systemctl, show, debug-shell.service, --property=LoadState, --value]
+  changed_when: false
+  register: debug_load
+
+- name: Require an available or already masked debug console unit
+  ansible.builtin.assert:
+    that: debug_load.stdout in ['loaded', 'masked']
+    fail_msg: The expected systemd debug-shell unit is unavailable.
+
+- name: Inspect persistent debug console override
+  ansible.builtin.stat:
+    path: /etc/systemd/system/debug-shell.service
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: debug_existing
+
+- name: Refuse replacing a custom debug console unit
+  ansible.builtin.assert:
+    that:
+      - not debug_existing.stat.exists or ((debug_existing.stat.islnk | default(false)) and (debug_existing.stat.lnk_source | default('')) == '/dev/null')
+    fail_msg: Preserve and reconcile the custom debug-shell unit before applying a persistent mask.
+  when: hardener_mode in ['preflight', 'apply']

@@ -23,7 +23,11 @@
     "additionalProperties": false,
     "properties": {}
   },
-  "implemented": false,
+  "implemented": true,
   "reboot_required": false,
-  "implementation": {}
+  "implementation": {
+    "audit": "ansible/tasks/packages.telnet-client-absent.audit.yml",
+    "apply": "ansible/tasks/packages.telnet-client-absent.apply.yml",
+    "verify": "ansible/tasks/packages.telnet-client-absent.verify.yml"
+  }
 }

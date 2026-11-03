@@ -1,0 +1,19 @@
+schema_version: 1
+id: rocky10-server-five-controls
+name: Rocky Linux 10 five-control server
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+  - id: files.passwd-permissions
+    enabled: true
+  - id: kernel.protected-hardlinks
+    enabled: true
+  - id: services.debug-shell-disabled
+    enabled: true
+  - id: packages.telnet-client-absent
+    enabled: true
+  - id: packages.local-signature-check
+    enabled: true

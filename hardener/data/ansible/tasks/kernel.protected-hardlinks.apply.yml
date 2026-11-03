@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected hard-link setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?fs[./]protected_hardlinks\s*='
+    line: fs.protected_hardlinks = 1
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: hardlinks_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardlinks_file.changed }}"
+
+- name: Read current hard-link setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_hardlinks]
+  register: hardlinks_before
+  changed_when: false
+
+- name: Activate only the selected hard-link setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, fs.protected_hardlinks=1]
+  when: hardlinks_before.stdout != '1'
+  changed_when: true
+  register: hardlinks_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or hardlinks_activation.changed }}"

@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/fs/protected_hardlinks]
+  register: hardlinks_verified
+  changed_when: false
+
+- name: Independently reinspect persistent hard-link policy
+  ansible.builtin.include_tasks: kernel.protected-hardlinks.inspect.yml
+
+- name: Report hard-link policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if hardlinks_verified.stdout == '1' and hardlinks_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ hardlinks_verified.stdout }} persistent={{ hardlinks_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

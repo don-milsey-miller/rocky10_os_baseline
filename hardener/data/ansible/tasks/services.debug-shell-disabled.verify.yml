@@ -1,0 +1,26 @@
+---
+- name: Inspect persistent debug console mask
+  ansible.builtin.stat:
+    path: /etc/systemd/system/debug-shell.service
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: debug_mask_verified
+
+- name: Inspect effective debug console state
+  ansible.builtin.command:
+    argv: [/usr/bin/systemctl, show, debug-shell.service, --property=ActiveState, --property=LoadState, --property=UnitFileState]
+  register: debug_verified
+  changed_when: false
+
+- name: Report debug console verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if (debug_mask_verified.stat.islnk | default(false)) and (debug_mask_verified.stat.lnk_source | default('')) == '/dev/null' and 'ActiveState=inactive' in debug_verified.stdout_lines and 'LoadState=masked' in debug_verified.stdout_lines and 'UnitFileState=masked' in debug_verified.stdout_lines else 'fail' }}"
+      observed: "{{ debug_verified.stdout_lines | join(' ') }} persistent_mask={{ debug_mask_verified.stat.lnk_source | default('absent') }}"
+      expected: inactive with a persistent /etc mask pointing to /dev/null
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

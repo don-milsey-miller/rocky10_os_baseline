@@ -23,7 +23,11 @@
     "additionalProperties": false,
     "properties": {}
   },
-  "implemented": false,
+  "implemented": true,
   "reboot_required": false,
-  "implementation": {}
+  "implementation": {
+    "audit": "ansible/tasks/services.debug-shell-disabled.audit.yml",
+    "apply": "ansible/tasks/services.debug-shell-disabled.apply.yml",
+    "verify": "ansible/tasks/services.debug-shell-disabled.verify.yml"
+  }
 }

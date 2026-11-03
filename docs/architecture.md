@@ -37,3 +37,8 @@ Original implementation references:
 
 A null changed value means change evidence is unavailable after an error.
 It must not be interpreted as a no-change result.
+
+The additional M2 controls and their configuration boundaries are described in
+[m2-controls.md](m2-controls.md). Read-only filter helpers interpret ordered
+sysctl output and reject ambiguous DNF edits. No additional runtime dependency
+or service was introduced.

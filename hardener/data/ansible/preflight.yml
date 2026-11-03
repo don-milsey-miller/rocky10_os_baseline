@@ -70,6 +70,22 @@
     fail_msg: Restore a regular, single-link /etc/passwd before continuing.
   when: "'files.passwd-permissions' in hardener_selected"
 
+- name: Check prerequisites for kernel.protected-hardlinks
+  ansible.builtin.include_tasks: preflight/kernel.yml
+  when: "'kernel.protected-hardlinks' in hardener_selected"
+
+- name: Check prerequisites for services.debug-shell-disabled
+  ansible.builtin.include_tasks: preflight/debug-shell.yml
+  when: "'services.debug-shell-disabled' in hardener_selected"
+
+- name: Check prerequisites for packages.telnet-client-absent
+  ansible.builtin.include_tasks: preflight/telnet.yml
+  when: "'packages.telnet-client-absent' in hardener_selected"
+
+- name: Check prerequisites for packages.local-signature-check
+  ansible.builtin.include_tasks: preflight/dnf-signatures.yml
+  when: "'packages.local-signature-check' in hardener_selected"
+
 - name: Record successful preflight
   ansible.builtin.set_fact:
     hardener_preflight_passed: true

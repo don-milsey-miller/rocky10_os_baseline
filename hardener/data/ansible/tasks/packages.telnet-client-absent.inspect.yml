@@ -1,0 +1,12 @@
+---
+- name: Query the exact Telnet client package
+  ansible.builtin.command:
+    argv: [/usr/bin/rpm, -q, --qf, '%{NAME}', telnet]
+  environment:
+    LC_ALL: C
+  register: telnet_query
+  changed_when: false
+  failed_when: >-
+    telnet_query.rc not in [0, 1] or
+    (telnet_query.rc == 1 and
+    (telnet_query.stderr | length > 0 or telnet_query.stdout != 'package telnet is not installed'))
