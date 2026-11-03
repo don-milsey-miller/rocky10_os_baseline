@@ -1,0 +1,29 @@
+{
+  "id": "services.debug-shell-disabled",
+  "title": "Disable the privileged debug console",
+  "summary": "Stop and mask debug-shell.service.",
+  "rationale": "Prevent an unauthenticated privileged debugging console.",
+  "benefits": [
+    "Removes an unnecessary interactive administrative entry point."
+  ],
+  "tradeoffs": [
+    "The systemd debugging console becomes unavailable."
+  ],
+  "applies_to": {
+    "os": "rocky",
+    "major_version": 10,
+    "role": "server"
+  },
+  "impact": "low",
+  "impact_note": "Ordinary serial login remains available.",
+  "requires": [],
+  "conflicts_with": [],
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "implemented": false,
+  "reboot_required": false,
+  "implementation": {}
+}

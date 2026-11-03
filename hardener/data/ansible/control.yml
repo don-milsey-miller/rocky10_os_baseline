@@ -1,0 +1,24 @@
+---
+- name: Reset per-control change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: false
+
+- name: Run control and isolate failure
+  block:
+    - name: Run selected operation
+      ansible.builtin.include_tasks: "{{ control.implementation[hardener_mode] }}"
+
+    - name: Independently verify applied control
+      ansible.builtin.include_tasks: "{{ control.implementation.verify }}"
+      when: hardener_mode == 'apply'
+  rescue:
+    - name: Record control execution error
+      ansible.builtin.set_fact:
+        hardener_record:
+          id: "{{ control.id }}"
+          status: error
+          observed: null
+          expected: "{{ control.summary }}"
+          changed: "{{ true if hardener_changed else none }}"
+          reason: A control task failed and may have partially changed state. Inspect the target and rerun audit.
+          reboot_required: "{{ control.reboot_required }}"

@@ -1,0 +1,23 @@
+schema_version: 1
+id: rocky10-server-minimal
+name: Rocky Linux 10 minimal server
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+  - id: files.passwd-permissions
+    enabled: true
+  - id: kernel.protected-hardlinks
+    enabled: false
+    reason: Planned for the five-control milestone
+  - id: services.debug-shell-disabled
+    enabled: false
+    reason: Planned for the five-control milestone
+  - id: packages.telnet-client-absent
+    enabled: false
+    reason: Planned for the five-control milestone
+  - id: packages.local-signature-check
+    enabled: false
+    reason: Planned for the five-control milestone

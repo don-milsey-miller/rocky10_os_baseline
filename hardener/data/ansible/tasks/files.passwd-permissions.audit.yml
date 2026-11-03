@@ -1,0 +1,20 @@
+---
+- name: Read account file metadata
+  ansible.builtin.stat:
+    path: /etc/passwd
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: passwd_audit
+
+- name: Report account file audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if (passwd_audit.stat.uid == 0 and passwd_audit.stat.gid == 0 and passwd_audit.stat.mode == '0644') else 'fail' }}"
+      observed: "uid={{ passwd_audit.stat.uid }} gid={{ passwd_audit.stat.gid }} mode={{ passwd_audit.stat.mode }}"
+      expected: uid=0 gid=0 mode=0644
+      changed: false
+      reason: null
+      reboot_required: false

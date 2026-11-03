@@ -1,0 +1,19 @@
+---
+- name: Inspect account file using independent system stat
+  ansible.builtin.command:
+    argv: [/usr/bin/stat, '--format=%u:%g:%a:%F:%h', /etc/passwd]
+  environment:
+    LC_ALL: C
+  register: passwd_verify
+  changed_when: false
+
+- name: Report independent account file verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if passwd_verify.stdout == '0:0:644:regular file:1' else 'fail' }}"
+      observed: "{{ passwd_verify.stdout }}"
+      expected: '0:0:644:regular file:1'
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

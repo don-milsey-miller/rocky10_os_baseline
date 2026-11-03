@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "summary",
+    "rationale",
+    "benefits",
+    "tradeoffs",
+    "applies_to",
+    "impact",
+    "impact_note",
+    "requires",
+    "conflicts_with",
+    "parameters",
+    "implementation",
+    "implemented",
+    "reboot_required"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*\\.[a-z][a-z0-9-]*$",
+      "maxLength": 80
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "benefits": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "tradeoffs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os",
+        "major_version",
+        "role"
+      ],
+      "properties": {
+        "os": {
+          "const": "rocky"
+        },
+        "major_version": {
+          "type": "integer",
+          "const": 10
+        },
+        "role": {
+          "const": "server"
+        }
+      }
+    },
+    "impact": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "impact_note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requires": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*\\.[a-z][a-z0-9-]*$",
+        "maxLength": 80
+      }
+    },
+    "conflicts_with": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*\\.[a-z][a-z0-9-]*$",
+        "maxLength": 80
+      }
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "implemented": {
+      "type": "boolean"
+    },
+    "reboot_required": {
+      "type": "boolean"
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "audit": {
+          "type": "string"
+        },
+        "apply": {
+          "type": "string"
+        },
+        "verify": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "implemented": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "implementation": {
+            "required": [
+              "audit",
+              "apply",
+              "verify"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

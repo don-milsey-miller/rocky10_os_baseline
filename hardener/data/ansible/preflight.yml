@@ -1,0 +1,75 @@
+---
+- name: Require SSH and explicit server role
+  ansible.builtin.assert:
+    that:
+      - ansible_connection | default('ssh') == 'ssh'
+      - hardener_role | default('') == 'server'
+    fail_msg: Declare hardener_role=server and use SSH transport.
+
+- name: Inspect effective privileges
+  ansible.builtin.command:
+    argv: [/usr/bin/id, -u]
+  register: effective_uid
+  changed_when: false
+
+- name: Require working privilege escalation
+  ansible.builtin.assert:
+    that: effective_uid.stdout == '0'
+    fail_msg: Configure working Ansible privilege escalation.
+
+- name: Inspect operating system and virtualization
+  ansible.builtin.setup:
+    gather_subset: ['!all', '!min', distribution, virtual]
+    filter:
+      - ansible_distribution
+      - ansible_distribution_major_version
+      - ansible_virtualization_type
+      - ansible_virtualization_role
+
+- name: Require Rocky Linux 10 KVM guest
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution == 'Rocky'
+      - ansible_facts.distribution_major_version == '10'
+      - ansible_facts.virtualization_type == 'kvm'
+      - ansible_facts.virtualization_role == 'guest'
+    fail_msg: Only Rocky Linux 10 KVM guests are supported. Never target the hypervisor.
+
+- name: Inspect server boot target
+  ansible.builtin.command:
+    argv: [/usr/bin/systemctl, get-default]
+  register: boot_target
+  changed_when: false
+
+- name: Require server boot target
+  ansible.builtin.assert:
+    that: boot_target.stdout == 'multi-user.target'
+    fail_msg: A server with multi-user.target is required.
+
+- name: Inspect package manager
+  ansible.builtin.command:
+    argv: [/usr/bin/dnf, --version]
+  changed_when: false
+
+- name: Inspect selected account file prerequisites
+  ansible.builtin.stat:
+    path: /etc/passwd
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: account_file
+  when: "'files.passwd-permissions' in hardener_selected"
+
+- name: Require an existing regular account file
+  ansible.builtin.assert:
+    that:
+      - account_file.stat.isreg | default(false)
+      - not (account_file.stat.islnk | default(false))
+      - account_file.stat.nlink | default(0) == 1
+    fail_msg: Restore a regular, single-link /etc/passwd before continuing.
+  when: "'files.passwd-permissions' in hardener_selected"
+
+- name: Record successful preflight
+  ansible.builtin.set_fact:
+    hardener_preflight_passed: true

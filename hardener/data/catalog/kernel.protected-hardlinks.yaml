@@ -1,0 +1,29 @@
+{
+  "id": "kernel.protected-hardlinks",
+  "title": "Restrict hard-link creation",
+  "summary": "Set persistent and running fs.protected_hardlinks to 1.",
+  "rationale": "Limit hard links to files the caller may safely link.",
+  "benefits": [
+    "Reduces opportunities to exploit shared writable directories."
+  ],
+  "tradeoffs": [
+    "Legacy workflows that link another user's files may fail."
+  ],
+  "applies_to": {
+    "os": "rocky",
+    "major_version": 10,
+    "role": "server"
+  },
+  "impact": "low",
+  "impact_note": "Review shared-file workflows before enabling.",
+  "requires": [],
+  "conflicts_with": [],
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "implemented": false,
+  "reboot_required": false,
+  "implementation": {}
+}

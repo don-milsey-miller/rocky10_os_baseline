@@ -1,0 +1,14 @@
+---
+- name: Set account file ownership and permissions
+  ansible.builtin.file:
+    path: /etc/passwd
+    state: file
+    owner: root
+    group: root
+    mode: '0644'
+    follow: false
+  register: passwd_apply
+
+- name: Preserve change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ passwd_apply.changed }}"

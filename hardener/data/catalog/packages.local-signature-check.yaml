@@ -1,0 +1,29 @@
+{
+  "id": "packages.local-signature-check",
+  "title": "Require signatures on local RPMs",
+  "summary": "Set the effective DNF localpkg_gpgcheck option to True.",
+  "rationale": "Check package signatures when installing local RPM files.",
+  "benefits": [
+    "Rejects unsigned local package files."
+  ],
+  "tradeoffs": [
+    "Locally built RPMs must be signed with a trusted key."
+  ],
+  "applies_to": {
+    "os": "rocky",
+    "major_version": 10,
+    "role": "server"
+  },
+  "impact": "low",
+  "impact_note": "This affects local packages, not repository configuration.",
+  "requires": [],
+  "conflicts_with": [],
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "implemented": false,
+  "reboot_required": false,
+  "implementation": {}
+}

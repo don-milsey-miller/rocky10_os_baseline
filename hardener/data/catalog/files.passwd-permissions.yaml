@@ -1,0 +1,33 @@
+{
+  "id": "files.passwd-permissions",
+  "title": "Protect account-file permissions",
+  "summary": "Set /etc/passwd ownership to root:root and mode to 0644.",
+  "rationale": "Prevent ordinary users from modifying local account records.",
+  "benefits": [
+    "Account lookups remain readable to applications."
+  ],
+  "tradeoffs": [
+    "Overrides deliberate custom ownership or permissions."
+  ],
+  "applies_to": {
+    "os": "rocky",
+    "major_version": 10,
+    "role": "server"
+  },
+  "impact": "low",
+  "impact_note": "The account file content is preserved. No restart is required.",
+  "requires": [],
+  "conflicts_with": [],
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "implemented": true,
+  "reboot_required": false,
+  "implementation": {
+    "audit": "ansible/tasks/files.passwd-permissions.audit.yml",
+    "apply": "ansible/tasks/files.passwd-permissions.apply.yml",
+    "verify": "ansible/tasks/files.passwd-permissions.verify.yml"
+  }
+}

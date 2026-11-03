@@ -1,0 +1,29 @@
+{
+  "id": "packages.telnet-client-absent",
+  "title": "Remove the Telnet client",
+  "summary": "Remove the telnet package without removing dependencies.",
+  "rationale": "Avoid use of an unencrypted remote terminal client.",
+  "benefits": [
+    "Reduces accidental transmission of terminal credentials in clear text."
+  ],
+  "tradeoffs": [
+    "Legacy Telnet-based diagnostic workflows need another tool."
+  ],
+  "applies_to": {
+    "os": "rocky",
+    "major_version": 10,
+    "role": "server"
+  },
+  "impact": "low",
+  "impact_note": "The transaction must refuse removal of dependent packages.",
+  "requires": [],
+  "conflicts_with": [],
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "implemented": false,
+  "reboot_required": false,
+  "implementation": {}
+}
