@@ -1,3 +1,3 @@
 """Rocky Linux 10 server hardening."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0rc1"

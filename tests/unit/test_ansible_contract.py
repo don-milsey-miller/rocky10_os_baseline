@@ -48,3 +48,18 @@ def test_callback_does_not_expose_module_secrets():
 def test_every_ansible_file_parses():
     for path in (DATA / "ansible").rglob("*.yml"):
         assert isinstance(yaml.safe_load(path.read_text()), list)
+
+
+def test_callback_retains_known_changes_from_failed_modules():
+    path = DATA / "ansible/callback_plugins/hardener_json.py"
+    spec = importlib.util.spec_from_file_location("failure_callback", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    callback = module.CallbackModule()
+    task = SimpleNamespace(get_name=lambda: "Controlled failure")
+    callback.v2_runner_on_failed(
+        SimpleNamespace(_task=task, _result={"changed": True, "msg": "private sentinel"})
+    )
+    assert callback.changed == 1
+    assert callback.errors == [{"task": "Controlled failure", "kind": "failed"}]
+    assert "private sentinel" not in str(callback.errors)

@@ -1,0 +1,218 @@
+[
+  {
+    "name": "@esbuild/aix-ppc64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/android-arm",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/android-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/android-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/darwin-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/darwin-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/freebsd-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/freebsd-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-arm",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-ia32",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-loong64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-mips64el",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-ppc64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-riscv64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-s390x",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/linux-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/netbsd-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/netbsd-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/openbsd-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/openbsd-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/openharmony-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/sunos-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/win32-arm64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/win32-ia32",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@esbuild/win32-x64",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "@playwright/test",
+    "version": "1.64.1",
+    "license": "Apache-2.0",
+    "bundled": false
+  },
+  {
+    "name": "ajv",
+    "version": "8.20.0",
+    "license": "MIT",
+    "bundled": true
+  },
+  {
+    "name": "esbuild",
+    "version": "0.28.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "fast-deep-equal",
+    "version": "3.1.3",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "fast-uri",
+    "version": "3.1.9",
+    "license": "BSD-3-Clause",
+    "bundled": false
+  },
+  {
+    "name": "json-schema-traverse",
+    "version": "1.0.0",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "playwright",
+    "version": "1.64.1",
+    "license": "Apache-2.0",
+    "bundled": false
+  },
+  {
+    "name": "playwright-core",
+    "version": "1.64.1",
+    "license": "Apache-2.0",
+    "bundled": false
+  },
+  {
+    "name": "require-from-string",
+    "version": "2.0.2",
+    "license": "MIT",
+    "bundled": false
+  },
+  {
+    "name": "yaml",
+    "version": "2.9.1",
+    "license": "ISC",
+    "bundled": true
+  }
+]

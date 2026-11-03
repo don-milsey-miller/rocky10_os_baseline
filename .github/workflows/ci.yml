@@ -1,0 +1,66 @@
+name: Release checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install pinned Python dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r requirements-tested.txt
+          .venv/bin/pip install --no-build-isolation -e '.[test]'
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+      - name: Python and Ansible checks
+        run: |
+          pytest -q
+          ruff check hardener tests web/prepare.py
+          ruff format --check hardener tests web/prepare.py
+          ansible-playbook -i inventory.example.ini hardener/data/ansible/run.yml --syntax-check -e hardener_target=test-vm
+      - name: Build and test offline editor
+        working-directory: web
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+          npm test
+          npx playwright install --with-deps chromium --only-shell
+          npm run test:browser
+      - name: Verify installed wheel and clean release assets
+        run: |
+          python -m build --no-isolation
+          python tests/integration/package_smoke.py
+          python tests/release_checks.py
+      - name: Upload candidate artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: candidate-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            web/dist/index.html
+            web/dist/build-manifest.json
+            web/dist/THIRD-PARTY-NOTICES.txt
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: browser-failure-${{ github.sha }}
+          path: web/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
