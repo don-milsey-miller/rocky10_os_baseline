@@ -1,6 +1,6 @@
 # Rocky Linux 10 OS baseline
 
-**M8 work checkpoint:** implementation is saved for continuation. M8 acceptance and release validation are incomplete. M5–M7 remain the last completed milestones. See [checkpoint and remaining work](docs/m8-demonstration.md#validation-record).
+**M8 validated:** SSH and sudo acceptance passed twice on disposable Rocky Linux 10.2 KVM guests. All 43 controls passed combined verification. See the [validation record](docs/m8-demonstration.md#validation-record).
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
 The catalog contains 43 controls covering account files, kernel safeguards, package

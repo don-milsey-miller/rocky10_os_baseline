@@ -73,48 +73,75 @@ access. The engine does not provide a general transaction rollback.
 
 ## Validation record
 
-Work stopped at the owner's request on 2026-11-03. This is an unfinished M8
-checkpoint, not a completed release. The test guest was restored to the preceding
-verified M7 snapshot after the active read-only check finished. No validation
-driver remains running.
-
-The saved engine digest is
+M8 acceptance completed on 2026-11-05 for version 0.8.0rc1. Tests used the saved
+implementation from commit `ae83d04`, with no engine changes during the local resume.
+Its SHA-256 remains
 `8adaa98a342bbe85f7f51e23e5e335a24b543463abd6946a88a72320f842a0e6`.
 
-Completed checks:
+| Check | Result |
+| --- | --- |
+| Python unit tests | 144 passed |
+| Editor unit and browser tests | 31 and 8 passed |
+| Ruff and Ansible syntax | Passed |
+| M7 baseline recreation | Full suite passed, including reboot and no-change rerun |
+| M8 lifecycle | Two complete runs from the same offline snapshot |
+| Unsafe-policy preflights | Eight zero-change refusals per run |
+| Native access probes | Authentication, user/group restrictions, forwarding denial, connection/session limits, idle disconnect, sudo password/cache/PTY behavior passed |
+| Reload evidence | Edited configuration and deleted drop-in detected, then repaired |
+| Browser-to-engine | Exact downloaded access profile applied and verified without editing |
+| Combined catalog | 42 remediable controls applied and all 43 verified, including update assessment |
+| Combined persistence | All 43 verified after reboot, with zero-change apply reruns before and after reboot |
+| Regression | VS1, VS2, VS4, VS5 and extended M5 access-loss/dependency suite passed |
+| Recovery | SSH stopped deliberately, offline snapshot restored, fresh SSH/sudo and marker rollback verified |
+| Packaging and publication checks | Installed-wheel smoke, release assets and Git-history credential-pattern/path scan passed |
 
-- 144 Python tests, Ruff lint/format checks, and Ansible syntax validation passed.
-- The rebuilt offline editor passed 31 unit tests and 8 browser tests.
-- The final-d guest run detected all thirteen noncompliant controls, refused all
-  eight unsafe policies with zero changes, applied and independently verified all
-  thirteen controls, and repeated apply with zero changes.
-- Native probes passed root/password/empty-password rejection, removal of the
-  host-based method, user/group access restrictions, TCP forwarding rejection,
-  authentication-attempt and connection/session limits, actual idle-channel
-  expiry, password-required sudo, zero-minute caching, and separate sudo PTYs.
-- Focused checks demonstrated deleted-drop-in reload detection, reload repair,
-  reboot verification, and zero-change reapplication.
+Private evidence is under `reports/m8/local-run-d`, `reports/m8/local-run-e`,
+`reports/m8/local-combined` and `reports/local-resume`. Reports retain exact commands,
+profile digests, engine digest and native observations. The two M8 runs produced
+matching final control statuses and expectations. Each post-reboot apply made zero
+changes. Native idle disconnection measured 30.0 and 29.8 seconds for a 30-second policy.
 
-The final-d run stopped at a manual fixture reload because its next TCP connection
-arrived before sshd reopened the listener. The harness now waits for fresh SSH/sudo
-after each manual reload. The subsequent final-e run was deliberately interrupted
-at a completed read-only refusal check when the owner requested a stopping point.
-Neither run is counted as a complete acceptance pass.
+The browser download SHA-256 is
+`24a15591a8920d6381f17b537503e307fe12a2173acb9c49331b465c194404a8`.
+Combined apply explicitly excludes the assessment-only update control. Combined
+verify enables it against the signed disposable M7 repository after its fixture update.
 
-Remaining before M8 completion:
+The interrupted office runs and local attempts `local-run-a` and `local-run-b` are
+not acceptance passes. The local failures identified a missing M7 HTTPS fixture and
+an already-enabled sudo PTY policy in the initial test baseline. Both were corrected
+before the two complete runs. The engine's platform and safety guards were unchanged.
 
-1. Run the full M8 suite twice from the M7 snapshot using the saved engine.
-2. Run the browser-exported access profile unchanged against the guest and verify
-   the combined 43-control profile.
-3. Exercise SSH-loss snapshot recovery and the extended M5 stop-after-access-loss
-   fixture. Rerun original VS1, VS2, VS4 and VS5 regression.
-4. Rebuild and check the exact final package, complete CI/publication validation,
-   archive final evidence, and promote the coverage status.
+### Local KVM reproduction
 
-The earlier installed-wheel smoke test passed before the final helper changes.
-It does not establish packaging validation for this checkpoint. Private evidence
-under `reports/m8` records both successful probes and incomplete attempts.
-Resume instructions and scripts remain in the development guest.
+Separate development and target guests run under QEMU/KVM hosted by Ubuntu 24.04 on
+WSL 2. They boot Rocky's kernel and report `kvm`. A third disposable guest runs the
+older regression suites independently. WSL is only the hypervisor host.
+
+The image is `Rocky-10-GenericCloud-Base-10.2-20260525.0.x86_64.qcow2` from
+[Rocky's image repository](https://download.rockylinux.org/pub/rocky/10/images/x86_64/).
+Its verified SHA-256 is
+`9fc9e9ff16888bb68ac39b0392e25c9c92684d50c85f1cce6ab549363bbc4b48`.
+The tested kernel is `6.12.0-211.16.1.el10_2.0.1.x86_64`, with OpenSSH 9.9p1 and sudo 1.9.17.
+Development uses Python 3.12, Node.js 22 and the pinned repository dependencies.
+
+Prepare key-authenticated `zero` administration, verified SSH host keys, an explicit
+server inventory and a recovery grant in `/etc/sudoers.d/90-lab-zero`. This cloud image
+places its default user's sudo grant after the include directive. In the disposable
+fixture, preserve that grant in a separate drop-in so the include remains last.
+Validate the policy with `visudo -c` and prove a fresh administrative connection.
+
+Rebuild the M2/M7 package and HTTPS fixtures using the existing test instructions.
+Run the M7 suite and establish the file/kernel baseline before saving the pre-M8
+snapshot. The current general profile enables some M8 controls, so remove its managed
+SSH and sudo-PTY settings from this disposable starting fixture. The M8 forwarding
+probe requires the M7 HTTPS fixture to be running.
+
+With the target shut down, create QEMU disk snapshots using
+`qemu-img snapshot -c SNAPSHOT DISK.qcow2` and restore them using
+`qemu-img snapshot -a SNAPSHOT DISK.qcow2`. Start the guest and prove fresh SSH/sudo
+after restoration. The tested local snapshot is `local-m7-for-m8`. Run the M8 command
+above twice with separate output directories, restoring this snapshot between runs.
+Keep VM disks, inventories, keys and generated reports outside Git.
 
 References: [OpenSSH daemon](https://man.openbsd.org/sshd),
 [OpenSSH configuration](https://man.openbsd.org/sshd_config),
