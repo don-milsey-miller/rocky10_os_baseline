@@ -215,7 +215,7 @@ These decisions do not block M5 or preparation of the first M6 batch.
 | --- | --- | --- |
 | Q2 | Administrative users/groups, key or MFA method, allowed SSH sources, sudo automation needs, and tested recovery identity. | M8 |
 | Q3 | Server workload roles, exposed services, routing/container needs, IPv6 requirements, and firewall ownership. | M9 |
-| Q4 | Local versus domain identity, password and lockout policy, human/service account classification, and exceptions. | M10 |
+| Q4 | Resolved for M10 disposable testing on 2026-11-05: local-only fixtures and the explicit [approved policy](m10-demonstration.md#approved-disposable-policy). Production identity values still require owner selection. | M10 |
 | Q5 | Approved time sources, local log budgets, retention, audit failure action, and optional remote collector/trust information. | Relevant M7 and M11 controls |
 | Q6 | Existing mount layout, executable temporary-file requirements, firmware type, maintenance windows, and boot/crypto policy. | M12 |
 
@@ -225,9 +225,9 @@ M13 is complete when every agreed inventory entry has implemented guest evidence
 
 For each milestone, publish the reviewed source and concise demonstration record to GitHub, save private evidence separately, and append the project journal. Maintain a branch per implementation batch and preserve the tested release candidate as the regression reference.
 
-M5 through M9 are implemented and validated, including all eleven network and firewall controls. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.
+M5 through M10 are implemented and validated, including all fourteen local identity controls. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.
 
-M8 acceptance completed on 2026-11-05 using local Rocky Linux 10.2 KVM guests hosted by WSL 2. M9 first-batch acceptance is recorded in the [M9 validation record](m9-demonstration.md#validation-record). The [M9 host-policy record](m9-routing-demonstration.md#validation-record) covers the five additional network controls. The [M9 firewall record](m9-firewall-demonstration.md#validation-record) completes the three remaining M9 controls with repeated dual-stack traffic, reboot and recovery acceptance. M10 is in progress with four accepted assessments and ten unavailable draft controls. Identity policy and mutating acceptance remain pending. M11–M13 have not started. The owner approved an SSH-only disposable lab with firewalld ownership, development-guest-only administrative sources, both IP families enabled, and no routing or container workload. Production profiles still require explicit site values.
+M8 acceptance completed on 2026-11-05 using local Rocky Linux 10.2 KVM guests hosted by WSL 2. M9 first-batch acceptance is recorded in the [M9 validation record](m9-demonstration.md#validation-record). The [M9 host-policy record](m9-routing-demonstration.md#validation-record) covers the five additional network controls. The [M9 firewall record](m9-firewall-demonstration.md#validation-record) completes the three remaining M9 controls with repeated dual-stack traffic, reboot and recovery acceptance. M10 is complete under the owner-approved disposable local identity policy. Its [acceptance record](m10-demonstration.md#validation-record) covers ten remediation controls, four assessments, repeated snapshot lifecycles, native authentication and actual 900-second timers. The root PATH assessment retains one finding without automatic repair. M11–M13 have not started. The owner approved an SSH-only disposable lab with firewalld ownership, development-guest-only administrative sources, both IP families enabled, and no routing or container workload. Production profiles still require explicit site values.
 
 High-impact changes require recent target-bound evidence from
 an observed out-of-band recovery rehearsal and reports bounded actionable preflight

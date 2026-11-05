@@ -1,6 +1,10 @@
-# M10 review and partial acceptance
+# M10 historical review checkpoint
 
-M10 is incomplete. Four assessment-only controls have guest evidence. The ten
+This document records checkpoint 651c036 before the owner approved the disposable
+identity policy. It is historical, not the current milestone status. See
+[M10 acceptance](m10-demonstration.md) for the subsequent implementation and evidence.
+
+At that checkpoint M10 was incomplete. Four assessment-only controls had guest evidence. The ten
 remediating controls are drafts with implemented set to false, so the CLI and editor
 cannot execute or select them. Unit tests and read-only audit do not establish
 remediation acceptance.
@@ -69,7 +73,7 @@ was run. These reports are review evidence, not acceptance.
 
 ## Pending decision and exit tests
 
-Q1 remains the owner's identity policy decision required by the approved server
+At that checkpoint Q1 remained the owner's identity policy decision required by the approved server
 controls plan. Proposed disposable-lab values are 14-character passwords,
 5-password history, 5 failures within 15 minutes, unlock after 15 minutes,
 root and wheel exempt, maximum password age 90 days, minimum age zero,

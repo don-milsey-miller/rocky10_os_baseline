@@ -2,7 +2,10 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M9 is complete. The executable catalog has 53 remediable controls and five assessment-only controls. M10 has four accepted assessments and ten unavailable draft controls pending identity policy and mutating guest acceptance. The other 34 entries in M11 and M12 remain planned.
+not automatic selection. M5 through M10 are complete. The executable catalog has
+68 controls: 63 remediable and five assessment-only. The 34 entries in M11 and M12
+remain planned. M10's existing root PATH finding has an explicit assessment
+disposition in its acceptance record.
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -55,20 +58,20 @@ not automatic selection. M9 is complete. The executable catalog has 53 remediabl
 | firewall.firewalld-enabled | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
 | firewall.management-access | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
 | firewall.inbound-policy | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
-| auth.password-quality | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.password-history | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.failed-login-lockout | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.password-aging | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.inactive-account-lock | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.default-umask | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.shell-idle-timeout | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| auth.su-access-policy | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| accounts.system-login-disabled | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| accounts.home-permissions | M10 | Draft, unavailable | [M10 review](m10-review.md) |
-| accounts.unique-identities | M10 | Assessment | [M10 review](m10-review.md) |
-| accounts.root-only-uid-zero | M10 | Assessment | [M10 review](m10-review.md) |
-| accounts.no-empty-passwords | M10 | Assessment | [M10 review](m10-review.md) |
-| accounts.root-path-integrity | M10 | Assessment | [M10 review](m10-review.md) |
+| auth.password-quality | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.password-history | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.failed-login-lockout | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.password-aging | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.inactive-account-lock | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.default-umask | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.shell-idle-timeout | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| auth.su-access-policy | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| accounts.system-login-disabled | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| accounts.home-permissions | M10 | Implemented | [M10](m10-demonstration.md#validation-record) |
+| accounts.unique-identities | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
+| accounts.root-only-uid-zero | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
+| accounts.no-empty-passwords | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
+| accounts.root-path-integrity | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
 | selinux.enforcing | M11 | Planned | — |
 | selinux.targeted-policy | M11 | Planned | — |
 | selinux.no-unconfined-services | M11 | Planned | — |

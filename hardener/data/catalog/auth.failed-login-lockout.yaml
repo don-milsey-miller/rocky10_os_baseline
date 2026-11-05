@@ -14,8 +14,8 @@ applies_to:
   major_version: 10
   role: server
 impact: high
-impact_note: Draft, unavailable until identity policy and mutating guest acceptance are complete. New
-  passwords or authentication attempts can be rejected. Require independently rehearsed recovery.
+impact_note: New passwords or authentication attempts can be rejected. Require independently rehearsed
+  recovery.
 requires: []
 conflicts_with: []
 parameters:
@@ -43,7 +43,7 @@ parameters:
   - interval_seconds
   - unlock_seconds
   - exempt_group
-implemented: false
+implemented: true
 reboot_required: false
 implementation:
   audit: ansible/tasks/auth.failed-login-lockout.audit.yml

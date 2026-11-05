@@ -15,8 +15,7 @@ applies_to:
   major_version: 10
   role: server
 impact: high
-impact_note: Draft, unavailable until identity policy and mutating guest acceptance are complete. May
-  deny interactive access. Require observed recovery and fresh administrative access.
+impact_note: May deny interactive access. Require observed recovery and fresh administrative access.
 requires: []
 conflicts_with: []
 parameters:
@@ -40,7 +39,7 @@ parameters:
   required:
   - users
   - mask
-implemented: false
+implemented: true
 reboot_required: false
 implementation:
   audit: ansible/tasks/auth.default-umask.audit.yml

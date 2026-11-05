@@ -55,13 +55,37 @@ def safe(path):
             raise ValueError("Unsafe policy directory")
 
 
-def vendor_file(path):
+def vendor_file(path, content=None):
+    safe(path)
     data = run(
         ["/usr/bin/rpm", "-qf", "--qf", "[%{FILENAMES}\t%{FILEDIGESTS}\n]", str(path)]
     ).stdout
     rows = dict(line.split("\t", 1) for line in data.splitlines() if "\t" in line)
-    if rows.get(str(path)) != hashlib.sha256(path.read_bytes()).hexdigest():
+    raw = path.read_bytes() if content is None else content.encode()
+    if rows.get(str(path)) != hashlib.sha256(raw).hexdigest():
         raise ValueError("Modified vendor authentication template")
+
+
+def consumer_text(service, text):
+    """Allow only our reviewed su insertion when checking vendor entry points."""
+    if service != "su":
+        return text
+    marker = "# rocky10-hardener-su"
+    rows = text.splitlines(keepends=True)
+    managed = [row for row in rows if marker in row]
+    if len(managed) > 1 or any(
+        not re.fullmatch(
+            r"auth required pam_wheel\.so use_uid group=[a-z_][a-z0-9_-]{0,31} # rocky10-hardener-su\n",
+            row,
+        )
+        for row in managed
+    ):
+        raise ValueError("Unrecognized managed su policy")
+    if managed:
+        index = rows.index(managed[0])
+        if index == 0 or " ".join(rows[index - 1].split()) != "auth sufficient pam_rootok.so":
+            raise ValueError("Unexpected su policy order")
+    return "".join(row for row in rows if marker not in row)
 
 
 def active(text):
@@ -70,6 +94,21 @@ def active(text):
         for row in text.splitlines()
         if row.split("#", 1)[0].strip()
     ]
+
+
+def generated_matches(name, actual, rendered):
+    rows = rendered.splitlines()
+    if not rows or rows[0] != f"File /etc/pam.d/{name}:":
+        return False
+    return active(actual) == active("\n".join(rows[1:]))
+
+
+def validate_generated(features):
+    for name in ("system-auth", "password-auth", "postlogin"):
+        vendor_file(Path("/usr/share/authselect/default/local") / name)
+        rendered = run(["/usr/bin/authselect", "test", "local", *features, "--" + name]).stdout
+        if not generated_matches(name, (Path("/etc/pam.d") / name).read_text(), rendered):
+            raise ValueError("Generated PAM stack differs from its native profile")
 
 
 def settings(text):
@@ -136,7 +175,6 @@ def stack(kind, features):
     }[kind]
     enabled = kind not in FEATURE or FEATURE[kind] in features
     for name in ("system-auth", "password-auth"):
-        vendor_file(Path("/usr/share/authselect/default/local") / name)
         rows = active((Path("/etc/pam.d") / name).read_text())
         found = [row for row in rows if module in row.split()]
         if found != (expected if enabled else []):
@@ -160,6 +198,10 @@ def inspect(kind, parameters, administrator):
         )
         if result.returncode == 0:
             raise ValueError("Domain-managed identity is outside local policy")
+    validate_generated(current[1:])
+    for service in ("login", "passwd", "sshd", "sudo", "sudo-i", "su", "su-l"):
+        path = Path("/etc/pam.d") / service
+        vendor_file(path, consumer_text(service, path.read_text()))
     enabled = stack(kind, current[1:])
     path = CONFIG[kind]
     safe(path)

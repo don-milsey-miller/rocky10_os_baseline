@@ -170,7 +170,7 @@ def test_unsafe_policy_parameters_fail_offline(control, parameter, value):
         validate(profile, catalog)
 
 
-def test_unaccepted_m10_remediation_remains_unavailable():
+def test_m10_requires_explicit_site_parameters():
     catalog = load_catalog()
     for cid in [
         "accounts.home-permissions",
@@ -184,23 +184,46 @@ def test_unaccepted_m10_remediation_remains_unavailable():
         "auth.shell-idle-timeout",
         "auth.su-access-policy",
     ]:
-        assert catalog[cid]["implemented"] is False
-        parameters = {}
-        for key, schema in catalog[cid]["parameters"]["properties"].items():
-            if key == "users":
-                parameters[key] = ["alice"]
-            elif schema["type"] == "integer":
-                parameters[key] = schema["minimum"]
-            elif "enum" in schema:
-                parameters[key] = schema["enum"][0]
-            else:
-                parameters[key] = "wheel"
-        profile = {
-            "schema_version": 1,
-            "id": "unaccepted-m10",
-            "revision": 1,
-            "target": {"os": "rocky", "major_version": 10, "role": "server"},
-            "controls": [{"id": cid, "enabled": True, "parameters": parameters}],
-        }
-        with pytest.raises(ValidationError, match="implementation unavailable"):
-            validate(profile, catalog)
+        assert catalog[cid]["parameters"]["required"]
+        assert all(
+            "default" not in schema for schema in catalog[cid]["parameters"]["properties"].values()
+        )
+
+
+def test_vendor_pam_consumers_allow_only_positioned_managed_su_rule():
+    text = SU.splitlines(keepends=True)
+    rule = "auth required pam_wheel.so use_uid group=wheel # rocky10-hardener-su\n"
+    candidate = "".join(text[:2] + [rule] + text[2:])
+    assert pam.consumer_text("su", candidate) == SU
+    assert pam.consumer_text("passwd", candidate) == candidate
+    for altered in (rule + SU, candidate + rule, candidate.replace("group=wheel", "trust")):
+        with pytest.raises(ValueError):
+            pam.consumer_text("su", altered)
+
+
+def test_full_generated_pam_comparison_rejects_extra_rules_and_wrong_flags():
+    actual = "# Generated header\npassword requisite pam_example.so\n"
+    expected = "File /etc/pam.d/system-auth:\npassword requisite pam_example.so\n"
+    assert pam.generated_matches("system-auth", actual, expected)
+    assert not pam.generated_matches("password-auth", actual, expected)
+    assert not pam.generated_matches(
+        "system-auth", actual + "password sufficient pam_permit.so\n", expected
+    )
+    assert not pam.generated_matches(
+        "system-auth", actual.replace("requisite", "optional"), expected
+    )
+    assert pam.generated_matches("system-auth", actual + "# harmless comment\n", expected)
+
+
+def test_session_replacement_retains_existing_file_ownership(tmp_path, monkeypatch):
+    path = tmp_path / "policy"
+    path.write_text("old")
+    path.chmod(0o640)
+    original = path.stat()
+    owners = []
+    monkeypatch.setattr(sessions.os, "chown", lambda name, uid, gid: owners.append((uid, gid)))
+    monkeypatch.setattr(sessions, "run", lambda args: None)
+    sessions.replace(path, "new")
+    assert path.read_text() == "new"
+    assert path.stat().st_mode & 0o777 == 0o640
+    assert owners == [(original.st_uid, original.st_gid)]

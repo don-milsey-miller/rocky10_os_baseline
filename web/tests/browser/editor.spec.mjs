@@ -250,3 +250,30 @@ test("firewall dependencies and explicit empty workload lists round-trip offline
   await select(page,"firewall.management-access").selectOption("omit");
   await expect(page.locator("#export")).toBeDisabled();
 });
+
+test("approved local identity parameters round-trip through an unchanged browser download",async({page,context})=>{
+  await context.setOffline(true);
+  const profile=importProfile(await readFile("../profiles/examples/server-identity-lab.yaml","utf8"));
+  profile.id="m10-browser-identity";
+  await page.goto(url);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(exportProfile(profile));
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("10");
+  await expect(page.locator("#export")).toBeEnabled();
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const directory=path.resolve("../reports/m10-live");
+  await mkdir(directory,{recursive:true});
+  const filename=path.join(directory,"browser-identity.yaml");
+  await (await download).saveAs(filename);
+  const raw=await readFile(filename,"utf8");
+  expect(raw).toBe(exportProfile(profile));
+  expect(importProfile(raw)).toEqual(profile);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-file").setInputFiles(filename);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+});

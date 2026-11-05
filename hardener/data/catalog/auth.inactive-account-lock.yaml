@@ -14,8 +14,8 @@ applies_to:
   major_version: 10
   role: server
 impact: high
-impact_note: Draft, unavailable until identity policy and mutating guest acceptance are complete. Account
-  policy may affect subsequent logins. Require independent recovery and fresh administrative access.
+impact_note: Account policy may affect subsequent logins. Require independent recovery and fresh administrative
+  access.
 requires: []
 conflicts_with: []
 parameters:
@@ -38,7 +38,7 @@ parameters:
   required:
   - users
   - days
-implemented: false
+implemented: true
 reboot_required: false
 implementation:
   audit: ansible/tasks/auth.inactive-account-lock.audit.yml

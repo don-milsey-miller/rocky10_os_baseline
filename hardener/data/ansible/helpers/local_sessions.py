@@ -97,6 +97,10 @@ def inspect(kind, params, administrator):
         admin = pwd.getpwnam(administrator)
         if group.gr_gid not in os.getgrouplist(administrator, admin.pw_gid):
             raise ValueError("Recovery administrator must belong to the permitted su group")
+        login = Path("/etc/pam.d/su-l")
+        safe(login)
+        if hashlib.sha256(login.read_bytes()).hexdigest() != digest(login):
+            raise ValueError("Custom su login PAM layout requires review")
         path = Path("/etc/pam.d/su")
         safe(path)
         candidate = su_candidate(path.read_text(), params["group"], digest(path))
@@ -130,7 +134,11 @@ def inspect(kind, params, administrator):
         for filename in (".bash_profile", ".bashrc", ".bash_logout"):
             path = home / filename
             safe(path, int(row[2]))
-            if path.read_bytes() != (Path("/etc/skel") / filename).read_bytes():
+            template = Path("/etc/skel") / filename
+            safe(template)
+            if hashlib.sha256(template.read_bytes()).hexdigest() != digest(template):
+                raise ValueError("Custom skeleton startup requires review")
+            if path.read_bytes() != template.read_bytes():
                 raise ValueError("Custom user startup requires review")
         if (home / ".bash_login").exists() or (home / ".profile").exists():
             raise ValueError("Additional user startup requires review")
@@ -230,6 +238,7 @@ def replace(path, text):
             stream.flush()
             os.fsync(stream.fileno())
         os.chmod(name, stat.S_IMODE(info.st_mode) if info else 0o644)
+        os.chown(name, info.st_uid if info else 0, info.st_gid if info else 0)
         for key, value in attrs.items():
             os.setxattr(name, key, value)
         os.replace(name, path)

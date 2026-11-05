@@ -1,18 +1,20 @@
 # Rocky Linux 10 OS baseline
 
-**M9 complete:** All eleven network and firewall controls are validated. All 54 catalog controls passed combined verification, and all 53 remediable controls repeated with zero changes. See the [firewall acceptance record](docs/m9-firewall-demonstration.md#validation-record).
+**M10 complete:** Ten local authentication/account controls and four read-only assessments are validated. Combined verification passes 67 controls and reports one existing root PATH finding. All 63 remediable controls repeat with zero changes. See the [M10 acceptance record](docs/m10-demonstration.md#validation-record).
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The catalog contains 54 controls covering account files, kernel safeguards, package
-trust, optional services, time, local logging, SSH, sudo, network policy, and firewall policy. Each can be selected or excluded.
-Security-update status is assessment-only. Other implemented controls support
+The catalog contains 68 controls covering account files, kernel safeguards, package
+trust, optional services, time, local logging, SSH, sudo, network, firewall, and local
+identity policy. Each can be selected or excluded. Security-update status and four
+identity assessments are read-only. The 63 remediable controls support
 independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
 [M6 file and kernel controls](docs/m6-demonstration.md), and
 [M7 operations controls](docs/m7-demonstration.md), and
 [M8 access controls](docs/m8-demonstration.md), and
 [M9 baseline network controls](docs/m9-demonstration.md), and
 [M9 host routing policy](docs/m9-routing-demonstration.md), and
-[M9 firewall policy](docs/m9-firewall-demonstration.md) for behavior and recovery.
+[M9 firewall policy](docs/m9-firewall-demonstration.md), and
+[M10 local identity policy](docs/m10-demonstration.md) for behavior and recovery.
 
 The project currently has **no license grant**, by owner decision. This is a
 release candidate, not an open-source release or certification.
@@ -25,7 +27,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m9-firewall https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m10-local-identity https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
