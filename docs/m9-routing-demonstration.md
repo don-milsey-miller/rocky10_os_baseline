@@ -138,3 +138,8 @@ The fixture now saves and restores that original content. The corrected suite pa
 The full-catalog apply excludes the assessment-only update check. Verification
 includes it against the signed disposable repository. Packaging and GitHub CI are
 recorded against the published checkpoint. No firewall-completion claim is made.
+
+Current-engine reproduction additionally requires `--recovery-evidence` from a successful
+[recovery rehearsal](recovery-enforcement.md). Historical acceptance above predates this
+enforcement. Run the rehearsal before the integration suite and pass its receipt to the
+suite command. The receipt must match the inventory, target, controller and engine.

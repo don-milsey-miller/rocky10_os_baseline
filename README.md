@@ -99,3 +99,7 @@ builds to one offline HTML file and exports YAML for this same CLI. See the
 See [profile format](docs/profile-format.md), [operations](docs/operations.md),
 [architecture and authoring](docs/architecture.md), and
 [M2 demonstration evidence](docs/m2-demonstration.md).
+
+High-impact apply/preflight requires a recent target-bound recovery receipt. Follow
+[recovery enforcement](docs/recovery-enforcement.md) before running access-changing profiles.
+Audit and verify remain available without recovery evidence.

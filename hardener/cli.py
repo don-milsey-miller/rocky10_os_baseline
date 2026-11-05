@@ -9,6 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from hardener import recovery
 from hardener.reporting import exit_code, make_report, write_report
 from hardener.validation import (
     DATA,
@@ -76,6 +77,30 @@ def execute(args, profile, digest, catalog):
         "hardener_selected": selected,
         "hardener_controls": controls,
     }
+    if recovery.needs_recovery(args.mode, controls):
+        try:
+            variables["hardener_recovery"] = recovery.read_receipt(
+                getattr(args, "recovery_evidence", None), inventory, args.target
+            )
+        except recovery.RecoveryError as exc:
+            evidence = {
+                "errors": [
+                    {
+                        "task": "Require tested independent recovery",
+                        "kind": "failed",
+                        "code": "recovery-required",
+                        "reason": str(exc),
+                    }
+                ]
+            }
+            print(
+                write_report(
+                    make_report(args.mode, args.target, profile, digest, catalog, evidence),
+                    args.output,
+                ),
+                end="",
+            )
+            return 3
     evidence = {}
     code = 4
     with tempfile.TemporaryDirectory(prefix="hardener-") as tmp:
@@ -114,21 +139,43 @@ def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Profile-driven Rocky Linux 10 KVM server hardening"
     )
-    parser.add_argument("mode", choices=["validate", "preflight", "audit", "apply", "verify"])
-    parser.add_argument("--profile", required=True)
+    parser.add_argument(
+        "mode", choices=["validate", "preflight", "audit", "apply", "verify", "recovery-test"]
+    )
+    parser.add_argument("--profile")
+    parser.add_argument(
+        "--recovery-evidence",
+        help="Authenticated recovery-test receipt for high-impact apply/preflight",
+    )
     parser.add_argument("--inventory")
     parser.add_argument("--target")
     parser.add_argument("--output")
     args = parser.parse_args(argv)
     if args.mode != "validate" and not all((args.inventory, args.target, args.output)):
         parser.error("--inventory, --target and --output are required for target operations")
+    if args.mode != "recovery-test" and not args.profile:
+        parser.error("--profile is required except for recovery-test")
     try:
+        if args.mode == "recovery-test":
+            env = os.environ.copy()
+            env.update(
+                ANSIBLE_CONFIG=str(DATA / "ansible.cfg"),
+                ANSIBLE_STDOUT_CALLBACK="hardener_json",
+                ANSIBLE_CALLBACK_PLUGINS=str(DATA / "ansible/callback_plugins"),
+                ANSIBLE_NOCOLOR="1",
+                ANSIBLE_HOST_KEY_CHECKING="True",
+            )
+            inventory = inventory_target(args.inventory, args.target, env)
+            return recovery.rehearse(inventory, args.target, args.output, env)
         catalog = load_catalog()
         profile, digest = load_profile(args.profile, catalog)
         if args.mode == "validate":
             print(f"Valid profile: {profile['id']} revision {profile['revision']}")
             return 0
         return execute(args, profile, digest, catalog)
+    except recovery.RecoveryError as exc:
+        print("Recovery failed: " + str(exc), file=sys.stderr)
+        return 3
     except ValidationError as exc:
         print(f"Validation failed: {exc}", file=sys.stderr)
         return 2

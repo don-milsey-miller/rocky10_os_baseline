@@ -18,6 +18,7 @@ class GuestLab:
         parser.add_argument("--inventory", required=True)
         parser.add_argument("--target", required=True)
         parser.add_argument("--output", required=True)
+        parser.add_argument("--recovery-evidence")
         parser.add_argument("--disposable", action="store_true", required=True)
         self.args = parser.parse_args()
         self.inventory = inventory_target(self.args.inventory, self.args.target, os.environ.copy())
@@ -101,6 +102,8 @@ class GuestLab:
             "--output",
             str(self.output / name),
         ]
+        if self.args.recovery_evidence:
+            argv += ["--recovery-evidence", self.args.recovery_evidence]
         self.commands.append({"argv": argv, "expected_exit": expected})
         result = subprocess.run(argv, capture_output=True, text=True, check=False, timeout=600)
         (self.output / (name + ".log")).write_text(result.stdout + result.stderr)

@@ -151,3 +151,8 @@ The native idle probe caught the difference between the documented session name
 and the extended runtime channel names. The wildcard is checked against
 [OpenSSH 9.9 session handling](https://github.com/openssh/openssh-portable/blob/V_9_9_P1/session.c)
 and validated with a real inactive channel before publication.
+
+Current-engine reproduction additionally requires `--recovery-evidence` from a successful
+[recovery rehearsal](recovery-enforcement.md). Historical acceptance above predates this
+enforcement. Run the rehearsal before the integration suite and pass its receipt to the
+suite command. The receipt must match the inventory, target, controller and engine.

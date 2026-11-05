@@ -51,6 +51,12 @@
     argv: [/usr/bin/dnf, --version]
   changed_when: false
 
+- name: Enforce tested independent recovery before high-impact changes
+  ansible.builtin.include_tasks: tasks/recovery.preflight.yml
+  when:
+    - hardener_mode in ['apply', 'preflight']
+    - hardener_controls | selectattr('impact', 'equalto', 'high') | list | length > 0
+
 - name: Inspect selected account file prerequisites
   ansible.builtin.stat:
     path: /etc/passwd
