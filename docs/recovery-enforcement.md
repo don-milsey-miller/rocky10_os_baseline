@@ -84,5 +84,36 @@ while its target/controller/engine bindings and age remain valid.
 
 ## Acceptance record
 
-Acceptance results and source identity are added after the final guest runs. M9 firewall
-ownership, management access and inbound policy remain unimplemented by this change.
+Acceptance completed on 2026-11-05 in the disposable Rocky Linux 10.2 KVM lab.
+Implementation commit: `b7268a6c1923f2b68c22b4ceadd9c824aa52b7f8`.
+Engine SHA-256: `41937cae7a438cca45882cc6caff8061006e7b6bf7dafea44e5e6590035791c3`.
+
+| Check | Result |
+| --- | --- |
+| Python / editor / browser tests | 217 / 31 / 10 passed |
+| Lint, formatting and both Ansible playbooks | Passed |
+| Observed recovery | Two rehearsals on the final engine, each observing SSH loss and restoration from the same stopped-disk baseline |
+| Receipt enforcement | Missing, manual acknowledgment, tampered, expired, wrong inventory, wrong engine and wrong guest evidence all refused |
+| Refusal acceptance | Two final runs, nine zero-write refusals each, with managed-state comparisons |
+| Read-only operations | Audit and verify passed without recovery evidence |
+| Diagnostics | Conflicting and unsafe managed paths reported, private test sentinel withheld |
+| Combined state | 51 controls verified, 50 remediable controls repeated with zero changes |
+| Original regressions | VS1, VS2, VS4 and VS5 passed |
+| Installed wheel and release assets | Passed |
+| Implementation CI | [Passed](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42088853381) |
+
+Final private evidence is under `reports/m9-recovery/rehearsal-c`, `rehearsal-d`,
+`guards-b`, `guards-c`, the combined reports and `regression`. `acceptance.json`
+indexes the results. The combined apply explicitly excludes the assessment-only
+update control. Verification includes it against the signed disposable repository.
+
+The initial rehearsal stopped without issuing a receipt because the observation fact
+was hidden from the callback. Only bounded observation facts are now exposed to its
+allowlist. The prototype rehearsal/guard run predates the final assertion allowlist
+and is not counted as final acceptance. The first VS2 regression attempt stopped
+at its required installed-Telnet fixture check. The fixture was restored and the
+complete suite passed in `regression/vs2-final`.
+
+M9 firewall ownership, management access and inbound policy remain unimplemented by
+this change. The recovery procedure is validated for the described disposable KVM
+snapshot route. It is not a general production recovery certification.
