@@ -1,0 +1,2 @@
+- name: Run selected network apply
+  ansible.builtin.include_tasks: network-sysctl.apply.yml

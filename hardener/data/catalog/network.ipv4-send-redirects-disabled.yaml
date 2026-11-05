@@ -1,0 +1,35 @@
+id: network.ipv4-send-redirects-disabled
+title: Disable IPv4 redirect transmission
+summary: Do not advertise alternate routes from a non-routing server.
+rationale: Do not advertise alternate routes from a non-routing server.
+benefits:
+- Do not advertise alternate routes from a non-routing server.
+tradeoffs:
+- Only select for an approved non-routing server. Workloads that depend on redirects or forwarding require
+  exclusion.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Only select for an approved non-routing server. Workloads that depend on redirects or forwarding
+  require exclusion.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    network_role:
+      type: string
+      enum:
+      - non-routing
+  required:
+  - network_role
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.ipv4-send-redirects-disabled.audit.yml
+  apply: ansible/tasks/network.ipv4-send-redirects-disabled.apply.yml
+  verify: ansible/tasks/network.ipv4-send-redirects-disabled.verify.yml
+  preflight: ansible/tasks/network.ipv4-send-redirects-disabled.preflight.yml

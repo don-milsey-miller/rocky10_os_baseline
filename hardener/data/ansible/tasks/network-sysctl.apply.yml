@@ -30,5 +30,23 @@
   - name: Retain network activation evidence
     ansible.builtin.set_fact:
       hardener_changed: '{{ hardener_changed or network_activation.changed }}'
+  - name: Restore redirect acceptance changed by the kernel forwarding transition
+    ansible.builtin.command:
+      argv:
+      - /usr/sbin/sysctl
+      - -w
+      - '{{ item.key }}={{ item.value }}'
+    loop: '{{ network_state.preserve | dict2items }}'
+    when: item.value != '1'
+    changed_when: true
+  - name: Independently check preserved redirect policy
+    ansible.builtin.command:
+      argv:
+      - /usr/bin/cat
+      - '/proc/sys/{{ item.key }}'
+    loop: '{{ network_state.preserve | dict2items }}'
+    register: preserved_redirects
+    changed_when: false
+    failed_when: preserved_redirects.stdout | trim != item.value
   - name: Prove fresh access after network changes
     ansible.builtin.include_tasks: access-check.inspect.yml

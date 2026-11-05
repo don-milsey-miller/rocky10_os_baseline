@@ -187,3 +187,33 @@ test("network baseline selection round-trips and exports offline",async({page,co
   await expect(page.locator("#yaml-preview")).toHaveValue(excluded);
   await expect(page.locator("#excluded-count")).toHaveText("1");
 });
+
+
+test("host network roles and strict or loose mode survive export",async({page,context})=>{
+  await context.setOffline(true);
+  await page.goto(url);
+  const source=await readFile("../profiles/examples/server-network-host-lab.yaml","utf8");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(source);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("5");
+  const raw=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(raw)).toEqual(importProfile(source));
+  const folder=path.resolve("../reports/m9-routing");
+  await mkdir(folder,{recursive:true});
+  const filename=path.join(folder,"browser-network-host.yaml");
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  await (await download).saveAs(filename);
+  expect(await readFile(filename,"utf8")).toBe(raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  const title=data.controls.find(c=>c.id==="network.reverse-path-filter").title;
+  await page.getByLabel(title+": mode").selectOption("loose");
+  const loose=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(loose).controls.find(c=>c.id==="network.reverse-path-filter").parameters.mode).toBe("loose");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(loose);
+  await page.locator("#confirm-import").click();
+  await expect(page.getByLabel(title+": mode").locator("option:checked")).toHaveText("loose");
+});

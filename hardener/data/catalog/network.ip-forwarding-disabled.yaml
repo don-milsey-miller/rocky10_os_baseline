@@ -1,0 +1,40 @@
+id: network.ip-forwarding-disabled
+title: Disable host packet forwarding
+summary: Disable forwarding only on explicitly approved non-routing servers without container networking.
+rationale: Disable forwarding only on explicitly approved non-routing servers without container networking.
+benefits:
+- Disable forwarding only on explicitly approved non-routing servers without container networking.
+tradeoffs:
+- Requires a NetworkManager-managed host without routing/container services, shared connections, or conflicting
+  forwarding configuration. Preserves redirect acceptance during the kernel transition.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires a NetworkManager-managed host without routing/container services, shared connections,
+  or conflicting forwarding configuration. Preserves redirect acceptance during the kernel transition.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    network_role:
+      type: string
+      enum:
+      - non-routing
+    container_networking:
+      type: string
+      enum:
+      - absent
+  required:
+  - network_role
+  - container_networking
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.ip-forwarding-disabled.audit.yml
+  apply: ansible/tasks/network.ip-forwarding-disabled.apply.yml
+  verify: ansible/tasks/network.ip-forwarding-disabled.verify.yml
+  preflight: ansible/tasks/network.ip-forwarding-disabled.preflight.yml

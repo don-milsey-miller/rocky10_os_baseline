@@ -51,20 +51,26 @@ def main():
         assert state() == unchanged
         lab.remove(later)
     managed = "/etc/sysctl.d/99-rocky10-network-tcp-syncookies.conf"
-    lab.remote("sudo ln -s /etc/hostname " + managed)
+    original = json.loads(
+        lab.python(
+            f"import json; from pathlib import Path; p=Path({managed!r}); print(json.dumps(p.read_text() if p.exists() else None))"
+        )
+    )
+    lab.remove(managed)
     try:
+        lab.remote("sudo ln -s /etc/hostname " + managed)
         unchanged = state()
         assert lab.execute("apply", "unsafe-symlink", profile, 3)["changed_tasks"] == 0
         assert state() == unchanged
-    finally:
         lab.remove(managed)
-    lab.write(managed, "net.ipv4.ip_forward=0\n")
-    try:
+        lab.write(managed, "net.ipv4.ip_forward=0\n")
         unchanged = state()
         assert lab.execute("apply", "unrelated-managed", profile, 3)["changed_tasks"] == 0
         assert state() == unchanged
     finally:
         lab.remove(managed)
+        if original is not None:
+            lab.write(managed, original)
     omitted = copy.deepcopy(profile)
     omitted["controls"][-1].update(enabled=False, reason="Test exclusion")
     excluded = lab.execute("apply", "excluded-cookie", omitted)

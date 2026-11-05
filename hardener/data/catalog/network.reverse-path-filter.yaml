@@ -1,0 +1,36 @@
+id: network.reverse-path-filter
+title: Apply explicit IPv4 reverse-path filtering
+summary: Use the operator-selected strict or loose source validation mode.
+rationale: Use the operator-selected strict or loose source validation mode.
+benefits:
+- Use the operator-selected strict or loose source validation mode.
+tradeoffs:
+- Strict mode can reject valid asymmetric traffic. Choose loose mode only when it matches the routing
+  design.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Strict mode can reject valid asymmetric traffic. Choose loose mode only when it matches the
+  routing design.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    mode:
+      type: string
+      enum:
+      - strict
+      - loose
+  required:
+  - mode
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.reverse-path-filter.audit.yml
+  apply: ansible/tasks/network.reverse-path-filter.apply.yml
+  verify: ansible/tasks/network.reverse-path-filter.verify.yml
+  preflight: ansible/tasks/network.reverse-path-filter.preflight.yml
