@@ -2,7 +2,7 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M9 is complete. The catalog has 53 remediable controls and one assessment-only control. The remaining 48 entries in M10 through M12 stay planned until their own guest evidence passes.
+not automatic selection. M9 is complete. The executable catalog has 53 remediable controls and five assessment-only controls. M10 has four accepted assessments and ten unavailable draft controls pending identity policy and mutating guest acceptance. The other 34 entries in M11 and M12 remain planned.
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -55,20 +55,20 @@ not automatic selection. M9 is complete. The catalog has 53 remediable controls 
 | firewall.firewalld-enabled | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
 | firewall.management-access | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
 | firewall.inbound-policy | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
-| auth.password-quality | M10 | Planned | — |
-| auth.password-history | M10 | Planned | — |
-| auth.failed-login-lockout | M10 | Planned | — |
-| auth.password-aging | M10 | Planned | — |
-| auth.inactive-account-lock | M10 | Planned | — |
-| auth.default-umask | M10 | Planned | — |
-| auth.shell-idle-timeout | M10 | Planned | — |
-| auth.su-access-policy | M10 | Planned | — |
-| accounts.system-login-disabled | M10 | Planned | — |
-| accounts.home-permissions | M10 | Planned | — |
-| accounts.unique-identities | M10 | Planned | — |
-| accounts.root-only-uid-zero | M10 | Planned | — |
-| accounts.no-empty-passwords | M10 | Planned | — |
-| accounts.root-path-integrity | M10 | Planned | — |
+| auth.password-quality | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.password-history | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.failed-login-lockout | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.password-aging | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.inactive-account-lock | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.default-umask | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.shell-idle-timeout | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| auth.su-access-policy | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| accounts.system-login-disabled | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| accounts.home-permissions | M10 | Draft, unavailable | [M10 review](m10-review.md) |
+| accounts.unique-identities | M10 | Assessment | [M10 review](m10-review.md) |
+| accounts.root-only-uid-zero | M10 | Assessment | [M10 review](m10-review.md) |
+| accounts.no-empty-passwords | M10 | Assessment | [M10 review](m10-review.md) |
+| accounts.root-path-integrity | M10 | Assessment | [M10 review](m10-review.md) |
 | selinux.enforcing | M11 | Planned | — |
 | selinux.targeted-policy | M11 | Planned | — |
 | selinux.no-unconfined-services | M11 | Planned | — |

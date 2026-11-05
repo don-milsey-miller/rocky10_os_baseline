@@ -1,0 +1,37 @@
+id: auth.su-access-policy
+title: Restrict non-root su callers to an approved local group
+summary: Restrict non-root su callers to an approved local group.
+rationale: Apply explicit local interactive-session policy without modifying unselected account credentials.
+benefits:
+- Preserves existing root recovery and limits policy to the documented login paths.
+tradeoffs:
+- Bash controls require stock system and selected-user startup files. Applies to new interactive login
+  and non-login Bash sessions, not existing shells, programs or other shells. Users can change umask after
+  startup. TMOUT limits waiting at a prompt, not running commands.
+- The su policy requires the stock vendor PAM file and preserves its root bypass. The connected administrator
+  must already belong to the supplied group. No group memberships are changed.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Draft, unavailable until identity policy and mutating guest acceptance are complete. May
+  deny interactive access. Require observed recovery and fresh administrative access.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    group:
+      type: string
+      pattern: ^[a-z_][a-z0-9_-]{0,31}$
+  required:
+  - group
+implemented: false
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.su-access-policy.audit.yml
+  apply: ansible/tasks/auth.su-access-policy.apply.yml
+  verify: ansible/tasks/auth.su-access-policy.verify.yml
+  preflight: ansible/tasks/auth.su-access-policy.preflight.yml

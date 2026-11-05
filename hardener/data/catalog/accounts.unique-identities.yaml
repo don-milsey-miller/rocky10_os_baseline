@@ -1,0 +1,29 @@
+id: accounts.unique-identities
+title: Assess duplicate local identities
+summary: Identify duplicate local account and group names or numeric identities.
+rationale: Identify duplicate local account and group names or numeric identities.
+benefits:
+- Expose unsafe local identity state for operator review.
+tradeoffs:
+- Assessment only. Does not delete, renumber, lock accounts, or rewrite login paths.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Read-only assessment. Resolve findings through an approved account maintenance
+  process.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+supported_modes:
+- audit
+- verify
+implementation:
+  audit: ansible/tasks/accounts.unique-identities.audit.yml
+  verify: ansible/tasks/accounts.unique-identities.verify.yml

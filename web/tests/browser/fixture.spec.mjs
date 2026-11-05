@@ -6,6 +6,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
+import { data, available } from "../../src/core.mjs";
 
 // Test-only catalog mutations exercise UI paths without inventing approved controls.
 test.beforeAll(async()=>{
@@ -42,14 +43,18 @@ const url=()=>pathToFileURL(path.resolve(".generated/fixture.html")).href;
 const selection=(page,id)=>page.locator('select[data-control="'+id+'"]');
 test("unimplemented and inapplicable controls cannot be included",async({page})=>{
   await page.goto(url());
-  for(const id of ["kernel.protected-hardlinks","packages.local-signature-check"]) {
+  const unavailable = [...new Set([
+    ...data.controls.filter(c=>!available(c,{os:"rocky",major_version:10,role:"server"})).map(c=>c.id),
+    "kernel.protected-hardlinks","packages.local-signature-check"
+  ])];
+  for(const id of unavailable) {
     const control=selection(page,id);
     await expect(control.locator('option[value="enabled"]')).toHaveAttribute("disabled", "");
     await control.selectOption("excluded");
     await expect(control).toHaveValue("excluded");
   }
   await page.locator("#availability").selectOption("unavailable");
-  await expect(page.locator(".control-card")).toHaveCount(2);
+  await expect(page.locator(".control-card")).toHaveCount(unavailable.length);
 });
 test("parameters, dependencies, conflicts and warnings block or permit export",async({page})=>{
   await page.goto(url());

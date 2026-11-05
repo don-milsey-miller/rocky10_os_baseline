@@ -1,0 +1,30 @@
+- name: Read actual recovery identity
+  ansible.builtin.include_tasks: access-context.inspect.yml
+- name: Inspect or update selected local account policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/local_accounts.py'') }}'
+    - home-permissions
+    - '{{ control.effective_parameters | to_json }}'
+    - '{{ access_context.user }}'
+    - inspect
+  register: local_account_result
+  no_log: true
+  changed_when: false
+- name: Retain bounded local account evidence
+  ansible.builtin.set_fact:
+    local_account_state: '{{ local_account_result.stdout | from_json }}'
+  no_log: true
+- name: Record selected local account policy
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not local_account_state.supported else (''pass'' if local_account_state.matches
+        else ''fail'') }}'
+      observed: '{{ local_account_state }}'
+      expected: Protect selected local home directories.
+      changed: '{{ hardener_changed }}'
+      reason: Only selected local identities are assessed. Unsupported layouts require operator review.
+      reboot_required: false
