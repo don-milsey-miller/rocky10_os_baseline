@@ -2,7 +2,7 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M9 through M12 remain planned until their own guest evidence passes.
+not automatic selection. M9 is partially implemented. Remaining M9 and M10 through M12 entries stay planned until their own guest evidence passes.
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -44,12 +44,12 @@ not automatic selection. M9 through M12 remain planned until their own guest evi
 | auth.sudo-use-pty | M8 | Implemented | [M8](m8-demonstration.md#validation-record) |
 | auth.sudo-authentication | M8 | Implemented | [M8](m8-demonstration.md#validation-record) |
 | auth.sudo-timeout | M8 | Implemented | [M8](m8-demonstration.md#validation-record) |
-| network.ipv4-source-route-disabled | M9 | Planned | — |
-| network.ipv6-source-route-disabled | M9 | Planned | — |
+| network.ipv4-source-route-disabled | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
+| network.ipv6-source-route-disabled | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
 | network.ipv4-redirects-disabled | M9 | Planned | — |
 | network.ipv6-redirects-disabled | M9 | Planned | — |
 | network.ipv4-send-redirects-disabled | M9 | Planned | — |
-| network.tcp-syncookies | M9 | Planned | — |
+| network.tcp-syncookies | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
 | network.reverse-path-filter | M9 | Planned | — |
 | network.ip-forwarding-disabled | M9 | Planned | — |
 | firewall.firewalld-enabled | M9 | Planned | — |
