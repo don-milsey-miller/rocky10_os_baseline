@@ -225,10 +225,10 @@ M13 is complete when every agreed inventory entry has implemented guest evidence
 
 For each milestone, publish the reviewed source and concise demonstration record to GitHub, save private evidence separately, and append the project journal. Maintain a branch per implementation batch and preserve the tested release candidate as the regression reference.
 
-M5 through M8 are implemented and validated. M9 is in progress, with all eight network controls validated. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.
+M5 through M9 are implemented and validated, including all eleven network and firewall controls. See [control coverage](control-coverage.md) for all 102 agreed IDs. The owner approved explicit disposable-lab policies for validation, with production-specific values remaining required in profiles.
 
-M8 acceptance completed on 2026-11-05 using local Rocky Linux 10.2 KVM guests hosted by WSL 2. M9 first-batch acceptance is recorded in the [M9 validation record](m9-demonstration.md#validation-record). The [M9 host-policy record](m9-routing-demonstration.md#validation-record) covers the five additional network controls. Three M9 firewall controls remain planned, and M10–M13 have not started. The owner approved an SSH-only disposable lab with firewalld ownership, development-guest-only administrative sources, both IP families enabled, and no routing or container workload. Production profiles still require explicit site values.
+M8 acceptance completed on 2026-11-05 using local Rocky Linux 10.2 KVM guests hosted by WSL 2. M9 first-batch acceptance is recorded in the [M9 validation record](m9-demonstration.md#validation-record). The [M9 host-policy record](m9-routing-demonstration.md#validation-record) covers the five additional network controls. The [M9 firewall record](m9-firewall-demonstration.md#validation-record) completes the three remaining M9 controls with repeated dual-stack traffic, reboot and recovery acceptance. M10–M13 have not started. The owner approved an SSH-only disposable lab with firewalld ownership, development-guest-only administrative sources, both IP families enabled, and no routing or container workload. Production profiles still require explicit site values.
 
-Before firewall acceptance, the engine now enforces recent target-bound evidence from
+High-impact changes require recent target-bound evidence from
 an observed out-of-band recovery rehearsal and reports bounded actionable preflight
 refusals. See [recovery enforcement and acceptance](recovery-enforcement.md).

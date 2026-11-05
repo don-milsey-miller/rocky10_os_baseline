@@ -2,7 +2,7 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M9 is partially implemented. Remaining M9 and M10 through M12 entries stay planned until their own guest evidence passes.
+not automatic selection. M9 is complete. The catalog has 53 remediable controls and one assessment-only control. The remaining 48 entries in M10 through M12 stay planned until their own guest evidence passes.
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -52,9 +52,9 @@ not automatic selection. M9 is partially implemented. Remaining M9 and M10 throu
 | network.tcp-syncookies | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
 | network.reverse-path-filter | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
 | network.ip-forwarding-disabled | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
-| firewall.firewalld-enabled | M9 | Planned | — |
-| firewall.management-access | M9 | Planned | — |
-| firewall.inbound-policy | M9 | Planned | — |
+| firewall.firewalld-enabled | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
+| firewall.management-access | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
+| firewall.inbound-policy | M9 | Implemented | [M9 firewall](m9-firewall-demonstration.md#validation-record) |
 | auth.password-quality | M10 | Planned | — |
 | auth.password-history | M10 | Planned | — |
 | auth.failed-login-lockout | M10 | Planned | — |

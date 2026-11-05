@@ -1,8 +1,8 @@
 # M9 host routing policy
 
 This batch adds five independently selectable controls to the three baseline
-network controls. Eight of eleven M9 controls are now validated. Firewall ownership, management
-access and inbound policy remain planned.
+network controls. This historical batch validated eight of eleven M9 controls. The later
+[firewall acceptance record](m9-firewall-demonstration.md) completes M9.
 
 ## Controls and explicit parameters
 

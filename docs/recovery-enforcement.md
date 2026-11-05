@@ -114,6 +114,6 @@ and is not counted as final acceptance. The first VS2 regression attempt stopped
 at its required installed-Telnet fixture check. The fixture was restored and the
 complete suite passed in `regression/vs2-final`.
 
-M9 firewall ownership, management access and inbound policy remain unimplemented by
-this change. The recovery procedure is validated for the described disposable KVM
+The subsequent [firewall acceptance](m9-firewall-demonstration.md) validates M9
+firewall ownership, management access and inbound policy with this enforcement. The recovery procedure is validated for the described disposable KVM
 snapshot route. It is not a general production recovery certification.

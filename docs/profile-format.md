@@ -46,3 +46,14 @@ required access value for disposable lab identities. Site profiles must replace 
 identities and limits. User and group lists use exact names, forwarding choices are
 explicit, and zero is a valid sudo cache duration. Timeout subjects must also be
 selected for authentication policy. Passwords and private keys never belong in profiles.
+
+## Firewall policy parameters
+
+The [firewall lab example](../profiles/examples/server-firewall-lab.yaml) requires an
+explicit owner and host role, an SSH port and source networks for both families,
+all current interfaces, and service/TCP/UDP lists. Empty workload lists are meaningful
+and survive browser import/export. Port lists contain decimal strings. The current
+administrative source must remain allowed, and workload rules cannot reopen the SSH
+port globally. Management staging requires ownership, and inbound enforcement requires
+management staging. No dependency or site policy is selected automatically.
+See the [firewall behavior and recovery contract](m9-firewall-demonstration.md).

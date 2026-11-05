@@ -114,13 +114,11 @@ The unchanged browser download SHA-256 is
 `fd4b56a3e0b2cd36d15b1d607f62cd7c66bbcf07149c62773973704260a1080f`.
 Combined apply excludes the existing assessment-only update check. Combined verify
 includes it against the disposable signed repository. This is the historical
-first-batch record. See the host-policy record for current 51-control acceptance.
+first-batch record. See the [firewall record](m9-firewall-demonstration.md) for current 54-control acceptance.
 
-## Remaining M9 work
+## Subsequent M9 acceptance
 
-Firewalld ownership, management access and inbound policy remain planned. The eight
-network controls are validated across the two M9 batches. Firewall work must inventory
-native rules and runtime/permanent differences, stage administrative allowances before
-restrictions, and verify allowed and blocked traffic from separate guests for both
-address families. The approved SSH-only lab policy supplies test values, not production
-defaults. The current target still needs the firewalld and nftables packages provisioned.
+The [host-policy batch](m9-routing-demonstration.md) completed the five remaining
+network controls. The [firewall batch](m9-firewall-demonstration.md) completed
+ownership, management access and inbound policy. All eleven M9 controls are validated.
+The SSH-only lab values remain explicit test policy, not production defaults.
