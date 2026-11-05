@@ -46,12 +46,12 @@ not automatic selection. M9 is partially implemented. Remaining M9 and M10 throu
 | auth.sudo-timeout | M8 | Implemented | [M8](m8-demonstration.md#validation-record) |
 | network.ipv4-source-route-disabled | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
 | network.ipv6-source-route-disabled | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
-| network.ipv4-redirects-disabled | M9 | Planned | — |
-| network.ipv6-redirects-disabled | M9 | Planned | — |
-| network.ipv4-send-redirects-disabled | M9 | Planned | — |
+| network.ipv4-redirects-disabled | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
+| network.ipv6-redirects-disabled | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
+| network.ipv4-send-redirects-disabled | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
 | network.tcp-syncookies | M9 | Implemented | [M9 first batch](m9-demonstration.md#validation-record) |
-| network.reverse-path-filter | M9 | Planned | — |
-| network.ip-forwarding-disabled | M9 | Planned | — |
+| network.reverse-path-filter | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
+| network.ip-forwarding-disabled | M9 | Implemented | [M9 host policy](m9-routing-demonstration.md#validation-record) |
 | firewall.firewalld-enabled | M9 | Planned | — |
 | firewall.management-access | M9 | Planned | — |
 | firewall.inbound-policy | M9 | Planned | — |

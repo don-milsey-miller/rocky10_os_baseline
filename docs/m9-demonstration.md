@@ -1,7 +1,8 @@
 # M9 network and firewall
 
-M9 is in progress. Its first implementation batch contains three independently
-selectable network controls. Eight conditional network/firewall controls remain planned.
+This record covers the first M9 batch of three baseline network controls.
+The [host-policy batch](m9-routing-demonstration.md) adds five validated network controls
+and corrects exact-exclusion precedence in the shared helper. Three firewall controls remain planned.
 The disposable-lab policy is approved: firewalld owns filtering, only the development
 guest may initiate SSH, both IP families remain enabled, and the target has no routing
 or container-networking role. Production policy still requires explicit site values.
@@ -31,7 +32,7 @@ It activates only the selected noncompliant keys.
 Preflight reads systemd's ordered, directory-shadowed configuration. Explicit
 interface assignments override wildcards. Conflicting assignments to an interface
 are refused even if that interface does not exist yet. Later conflicting globals,
-interface exclusions, conflicting wildcard policies, and broad patterns extending
+later global/default exclusions, interface exclusions, conflicting wildcard policies, and broad patterns extending
 outside a control's ownership require operator reconciliation. This conservative
 refusal avoids choosing precedence for competing wildcard policies.
 [systemd sysctl configuration](https://www.freedesktop.org/software/systemd/man/devel/sysctl.d.html)
@@ -112,15 +113,14 @@ Both setup issues were corrected before acceptance.
 The unchanged browser download SHA-256 is
 `fd4b56a3e0b2cd36d15b1d607f62cd7c66bbcf07149c62773973704260a1080f`.
 Combined apply excludes the existing assessment-only update check. Combined verify
-includes it against the disposable signed repository. M9 remains incomplete until
-the eight planned conditional controls pass their own acceptance gates.
+includes it against the disposable signed repository. This is the historical
+first-batch record. See the host-policy record for current 51-control acceptance.
 
 ## Remaining M9 work
 
-Implement redirect acceptance and transmission policy, routing-compatible reverse-path
-filtering, forwarding control, firewalld ownership, management access, and inbound
-policy. Forwarding changes need explicit collateral-state tests. Firewall work must
-inventory native rules and runtime/permanent differences, stage administrative
-allowances before restrictions, and verify allowed and blocked traffic from separate
-guests for both address families. The owner-approved lab policy supplies test values,
-not production defaults.
+Firewalld ownership, management access and inbound policy remain planned. The eight
+network controls are validated across the two M9 batches. Firewall work must inventory
+native rules and runtime/permanent differences, stage administrative allowances before
+restrictions, and verify allowed and blocked traffic from separate guests for both
+address families. The approved SSH-only lab policy supplies test values, not production
+defaults. The current target still needs the firewalld and nftables packages provisioned.
