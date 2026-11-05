@@ -1,0 +1,34 @@
+- name: Check fresh network administrative access
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Recheck network policy immediately before changes
+  ansible.builtin.include_tasks: network-sysctl.preflight.yml
+- name: Apply only the selected available network setting
+  when: network_state.applicable
+  block:
+  - name: Persist selected network policy
+    ansible.builtin.copy:
+      dest: '{{ network_state.path }}'
+      content: '{{ network_state.content }}'
+      owner: root
+      group: root
+      mode: '0644'
+    register: network_file
+    no_log: true
+  - name: Retain network file change evidence
+    ansible.builtin.set_fact:
+      hardener_changed: '{{ network_file.changed }}'
+  - name: Activate only noncompliant selected network parameters
+    ansible.builtin.command:
+      argv:
+      - /usr/sbin/sysctl
+      - -w
+      - '{{ item.key }}={{ network_state.desired }}'
+    loop: '{{ network_state.live | dict2items }}'
+    when: item.value != network_state.desired
+    changed_when: true
+    register: network_activation
+  - name: Retain network activation evidence
+    ansible.builtin.set_fact:
+      hardener_changed: '{{ hardener_changed or network_activation.changed }}'
+  - name: Prove fresh access after network changes
+    ansible.builtin.include_tasks: access-check.inspect.yml

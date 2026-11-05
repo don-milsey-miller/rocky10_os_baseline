@@ -1,0 +1,15 @@
+- name: Read current and boot-time network state
+  ansible.builtin.include_tasks: network-sysctl.inspect.yml
+- name: Report selected network state
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''not_applicable'' if not network_state.applicable else (''unsupported''
+        if not network_state.safe else (''pass'' if network_state.matches else ''fail''))
+        }}'
+      observed: '{{ {''live'': network_state.live | default({}), ''persistent'': network_state.persistent
+        | default({}), ''conflicts'': network_state.blockers | default([])} }}'
+      expected: '{{ control.summary }}'
+      changed: '{{ hardener_changed }}'
+      reason: '{{ network_state.reason | default(none) }}'
+      reboot_required: false

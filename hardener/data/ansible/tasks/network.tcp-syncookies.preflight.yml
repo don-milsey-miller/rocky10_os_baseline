@@ -1,0 +1,2 @@
+- name: Preflight network.tcp-syncookies
+  ansible.builtin.include_tasks: network-sysctl.preflight.yml

@@ -1,0 +1,10 @@
+- name: Inspect network prerequisites
+  ansible.builtin.include_tasks: network-sysctl.inspect.yml
+- name: Require safe network policy file and conflict-free boot precedence
+  ansible.builtin.assert:
+    that:
+    - network_state.safe
+    - network_state.blockers | length == 0
+    fail_msg: Reconcile conflicting sysctl assignments or unsafe managed configuration
+      before applying.
+  when: network_state.applicable

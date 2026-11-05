@@ -1,0 +1,2 @@
+- name: Verify network.tcp-syncookies
+  ansible.builtin.include_tasks: network-sysctl.verify.yml

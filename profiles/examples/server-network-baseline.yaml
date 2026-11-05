@@ -1,0 +1,14 @@
+schema_version: 1
+id: server-network-baseline
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: network.ipv4-source-route-disabled
+  enabled: true
+- id: network.ipv6-source-route-disabled
+  enabled: true
+- id: network.tcp-syncookies
+  enabled: true

@@ -1,0 +1,27 @@
+id: network.ipv6-source-route-disabled
+title: Reject IPv6 routing headers
+summary: Set IPv6 source-route acceptance to minus one for all current and future interfaces.
+rationale: Rejects routing headers including type 2 instead of treating zero as disabled.
+benefits:
+- Rejects routing headers including type 2 instead of treating zero as disabled.
+tradeoffs:
+- IPv6 mobility that uses type 2 routing headers is incompatible.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: IPv6 mobility that uses type 2 routing headers is incompatible.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.ipv6-source-route-disabled.audit.yml
+  apply: ansible/tasks/network.ipv6-source-route-disabled.apply.yml
+  verify: ansible/tasks/network.ipv6-source-route-disabled.verify.yml
+  preflight: ansible/tasks/network.ipv6-source-route-disabled.preflight.yml

@@ -1,0 +1,2 @@
+- name: Audit network.ipv4-source-route-disabled
+  ansible.builtin.include_tasks: network-sysctl.audit.yml

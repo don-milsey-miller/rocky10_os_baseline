@@ -157,3 +157,33 @@ test("access-policy lists, false values and zero timeout survive browser export"
   await page.locator("#confirm-import").click();
   await expect(page.locator("#yaml-preview")).toHaveValue(raw);
 });
+
+
+test("network baseline selection round-trips and exports offline",async({page,context})=>{
+  await context.setOffline(true);
+  await page.goto(url);
+  const source=await readFile("../profiles/examples/server-network-baseline.yaml","utf8");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(source);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("3");
+  const raw=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(raw)).toEqual(importProfile(source));
+  const folder=path.resolve("../reports/m9");
+  await mkdir(folder,{recursive:true});
+  const filename=path.join(folder,"browser-network.yaml");
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  await (await download).saveAs(filename);
+  expect(await readFile(filename,"utf8")).toBe(raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await select(page,"network.tcp-syncookies").selectOption("excluded");
+  await page.getByLabel("Exclusion reason for "+data.controls.find(c=>c.id==="network.tcp-syncookies").title).fill("Test explicit exclusion");
+  const excluded=await page.locator("#yaml-preview").inputValue();
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(excluded);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(excluded);
+  await expect(page.locator("#excluded-count")).toHaveText("1");
+});
