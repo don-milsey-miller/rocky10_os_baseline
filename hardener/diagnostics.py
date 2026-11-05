@@ -103,3 +103,52 @@ def recovery_observation(value):
     if type(marker) is not bool:
         return None
     return {"machine_id": machine, "boot_id": boot, "marker_present": marker}
+
+
+FIREWALL_REASONS = {
+    "pending-rollback": "A firewall rollback timer is pending. Wait for recovery and inspect its result before retrying.",
+    "unsafe-files": "Inspect ownership, links, permissions and ACLs under /etc/firewalld and /run/rocky10-hardener-firewall.",
+    "unmanaged-configuration": "Reconcile custom files under /etc/firewalld. Only the managed zone and daemon configuration are supported.",
+    "backend-configuration": "Require nftables, NftablesTableOwner=yes, CleanupOnExit=yes and no flowtable in /etc/firewalld/firewalld.conf.",
+    "service-override": "Reconcile custom firewalld systemd units and drop-ins before assigning ownership.",
+    "competing-owner": "Reconcile active or enabled nftables, legacy firewall, routing or container services. The engine never disables competing owners.",
+    "legacy-firewall": "Reconcile loaded legacy iptables tables before choosing firewalld ownership.",
+    "routing-role": "Forwarding must already be disabled for this non-routing host firewall policy.",
+    "ipv6-disabled": "Both IP families must remain enabled for this host firewall policy.",
+    "network-layout": "Require one active NetworkManager Ethernet profile per interface, without sharing, routing or unsupported links.",
+    "foreign-kernel-rules": "Inspect nft list ruleset. Refuse foreign tables or a firewalld table without exclusive kernel ownership.",
+    "administrator-excluded": "The supplied management source networks or SSH port exclude the actual fresh administrative connection.",
+    "management-policy": "Supply bounded canonical source networks for both IP families and the actual SSH port.",
+    "interface-coverage": "The explicit interface list must cover every current non-loopback Ethernet interface.",
+    "workload-policy": "Supply valid TCP/UDP ports and simple vendor services. Workload rules must not open the management SSH port globally.",
+    "runtime-drift": "Reconcile runtime, permanent, on-disk and NetworkManager zone state before any reload. Runtime-only policy will not be discarded.",
+    "direct-or-ipset": "Reconcile direct rules, passthroughs and ipsets before applying the bounded host policy.",
+    "custom-policy": "Reconcile active custom firewalld policy objects before applying the bounded host policy.",
+    "source-binding": "Reconcile source-bound zones that could bypass the explicit interface policy.",
+    "unmanaged-zone": "Reconcile foreign rules or attributes in /etc/firewalld/zones/rocky10-hardener.xml.",
+    "unsafe-bootstrap": "Initial activation requires the stock public SSH path, or an owned persistent zone that already admits this administrator.",
+}
+
+
+def firewall_diagnostic(value):
+    if not isinstance(value, dict) or value.get("code") != "firewall-policy-conflict":
+        return None
+    cid = value.get("control_id", "")
+    if cid not in {
+        "firewall.firewalld-enabled",
+        "firewall.management-access",
+        "firewall.inbound-policy",
+    }:
+        return None
+    return {
+        "code": "firewall-policy-conflict",
+        "control_id": cid,
+        "reason": "Resolve the listed firewall prerequisites before applying.",
+        "details": [
+            FIREWALL_REASONS.get(
+                code, "Unrecognized firewall prerequisite. Inspect the native configuration."
+            )
+            for code in value.get("blockers", [])[:24]
+            if isinstance(code, str)
+        ],
+    }

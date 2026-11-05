@@ -1,0 +1,17 @@
+- name: Require fresh independent administrative access
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Inspect firewall prerequisites
+  ansible.builtin.include_tasks: firewall.inspect.yml
+  vars:
+    firewall_probe_mode: preflight
+- name: Retain bounded firewall refusal details
+  ansible.builtin.set_fact:
+    hardener_diagnostic:
+      code: firewall-policy-conflict
+      control_id: "{{ control.id }}"
+      blockers: "{{ firewall_state.blockers }}"
+  when: firewall_state.blockers | length > 0
+- name: Require one supported firewall owner and a safe explicit policy
+  ansible.builtin.assert:
+    that: firewall_state.blockers | length == 0
+    fail_msg: Reconcile firewall ownership, configuration drift, management sources and interface coverage before applying.

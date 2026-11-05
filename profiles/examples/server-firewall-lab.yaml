@@ -1,0 +1,32 @@
+# Disposable lab values. Supply reviewed site values for another server.
+schema_version: 1
+id: disposable-firewall-host
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: firewall.firewalld-enabled
+  enabled: true
+  parameters:
+    owner: firewalld
+    network_role: non-routing
+    container_networking: absent
+- id: firewall.management-access
+  enabled: true
+  parameters:
+    ssh_port: 22
+    ipv4_sources:
+    - 192.0.2.10/32
+    ipv6_sources:
+    - fd90:9::10/128
+- id: firewall.inbound-policy
+  enabled: true
+  parameters:
+    interfaces:
+    - ens3
+    - ens4
+    services: []
+    tcp_ports: []
+    udp_ports: []

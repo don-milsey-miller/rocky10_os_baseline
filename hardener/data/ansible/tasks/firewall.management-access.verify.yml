@@ -1,0 +1,2 @@
+- name: Run selected firewall verify
+  ansible.builtin.include_tasks: firewall.verify.yml

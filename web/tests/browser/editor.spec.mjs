@@ -217,3 +217,36 @@ test("host network roles and strict or loose mode survive export",async({page,co
   await page.locator("#confirm-import").click();
   await expect(page.getByLabel(title+": mode").locator("option:checked")).toHaveText("loose");
 });
+
+
+test("firewall dependencies and explicit empty workload lists round-trip offline",async({page,context})=>{
+  await context.setOffline(true);
+  await page.goto(url);
+  const source=await readFile("../profiles/examples/server-firewall-lab.yaml","utf8");
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(source);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("3");
+  await expect(page.locator("#export")).toBeEnabled();
+  const raw=await page.locator("#yaml-preview").inputValue();
+  expect(importProfile(raw)).toEqual(importProfile(source));
+  const inbound=importProfile(raw).controls.find(c=>c.id==="firewall.inbound-policy");
+  expect(inbound.parameters.services).toEqual([]);
+  expect(inbound.parameters.tcp_ports).toEqual([]);
+  expect(inbound.parameters.udp_ports).toEqual([]);
+  const folder=path.resolve("../reports/m9-firewall");
+  await mkdir(folder,{recursive:true});
+  const filename=path.join(folder,"browser-firewall.yaml");
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  await (await download).saveAs(filename);
+  expect(await readFile(filename,"utf8")).toBe(raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(raw);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+  await select(page,"firewall.management-access").selectOption("omit");
+  await expect(page.locator("#export")).toBeDisabled();
+});

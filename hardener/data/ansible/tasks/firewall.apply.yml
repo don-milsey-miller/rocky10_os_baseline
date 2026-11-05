@@ -1,0 +1,57 @@
+- name: Recheck firewall safety immediately before changes
+  ansible.builtin.include_tasks: firewall.preflight.yml
+- name: Stage guarded firewall changes
+  when: not firewall_state.matches
+  block:
+    - name: Create private firewall recovery directory
+      ansible.builtin.file:
+        path: /run/rocky10-hardener-firewall
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+    - name: Stage bounded firewall recovery helper
+      ansible.builtin.copy:
+        dest: /run/rocky10-hardener-firewall/helper.py
+        content: "{{ lookup('ansible.builtin.file', playbook_dir ~ '/helpers/firewall_policy.py') }}"
+        owner: root
+        group: root
+        mode: '0600'
+    - name: Arm firewall rollback before modifying policy
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/python3
+          - /run/rocky10-hardener-firewall/helper.py
+          - begin
+          - "{{ control.id }}"
+          - "{{ firewall_plan | to_json }}"
+          - "{{ access_context | to_json }}"
+      changed_when: true
+      no_log: true
+    - name: Apply only the selected firewall policy
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/python3
+          - /run/rocky10-hardener-firewall/helper.py
+          - apply
+          - "{{ control.id }}"
+          - "{{ firewall_plan | to_json }}"
+          - "{{ access_context | to_json }}"
+      changed_when: true
+      no_log: true
+    - name: Retain firewall change evidence
+      ansible.builtin.set_fact:
+        hardener_changed: true
+    - name: Prove new SSH and sudo after firewall changes
+      ansible.builtin.include_tasks: access-check.inspect.yml
+    - name: Require native verification before cancelling firewall rollback
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/python3
+          - /run/rocky10-hardener-firewall/helper.py
+          - commit
+          - "{{ control.id }}"
+          - "{{ firewall_plan | to_json }}"
+          - "{{ access_context | to_json }}"
+      changed_when: false
+      no_log: true

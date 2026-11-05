@@ -1,0 +1,45 @@
+id: firewall.firewalld-enabled
+title: Establish firewalld ownership
+summary: Establish firewalld ownership.
+rationale: Keep one firewall owner and make allowed inbound traffic explicit.
+benefits:
+- Preserves tested administrative recovery while limiting unexpected exposure.
+tradeoffs:
+- Supports a non-routing NetworkManager Ethernet host with the nftables backend and exclusive firewalld
+  table ownership. Custom zones, policies, direct rules and competing managers require reconciliation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires recent recovery evidence. Changes are guarded by a 120-second firewall rollback
+  timer until native verification and fresh SSH/sudo succeed.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    owner:
+      type: string
+      enum:
+      - firewalld
+    network_role:
+      type: string
+      enum:
+      - non-routing
+    container_networking:
+      type: string
+      enum:
+      - absent
+  required:
+  - owner
+  - network_role
+  - container_networking
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/firewall.firewalld-enabled.audit.yml
+  apply: ansible/tasks/firewall.firewalld-enabled.apply.yml
+  verify: ansible/tasks/firewall.firewalld-enabled.verify.yml
+  preflight: ansible/tasks/firewall.firewalld-enabled.preflight.yml

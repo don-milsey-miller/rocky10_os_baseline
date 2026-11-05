@@ -4,7 +4,12 @@ import json
 
 from ansible.plugins.callback import CallbackBase
 
-from hardener.diagnostics import assertion_reason, network_diagnostic, recovery_observation
+from hardener.diagnostics import (
+    assertion_reason,
+    firewall_diagnostic,
+    network_diagnostic,
+    recovery_observation,
+)
 
 
 class CallbackModule(CallbackBase):
@@ -28,7 +33,9 @@ class CallbackModule(CallbackBase):
         if facts.get("hardener_preflight_passed") is True:
             self.preflight = True
         if "hardener_diagnostic" in facts:
-            self.diagnostic = network_diagnostic(facts["hardener_diagnostic"])
+            self.diagnostic = network_diagnostic(
+                facts["hardener_diagnostic"]
+            ) or firewall_diagnostic(facts["hardener_diagnostic"])
         if "hardener_recovery_observation" in facts:
             self.recovery_observation = recovery_observation(facts["hardener_recovery_observation"])
         record = facts.get("hardener_record")
