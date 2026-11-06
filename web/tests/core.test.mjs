@@ -16,6 +16,17 @@ test("empty selection warns and never auto-enables controls",()=>{
 });
 test("all catalog controls validate and exported YAML passes independent CLI",()=>{
   const p=base(); p.controls=data.controls.map(c=>entry(c.id, !(c.parameters.required?.length)));
+  let changed=true;
+  while(changed) {
+    changed=false;
+    for(const control of data.controls) {
+      const item=p.controls.find(c=>c.id===control.id);
+      if(item.enabled && control.requires.some(id=>!p.controls.find(c=>c.id===id)?.enabled)) {
+        item.enabled=false;
+        changed=true;
+      }
+    }
+  }
   const yaml=exportProfile(p); valid(p);
   const result=spawnSync("../.venv/bin/python",["-c",
     "import sys; from hardener.validation import parse_yaml,validate,load_catalog; validate(parse_yaml(sys.stdin.read()),load_catalog())"],

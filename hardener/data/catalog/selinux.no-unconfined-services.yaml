@@ -1,0 +1,29 @@
+id: selinux.no-unconfined-services
+title: Assess unconfined service processes
+summary: Count processes running in the unconfined_service_t domain without changing service policy.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- Findings require workload-owner policy review. This assessment never terminates a process or generates
+  confinement policy.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Inspect native state and preserve unrelated policy.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/selinux.no-unconfined-services.audit.yml
+  verify: ansible/tasks/selinux.no-unconfined-services.verify.yml
+supported_modes:
+- audit
+- verify

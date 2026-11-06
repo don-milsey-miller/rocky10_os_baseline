@@ -1,0 +1,37 @@
+id: audit.early-boot
+title: Audit processes from early boot
+summary: Require audit=1 and an explicit early buffer in every kernel entry and the running kernel, without
+  reported event loss.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- 'Only modeled native units and watch rules are supported. Rule suppression and unknown finalization
+  are refused. Recovery: restore the guest snapshot, or remove the owned rule files and reboot through
+  the recovery console.'
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires independently rehearsed recovery and explicit workload policy.
+requires:
+- audit.service-enabled
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    backlog_limit:
+      type: integer
+      minimum: 8192
+      maximum: 65536
+  required:
+  - backlog_limit
+implemented: true
+reboot_required: true
+implementation:
+  audit: ansible/tasks/audit.early-boot.audit.yml
+  apply: ansible/tasks/audit.early-boot.apply.yml
+  verify: ansible/tasks/audit.early-boot.verify.yml
+  preflight: ansible/tasks/audit.early-boot.preflight.yml

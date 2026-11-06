@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rocky10-os-baseline"
-version = "0.10.0rc1"
+version = "0.11.0rc1"
 description = "Explicit, profile-driven hardening for Rocky Linux 10 KVM servers"
 requires-python = ">=3.12"
 dependencies = ["ansible-core==2.19.15", "PyYAML==6.0.3", "jsonschema==4.26.0"]

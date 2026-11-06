@@ -1,0 +1,21 @@
+- name: Inspect selected M11 policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/audit_policy.py'') }}'
+    - immutable-rules
+    - '{{ control.effective_parameters | to_json }}'
+    - inspect
+  register: m11_result
+  no_log: true
+  changed_when: false
+- name: Retain bounded M11 evidence
+  ansible.builtin.set_fact:
+    m11_state: '{{ m11_result.stdout | from_json }}'
+  no_log: true
+- name: Require supported audit.immutable-rules
+  ansible.builtin.assert:
+    that: m11_state.supported
+    fail_msg: Require native auditing, safe unique configuration, supported watch rules and explicit thresholds.
+      Resolve suppression, custom units or immutable drift before applying.

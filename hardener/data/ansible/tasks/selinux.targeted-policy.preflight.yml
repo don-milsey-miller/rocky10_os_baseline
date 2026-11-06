@@ -1,0 +1,20 @@
+- name: Inspect selected M11 policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/selinux_policy.py'') }}'
+    - targeted-policy
+    - inspect
+  register: m11_result
+  no_log: true
+  changed_when: false
+- name: Retain bounded M11 evidence
+  ansible.builtin.set_fact:
+    m11_state: '{{ m11_result.stdout | from_json }}'
+  no_log: true
+- name: Require supported selinux.targeted-policy
+  ansible.builtin.assert:
+    that: m11_state.supported
+    fail_msg: Require active targeted SELinux, safe configuration and boot entries without bypasses. Disabled
+      policy migration requires reviewed relabel and reboot.
