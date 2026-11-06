@@ -1,0 +1,34 @@
+id: login.authorized-use-banner
+title: Set a console authorized-use notice
+summary: Install explicit plain notice text for native console logins without system-information escapes.
+rationale: Install explicit plain notice text for native console logins without system-information escapes.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    text:
+      type: string
+      minLength: 1
+      maxLength: 2048
+  required:
+  - text
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/login.authorized-use-banner.preflight.yml
+  audit: ansible/tasks/login.authorized-use-banner.audit.yml
+  apply: ansible/tasks/login.authorized-use-banner.apply.yml
+  verify: ansible/tasks/login.authorized-use-banner.verify.yml

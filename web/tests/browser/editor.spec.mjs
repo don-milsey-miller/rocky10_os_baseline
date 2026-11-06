@@ -333,3 +333,31 @@ test("storage reviews export unchanged and preserve bounded parameters",async({p
   await page.locator("#confirm-import").click();
   await expect(page.locator("#yaml-preview")).toHaveValue(raw);
 });
+
+test("approved M12 mount boot and optional policy exports without credentials",async({page,context})=>{
+  await context.setOffline(true);
+  const profile=importProfile(await readFile("../profiles/examples/server-storage-boot-lab.yaml","utf8"));
+  profile.id="m12-browser-storage-boot";
+  await page.goto(url);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(exportProfile(profile));
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("15");
+  await expect(page.locator("#export")).toBeEnabled();
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const directory=path.resolve("../reports/m12-live");
+  await mkdir(directory,{recursive:true});
+  const filename=path.join(directory,"browser-storage-boot.yaml");
+  await (await download).saveAs(filename);
+  const raw=await readFile(filename,"utf8");
+  expect(raw).toBe(exportProfile(profile));
+  expect(raw).not.toContain("grub.pbkdf2");
+  expect(raw).not.toContain("$6$");
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-file").setInputFiles(filename);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+});

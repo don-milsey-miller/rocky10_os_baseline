@@ -1,0 +1,28 @@
+- name: Inspect selected M12 policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/boot_policy.py'') }}'
+    - system-policy
+    - inspect
+    - '{{ control.effective_parameters | to_json }}'
+  register: m12_result
+  no_log: true
+  changed_when: false
+- name: Retain bounded M12 evidence
+  ansible.builtin.set_fact:
+    m12_state: '{{ m12_result.stdout | from_json }}'
+  no_log: true
+- name: Record independently inspected crypto.system-policy
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not m12_state.supported else (''pass'' if m12_state.matches else
+        ''fail'') }}'
+      observed: '{{ m12_state }}'
+      expected: Apply an explicit built-in policy and require a subsequent boot before claiming effective
+        state.
+      changed: '{{ hardener_changed }}'
+      reason: Reboot after policy changes before verifying effective service cryptography.
+      reboot_required: '{{ m12_state.reboot_pending | default(false) }}'

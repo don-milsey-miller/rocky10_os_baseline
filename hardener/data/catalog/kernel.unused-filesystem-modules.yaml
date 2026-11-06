@@ -1,0 +1,38 @@
+id: kernel.unused-filesystem-modules
+title: Deny selected unused filesystem modules
+summary: Refuse loaded drivers and early-boot copies, then deny explicitly selected filesystem modules.
+rationale: Refuse loaded drivers and early-boot copies, then deny explicitly selected filesystem modules.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    modules:
+      type: array
+      items:
+        type: string
+        pattern: ^[a-z][a-z0-9_]{0,31}$
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+  required:
+  - modules
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/kernel.unused-filesystem-modules.preflight.yml
+  audit: ansible/tasks/kernel.unused-filesystem-modules.audit.yml
+  apply: ansible/tasks/kernel.unused-filesystem-modules.apply.yml
+  verify: ansible/tasks/kernel.unused-filesystem-modules.verify.yml

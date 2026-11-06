@@ -1,5 +1,6 @@
 """Restrict only supported existing fstab mounts and explicit shared directories."""
 
+import hashlib
 import json
 import os
 import re
@@ -91,7 +92,7 @@ def mount_inspect(kind, parameters):
     requested = parameters["flags"]
     desired = restrict_options(row[3], requested)
     mounted = json.loads(
-        run(["findmnt", "-J", "-M", target, "-o", "TARGET,SOURCE,FSTYPE,OPTIONS,FSROOT"])
+        run(["findmnt", "-J", "-R", "-M", target, "-o", "TARGET,SOURCE,FSTYPE,OPTIONS,FSROOT"])
     )["filesystems"]
     if len(mounted) != 1 or mounted[0].get("children") or mounted[0]["fsroot"] != "/":
         raise ValueError("Require a whole existing filesystem without nested mounts")
@@ -99,12 +100,67 @@ def mount_inspect(kind, parameters):
     persistent = json.loads(
         run(["findmnt", "--fstab", "--evaluate", "-J", "-M", target, "-o", "SOURCE,FSTYPE"])
     )["filesystems"]
-    if len(persistent) != 1 or any(native[k] != persistent[0][k] for k in ("source", "fstype")):
+    if len(persistent) != 1 or native["fstype"] != persistent[0]["fstype"]:
         raise ValueError("Resolve live and persistent mount source drift")
+    if native["source"] != persistent[0]["source"]:
+        image = Path(persistent[0]["source"])
+        if (
+            "loop" not in row[3].split(",")
+            or not image.is_absolute()
+            or Path(target) in image.parents
+        ):
+            raise ValueError("Resolve live and persistent mount source drift")
+        safe_file(image)
+        devices = json.loads(
+            run(
+                [
+                    "losetup",
+                    "--json",
+                    "--list",
+                    "--output",
+                    "NAME,BACK-FILE,OFFSET,SIZELIMIT,RO",
+                    native["source"],
+                ]
+            )
+        )["loopdevices"]
+        if (
+            len(devices) != 1
+            or devices[0]["back-file"] != str(image)
+            or any(devices[0][key] not in (0, False) for key in ("offset", "sizelimit", "ro"))
+        ):
+            raise ValueError("Require an entire writable image at the declared loop mount")
+    if os.stat("/proc/self/ns/mnt").st_ino != os.stat("/proc/1/ns/mnt").st_ino:
+        raise ValueError("Inspect the host guest mount namespace")
     unit = run(["systemd-escape", "--path", "--suffix=mount", target])
     fragment = run(["systemctl", "show", unit, "-p", "FragmentPath", "--value"])
     dropins = run(["systemctl", "show", unit, "-p", "DropInPaths", "--value"])
-    if fragment != "/run/systemd/generator/" + unit or dropins:
+    if target == "/dev/shm" and not fragment and not dropins:
+        for filename in (
+            "/usr/lib/systemd/system/systemd-remount-fs.service",
+            "/usr/lib/systemd/systemd-remount-fs",
+        ):
+            native_path = Path(filename)
+            safe_file(native_path)
+            rows = run(["rpm", "-qf", "--qf", "[%{FILENAMES}\\t%{FILEDIGESTS}\\n]", filename])
+            digests = dict(row.split("\t", 1) for row in rows.splitlines() if "\t" in row)
+            if hashlib.sha256(native_path.read_bytes()).hexdigest() != digests.get(filename):
+                raise ValueError("Require native API-filesystem remount behavior")
+        overrides = run(
+            ["systemctl", "show", "systemd-remount-fs.service", "-p", "DropInPaths", "--value"]
+        )
+        for override in overrides.split():
+            expected = "/run/systemd/generator.late/systemd-remount-fs.service.d/50-remount-rw.conf"
+            if override != expected:
+                raise ValueError("Review API-filesystem remount overrides")
+            safe_file(Path(override))
+            content = "\n".join(
+                line.strip()
+                for line in Path(override).read_text().splitlines()
+                if line.strip() and not line.lstrip().startswith("#")
+            )
+            if content != "[Service]\nEnvironment=SYSTEMD_REMOUNT_ROOT_RW=1":
+                raise ValueError("Review generated API-filesystem remount settings")
+    elif fragment != "/run/systemd/generator/" + unit or dropins:
         raise ValueError("Use the unmodified fstab-generated mount unit")
     live_options = set(native["options"].split(","))
     state = {
@@ -169,11 +225,11 @@ def main():
             else:
                 path, content, target, options = plan
                 if content != path.read_text():
-                    path.write_text(content)
                     changed = True
+                    path.write_text(content)
                     run(["systemctl", "daemon-reload"])
-                run(["mount", "-o", "remount," + options, "--", target])
                 changed = True
+                run(["mount", "-o", "remount," + options, "--", target])
             state, _ = inspect(parameters)
         print(json.dumps({"supported": True, "changed": changed, **state}))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError):

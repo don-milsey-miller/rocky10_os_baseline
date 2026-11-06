@@ -34,7 +34,7 @@ parameters:
         type: string
   required:
   - flags
-implemented: false
+implemented: true
 reboot_required: false
 implementation:
   preflight: ansible/tasks/filesystem.dev-shm-restrictions.preflight.yml

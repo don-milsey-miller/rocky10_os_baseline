@@ -190,10 +190,10 @@ def test_ambiguous_mount_ownership_refused(value):
         mounts.fstab_entry(value, "/tmp")
 
 
-def test_mount_drafts_remain_unavailable():
+def test_mount_controls_require_explicit_operator_parameters():
     catalog = load_catalog()
     for cid in [
         *("filesystem." + name for name in mounts.MOUNTS),
         "filesystem.shared-directory-sticky",
     ]:
-        assert catalog[cid]["implemented"] is False
+        assert catalog[cid]["parameters"]["required"]

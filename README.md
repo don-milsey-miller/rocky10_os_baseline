@@ -1,15 +1,14 @@
 # Rocky Linux 10 OS baseline
 
-**M11 complete:** Twelve SELinux, audit, integrity and TLS logging controls plus one read-only assessment are validated under the approved disposable-lab policy. Combined verification passes 79 controls and retains root PATH and unconfined-service assessment findings. All 75 remediable controls repeat with zero changes. See the [M11 acceptance record](docs/m11-demonstration.md#validation-record).
-
-**M12 in progress:** Six read-only assessments are validated. Storage and boot policy Q6 remains pending, and five filesystem remediation drafts are unavailable. See the [checkpoint](docs/m12-review.md).
+**M12 complete:** All 21 storage, boot and optional-policy entries are validated under the approved disposable-lab policy. The catalog contains 90 remediations and twelve read-only assessments. Combined verification passes 98 controls and retains four documented findings. All 90 remediations repeat with zero changes. See the [M12 acceptance record](docs/m12-demonstration.md#validation-record). M13 release acceptance remains pending.
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The catalog contains 87 executable controls and five unavailable M12 drafts covering account files, kernel safeguards, package
+The catalog contains 102 executable controls covering account files, kernel safeguards, package
 trust, optional services, time, local logging, SSH, sudo, network, firewall, and local
-identity, SELinux, audit, integrity and remote logging policy. Each can be selected
+identity, SELinux, audit, integrity, remote logging, filesystem, boot and cryptographic
+policy. Each can be selected
 or excluded. Security-update status, four identity assessments and the unconfined-service
-assessment and six filesystem/storage/boot assessments are read-only. The 75 remediable controls support
+assessment and six filesystem/storage/boot assessments are read-only. The 90 remediable controls support
 independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
 [M6 file and kernel controls](docs/m6-demonstration.md), and
 [M7 operations controls](docs/m7-demonstration.md), and

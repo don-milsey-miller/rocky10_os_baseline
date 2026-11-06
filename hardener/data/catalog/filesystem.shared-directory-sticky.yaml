@@ -32,7 +32,7 @@ parameters:
         maxLength: 256
   required:
   - paths
-implemented: false
+implemented: true
 reboot_required: false
 implementation:
   preflight: ansible/tasks/filesystem.shared-directory-sticky.preflight.yml

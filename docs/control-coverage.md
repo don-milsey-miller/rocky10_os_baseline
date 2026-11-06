@@ -2,12 +2,13 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M5 through M11 are complete. The executable catalog has
-87 executable controls: 75 remediable and twelve assessment-only. M12 has six
-assessment controls, five unavailable filesystem drafts and ten planned controls.
-M12 remains incomplete pending Q6 and mutating acceptance. See the
-[M12 checkpoint](m12-review.md). Root PATH and unconfined-service findings retain
-their existing [M11 dispositions](m11-demonstration.md#validation-record).
+not automatic selection. M5 through M12 are complete. The catalog has 102 executable
+controls: 90 remediable and twelve assessment-only. M12 covers fifteen remediations
+and six assessments under the approved disposable policy. See the
+[M12 acceptance record](m12-demonstration.md#validation-record). The combined run
+retains root PATH, unconfined-service, root encryption and BIOS Secure Boot findings.
+The first two retain their [M11 dispositions](m11-demonstration.md#validation-record).
+Encryption and firmware changes remain provisioning decisions. M13 remains pending.
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -87,27 +88,27 @@ their existing [M11 dispositions](m11-demonstration.md#validation-record).
 | audit.immutable-rules | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
 | integrity.aide-scheduled | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
 | logging.remote-tls | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
-| filesystem.tmp-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
-| filesystem.var-tmp-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
-| filesystem.dev-shm-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
-| filesystem.home-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
-| filesystem.shared-directory-sticky | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
-| filesystem.world-writable-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
-| filesystem.unowned-files-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
-| filesystem.privileged-files-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
-| kernel.unused-filesystem-modules | M12 | Planned | — |
-| kernel.unused-network-protocols | M12 | Planned | — |
-| services.legacy-listeners-disabled | M12 | Planned | — |
-| services.cron-access | M12 | Planned | — |
-| services.at-access | M12 | Planned | — |
-| boot.config-permissions | M12 | Planned | — |
-| boot.loader-authentication | M12 | Planned | — |
-| boot.rescue-authentication | M12 | Planned | — |
-| crypto.system-policy | M12 | Planned | — |
-| login.authorized-use-banner | M12 | Planned | — |
-| storage.partition-layout | M12 | Assessment | [M12 checkpoint](m12-review.md) |
-| storage.disk-encryption | M12 | Assessment | [M12 checkpoint](m12-review.md) |
-| boot.secure-boot | M12 | Assessment | [M12 checkpoint](m12-review.md) |
+| filesystem.tmp-restrictions | M12 | Implemented | [M12](m12-demonstration.md) |
+| filesystem.var-tmp-restrictions | M12 | Implemented | [M12](m12-demonstration.md) |
+| filesystem.dev-shm-restrictions | M12 | Implemented | [M12](m12-demonstration.md) |
+| filesystem.home-restrictions | M12 | Implemented | [M12](m12-demonstration.md) |
+| filesystem.shared-directory-sticky | M12 | Implemented | [M12](m12-demonstration.md) |
+| filesystem.world-writable-review | M12 | Assessment | [M12](m12-demonstration.md) |
+| filesystem.unowned-files-review | M12 | Assessment | [M12](m12-demonstration.md) |
+| filesystem.privileged-files-review | M12 | Assessment | [M12](m12-demonstration.md) |
+| kernel.unused-filesystem-modules | M12 | Implemented | [M12](m12-demonstration.md) |
+| kernel.unused-network-protocols | M12 | Implemented | [M12](m12-demonstration.md) |
+| services.legacy-listeners-disabled | M12 | Implemented | [M12](m12-demonstration.md) |
+| services.cron-access | M12 | Implemented | [M12](m12-demonstration.md) |
+| services.at-access | M12 | Implemented | [M12](m12-demonstration.md) |
+| boot.config-permissions | M12 | Implemented | [M12](m12-demonstration.md) |
+| boot.loader-authentication | M12 | Implemented | [M12](m12-demonstration.md) |
+| boot.rescue-authentication | M12 | Implemented | [M12](m12-demonstration.md) |
+| crypto.system-policy | M12 | Implemented | [M12](m12-demonstration.md) |
+| login.authorized-use-banner | M12 | Implemented | [M12](m12-demonstration.md) |
+| storage.partition-layout | M12 | Assessment / provisioning | [M12](m12-demonstration.md) |
+| storage.disk-encryption | M12 | Assessment / provisioning | [M12](m12-demonstration.md) |
+| boot.secure-boot | M12 | Assessment / provisioning | [M12](m12-demonstration.md) |
 | files.passwd-permissions | M1–M4 | Implemented | [M4](m4-release-readiness.md) |
 | kernel.protected-hardlinks | M1–M4 | Implemented | [M4](m4-release-readiness.md) |
 | services.debug-shell-disabled | M1–M4 | Implemented | [M4](m4-release-readiness.md) |

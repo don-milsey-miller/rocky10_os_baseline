@@ -1,0 +1,40 @@
+id: services.cron-access
+title: Restrict local cron admission
+summary: Limit crontab access to explicitly named local users while preserving existing scheduled job
+  owners.
+rationale: Limit crontab access to explicitly named local users while preserving existing scheduled job
+  owners.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    users:
+      type: array
+      items:
+        type: string
+        pattern: ^[a-z_][a-z0-9_-]{0,31}$
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+  required:
+  - users
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/services.cron-access.preflight.yml
+  audit: ansible/tasks/services.cron-access.audit.yml
+  apply: ansible/tasks/services.cron-access.apply.yml
+  verify: ansible/tasks/services.cron-access.verify.yml

@@ -1,5 +1,7 @@
 # M12 assessment checkpoint
 
+> Historical assessment checkpoint. Q6 was subsequently approved. Current M12 scope and acceptance are recorded in [M12 storage, boot and optional policies](m12-demonstration.md). The pending statements below describe this earlier checkpoint.
+
 M12 is **incomplete**. Six read-only controls are executable. Five filesystem
 remediations are drafted with `implemented: false`. Ten other controls remain
 planned. No mount, boot, scheduler, listener, module or crypto policy has been
