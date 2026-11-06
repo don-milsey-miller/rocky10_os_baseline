@@ -26,14 +26,26 @@
       - ansible_virtualization_type
       - ansible_virtualization_role
 
-- name: Require Rocky Linux 10 KVM guest
+- name: Inspect EC2 Xen identity
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /sys/hypervisor/uuid]
+  register: ec2_xen_identity
+  changed_when: false
+  failed_when: false
+  when: ansible_facts.virtualization_type == 'xen'
+
+- name: Require matching supported server guest
   ansible.builtin.assert:
     that:
-      - ansible_facts.distribution == 'Rocky'
+      - ansible_facts.distribution in ['Rocky', 'RedHat']
       - ansible_facts.distribution_major_version == '10'
-      - ansible_facts.virtualization_type == 'kvm'
+      - "({'Rocky': 'rocky', 'RedHat': 'rhel'}.get(ansible_facts.distribution, '') in (hardener_expected_os | default([])))"
       - ansible_facts.virtualization_role == 'guest'
-    fail_msg: Only Rocky Linux 10 KVM guests are supported. Never target the hypervisor.
+      - >-
+        ansible_facts.virtualization_type == 'kvm' or
+        (ansible_facts.virtualization_type == 'xen' and
+         (ec2_xen_identity.stdout | default('') | lower).startswith('ec2'))
+    fail_msg: Require a matching Rocky Linux 10 or RHEL 10 profile and a KVM or EC2 Xen guest. Never target the hypervisor.
 
 - name: Inspect server boot target
   ansible.builtin.command:

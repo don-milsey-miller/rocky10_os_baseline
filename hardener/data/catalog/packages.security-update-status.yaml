@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - Assessment only. Does not upgrade packages. Requires reachable repositories with advisory metadata.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

@@ -9,7 +9,7 @@ tradeoffs:
   Recovery: disable rocky10-aide.timer and restore the approved database and configuration from trusted
   backup.'
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

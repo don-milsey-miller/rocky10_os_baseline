@@ -8,7 +8,7 @@ tradeoffs:
 - Strict mode can reject valid asymmetric traffic. Choose loose mode only when it matches the routing
   design.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

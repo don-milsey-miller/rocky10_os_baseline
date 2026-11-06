@@ -9,7 +9,7 @@ tradeoffs:
   are refused. Recovery: restore the guest snapshot, or remove the owned rule files and reboot through
   the recovery console.'
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

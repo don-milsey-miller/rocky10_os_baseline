@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - May restrict debugging or application behavior. Select only after workload validation.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

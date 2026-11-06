@@ -8,7 +8,7 @@ tradeoffs:
 - No disks, partitions, encryption keys or firmware settings are modified.
 - BIOS Secure Boot is reported as a finding. UEFI behavior requires separate guest acceptance.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

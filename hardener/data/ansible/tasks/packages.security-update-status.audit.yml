@@ -5,6 +5,7 @@
     - -c
     - |
       import dnf,json,sys,tempfile,os
+      from urllib.parse import urlsplit
       ids=json.loads(sys.argv[1])
       with tempfile.TemporaryDirectory(prefix='hardener-advisories-') as tmp:
           for name in ('cache','persist','log'):os.mkdir(tmp+'/'+name)
@@ -17,6 +18,13 @@
                   if rid not in b.repos or not b.repos[rid].enabled:raise ValueError('Selected repository unavailable')
                   b.repos[rid].skip_if_unavailable=False
                   b.repos[rid].add_metadata_type_to_download('updateinfo')
+              # AWS RHUI needs vendor identity headers and region resolution.
+              # Permit only the installed vendor plugin, never all DNF plugins.
+              hosts=[urlsplit(url).hostname or '' for rid in ids
+                     for url in list(b.repos[rid].baseurl)+[b.repos[rid].mirrorlist or '']]
+              if any(host.startswith('rhui.') and host.endswith('.aws.ce.redhat.com') for host in hosts):
+                  b.init_plugins(disabled_glob=['*'], enable_plugins=['amazon-id'])
+                  b.configure_plugins()
               b.fill_sack(load_system_repo=True)
               missing=[rid for rid in ids if not b.repos[rid].get_metadata_path('updateinfo')]
               if missing:raise ValueError('Security advisory metadata unavailable for selected repository')

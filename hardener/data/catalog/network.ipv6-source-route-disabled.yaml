@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - IPv6 mobility that uses type 2 routing headers is incompatible.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

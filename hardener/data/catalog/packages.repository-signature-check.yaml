@@ -8,7 +8,7 @@ tradeoffs:
 - Requires an explicit repository list. Other repositories and operator command-line overrides are outside
   this control.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

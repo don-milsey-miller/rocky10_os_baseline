@@ -1,6 +1,6 @@
 # Rocky Linux 10 OS baseline
 
-A profile-driven hardening CLI for **Rocky Linux 10 KVM server guests**, with an
+A profile-driven hardening CLI for **Rocky Linux 10 and RHEL 10 server guests**, with an
 optional offline profile editor. Select controls, audit a server, apply an approved
 profile, and independently verify the resulting state.
 
@@ -24,7 +24,7 @@ certification claim.
 | Component | Role and requirements |
 | --- | --- |
 | Controller | Runs the CLI and Ansible. Tested on a separate Rocky Linux 10.2 x86_64 development guest with Python 3.12. The pinned dependencies install Ansible Core 2.19.15. |
-| Managed target | A separate Rocky Linux 10 KVM **server guest**, reachable over SSH, with DNF, a `multi-user.target` default boot target, and working root privilege escalation. Acceptance testing used Rocky 10.2 x86_64. |
+| Managed target | A Rocky Linux 10 or RHEL 10 **server guest** on KVM or EC2 Xen, reachable over SSH, with DNF, a `multi-user.target` default boot target, and working root privilege escalation. Acceptance testing used Rocky 10.2 x86_64. |
 | Recovery | A disposable target and an independently tested snapshot/restore route. High-impact preflight and apply additionally require an authenticated recovery receipt. |
 | Optional editor build | Node.js 22 and the project's Python environment. The generated HTML opens directly in a modern browser. |
 
@@ -32,11 +32,11 @@ Run the commands below in Bash **inside the controller guest**, from the reposit
 root unless a step says otherwise. The controller connects to the target over SSH.
 The framework does not create guests or manage the hypervisor.
 
-Preflight refuses unsupported operating systems, bare metal, and guests that do
-not report KVM virtualization. An Ubuntu CI runner can test portable application
-code, but it cannot establish Rocky target behavior. An EC2 instance type alone
-does not establish compatibility. The accepted target scope remains Rocky 10 KVM
-servers. UEFI, directory-backed identities, and FIPS deployments are outside the
+Preflight requires the profile's distribution, major version 10, and a guest
+running on KVM or EC2 Xen. EC2 Xen identity is checked through the hypervisor UUID.
+Bare metal, containers, other Xen platforms, and mismatched profiles are refused.
+Ubuntu CI checks portable code, not target behavior. Native RHEL and Rocky EC2
+validation and its limits are recorded in [the platform report](docs/dual-os-validation.md). UEFI, directory-backed identities, and FIPS deployments are outside the
 established acceptance matrix. Review [operations](docs/operations.md) before
 extending the lab configuration.
 
@@ -264,6 +264,19 @@ See the [editor guide](web/README.md) for build details and import constraints.
 
 ## Profile format and selection
 
+Choose **Target distribution** in the offline editor, or set target.os to
+rocky or rhel in YAML. This does not translate repository IDs, signing keys,
+time servers, or account names. Review those parameters for the actual server.
+Start with [the RHEL example](profiles/examples/rhel10-server-minimal.yaml) or
+[the Rocky example](profiles/examples/server-minimal.yaml). Selections survive
+distribution changes. Export and import preserve the chosen distribution.
+
+RHEL support currently has bounded EC2 acceptance. See the
+[validation report](docs/dual-os-validation.md) before using high-impact controls.
+Existing managed filenames containing rocky10 remain shared engine paths to
+avoid duplicate configuration or breaking existing Rocky deployments.
+
+
 Profiles are data. They contain identifiers and approved parameters, never shell
 commands, task paths, or credentials. For example:
 
@@ -343,7 +356,7 @@ roll back failed runs or reboot a target.
 | Symptom | Check |
 | --- | --- |
 | SSH or escalation failure | Verify the inventory address/user, trusted host key, key authentication, and the two Ansible connectivity commands above. |
-| Unsupported target | Confirm Rocky 10, KVM guest identity, `hardener_role=server`, DNF, and `systemctl get-default` reporting `multi-user.target`. |
+| Unsupported target | Confirm the selected Rocky 10 or RHEL 10 distribution, KVM or EC2 Xen guest identity, `hardener_role=server`, DNF, and `systemctl get-default` reporting `multi-user.target`. |
 | Recovery evidence refused | Inspect the reason. Rehearse again for expired receipts or changed inventory, target, engine, or controller. See [recovery diagnostics](docs/recovery-enforcement.md). |
 | Profile rejected | Run local validation. Check explicit dependencies, parameter types, duplicate IDs, and assessment-only controls in apply profiles. |
 | Unexpected verification failure | Inspect per-control evidence and configuration conflicts. Honor `reboot_required` and verify again after an approved reboot. |

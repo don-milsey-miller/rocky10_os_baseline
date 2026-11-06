@@ -9,7 +9,7 @@ tradeoffs:
   command grants, special authentication defaults, and changes to the active recovery identity require
   operator review.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

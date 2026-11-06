@@ -8,7 +8,7 @@ tradeoffs:
 - Supports a non-routing NetworkManager Ethernet host with the nftables backend and exclusive firewalld
   table ownership. Custom zones, policies, direct rules and competing managers require reconciliation.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

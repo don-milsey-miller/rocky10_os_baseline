@@ -1,4 +1,4 @@
-import { data, available, validateProfile, exportProfile, importProfile, parameterValue } from "./core.mjs";
+import { data, available, targetMatches, validateProfile, exportProfile, importProfile, parameterValue } from "./core.mjs";
 
 const $ = (id) => document.getElementById(id);
 const element = (tag, className, text) => {
@@ -12,22 +12,22 @@ let profile = {
   schema_version: data.profileSchema.properties.schema_version.const,
   id: "rocky10-custom", name: "My server profile", revision: 1,
   target: Object.fromEntries(Object.entries(data.profileSchema.properties.target.properties)
-    .map(([key, value]) => [key, value.const])),
+    .map(([key, value]) => [key, value.const ?? value.default])),
   controls: []
 };
 const selectedItem = (id) => profile.controls.find(item => item.id === id);
 const category = (control) => control.id.split(".")[0];
-const sameTarget = (control) => ["os", "major_version", "role"]
-  .every(key => control.applies_to[key] === profile.target[key]);
+const sameTarget = (control) => targetMatches(control, profile.target);
 const categories = [...new Set(catalog.map(category))].sort();
 for (const name of categories) {
   $("category").append(new Option(name[0].toUpperCase() + name.slice(1), name));
 }
 $("catalog-count").textContent = catalog.filter(c => available(c, profile.target)).length + " controls available";
 $("catalog-version").textContent = "Catalog v" + data.engineVersion;
-$("footer-version").textContent = "Rocky 10 OS baseline · " + data.engineVersion;
+$("footer-version").textContent = "Rocky Linux 10 / RHEL 10 server baseline · " + data.engineVersion;
 
 function updateSummary() {
+  $("catalog-count").textContent = catalog.filter(c => available(c, profile.target)).length + " controls available";
   const included = profile.controls.filter(item => item.enabled).length;
   $("included-count").textContent = included;
   $("excluded-count").textContent = profile.controls.length - included;
@@ -189,6 +189,16 @@ function renderControls() {
   $("controls").replaceChildren(...cards);
 }
 
+$("target-os").addEventListener("change", () => {
+  profile.target.os = $("target-os").value;
+  if (["rocky10-custom", "rhel10-custom"].includes(profile.id)) {
+    profile.id = profile.target.os + "10-custom";
+    $("profile-id").value = profile.id;
+  }
+  renderControls();
+  updateSummary();
+});
+
 for (const id of ["search", "category", "impact", "availability", "applicability"]) {
   $(id).addEventListener("input", renderControls);
 }
@@ -220,6 +230,7 @@ $("confirm-import").addEventListener("click", () => {
     $("profile-name").value = profile.name || "";
     $("profile-id").value = profile.id;
     $("revision").value = profile.revision;
+    $("target-os").value = profile.target.os;
     renderControls();
     updateSummary();
     $("import-dialog").close();

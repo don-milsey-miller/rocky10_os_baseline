@@ -5,7 +5,10 @@ The CLI and offline editor use this same contract.
 
 Required fields are `schema_version: 1`, a stable lowercase hyphenated `id`,
 positive integer `revision`, `target`, and `controls`. A human-readable
-`name` is optional. The target is exactly Rocky, major version 10, role server.
+`name` is optional. The target OS is explicitly rocky or rhel, major version 10, role server.
+The CLI rejects a profile when the guest distribution does not match. Existing
+Rocky profiles remain valid. The editor selects the distribution before export.
+Catalog applies_to.os accepts a single OS or an explicit list of supported OS values.
 
 Each control has a project-owned `id` and a Boolean `enabled`. Optional
 `parameters` must match the catalog entry's closed JSON Schema.

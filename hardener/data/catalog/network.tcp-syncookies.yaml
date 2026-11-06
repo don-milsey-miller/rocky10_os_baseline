@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - This setting does not replace capacity planning or traffic filtering.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

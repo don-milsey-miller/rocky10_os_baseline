@@ -4,10 +4,15 @@ import { profileValidator, parameterValidators } from "../.generated/validators.
 
 export { data };
 
-export function available(control, target) {
-  return control.implemented && control.applies_to.os === target.os &&
+export function targetMatches(control, target) {
+  const systems = [].concat(control.applies_to.os);
+  return systems.includes(target.os) &&
     control.applies_to.major_version === target.major_version &&
     control.applies_to.role === target.role;
+}
+
+export function available(control, target) {
+  return control.implemented && targetMatches(control, target);
 }
 
 export function parameterDefaults(schema, supplied) {

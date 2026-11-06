@@ -143,8 +143,20 @@ def test_embedded_python_inspections_are_valid_python():
         compile(path.read_text(), str(path), "exec")
 
 
-def test_advisory_inspection_loads_site_variables_before_repositories(monkeypatch, capsys):
+@pytest.mark.parametrize(
+    "endpoint,requires_rhui",
+    [
+        ("https://mirror.example.org/baseos", False),
+        ("https://rhui.REGION.aws.ce.redhat.com/pulp/mirror/content", True),
+        ("https://rhui.us-east-1.aws.ce.redhat.com/pulp/mirror/content", True),
+        ("https://rhui.example.org/pulp/mirror/content", False),
+    ],
+)
+def test_advisory_inspection_loads_site_variables_before_repositories(
+    monkeypatch, capsys, endpoint, requires_rhui
+):
     ready = []
+    plugins = []
 
     class Query:
         def upgrades(self):
@@ -170,6 +182,8 @@ def test_advisory_inspection_loads_site_variables_before_repositories(monkeypatc
             self.repos = {
                 "test": SimpleNamespace(
                     id="test",
+                    baseurl=[],
+                    mirrorlist=endpoint,
                     enabled=True,
                     add_metadata_type_to_download=lambda kind: None,
                     get_metadata_path=lambda kind: "/temporary/updateinfo",
@@ -186,8 +200,17 @@ def test_advisory_inspection_loads_site_variables_before_repositories(monkeypatc
         def read_all_repos(self):
             assert ready == [("/", ["/etc/dnf/vars"])]
 
+        def init_plugins(self, **kwargs):
+            assert kwargs == {"disabled_glob": ["*"], "enable_plugins": ["amazon-id"]}
+            plugins.append("initialized")
+
+        def configure_plugins(self):
+            assert plugins == ["initialized"]
+            plugins.append("configured")
+
         def fill_sack(self, **kwargs):
             assert kwargs == {"load_system_repo": True}
+            assert plugins == (["initialized", "configured"] if requires_rhui else [])
 
     monkeypatch.setitem(sys.modules, "dnf", SimpleNamespace(Base=Base))
     monkeypatch.setattr(sys, "argv", ["probe", '["test"]'])

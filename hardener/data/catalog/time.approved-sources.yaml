@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - Changes the explicitly selected service policy. Test workload compatibility and preserve recovery access.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

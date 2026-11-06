@@ -142,7 +142,7 @@ def validate(profile, catalog, mode="validate"):
         if item["enabled"]:
             if not control["implemented"]:
                 raise ValidationError(f"{cid}: implementation unavailable")
-            if control["applies_to"] != profile["target"]:
+            if not target_matches(control["applies_to"], profile["target"]):
                 raise ValidationError(f"{cid}: incompatible target")
             if mode == "apply" and "apply" not in control.get(
                 "supported_modes", ["audit", "apply", "verify"]
@@ -163,3 +163,15 @@ def load_profile(path, catalog):
     profile = parse_yaml(raw)
     validate(profile, catalog)
     return profile, hashlib.sha256(raw).hexdigest()
+
+
+def target_matches(applicability, target):
+    """Match an explicit supported distribution, major version and server role."""
+    systems = applicability["os"]
+    if isinstance(systems, str):
+        systems = [systems]
+    return (
+        target["os"] in systems
+        and applicability["major_version"] == target["major_version"]
+        and applicability["role"] == target["role"]
+    )

@@ -11,7 +11,7 @@ tradeoffs:
 - The su policy requires the stock vendor PAM file and preserves its root bypass. The connected administrator
   must already belong to the supplied group. No group memberships are changed.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high
