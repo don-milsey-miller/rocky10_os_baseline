@@ -56,6 +56,24 @@ npx playwright install chromium --only-shell
 npm run test:browser
 ```
 
+### Browser-test resources
+
+The single-worker browser suite checks Linux memory before launching Chromium,
+including when invoked directly with `npx playwright test`. It requires at least
+2 GiB combined **currently available RAM plus free swap** (`MemAvailable` +
+`SwapFree` in `/proc/meminfo`). Installed RAM or allocated but used swap does not
+satisfy this check. Missing or unreadable Linux memory data stops the run.
+
+For a disposable 1 GiB test VM, provision 2 GiB swap before running the suite, or
+use a larger runner with sufficient available memory. The check only reads state.
+It does not configure swap or change the host. Use `free -m` to inspect resources.
+
+This is a conservative admission budget for the tested Linux VM configuration,
+not a guarantee against other processes consuming memory later. Container memory
+limits are not measured. On other operating systems, the check emits a warning
+and preserves the existing test behavior. It does not change the built editor or
+hardening target support. See [the EC2 validation record](../docs/issue5-browser-resources.md).
+
 On the tested Rocky 10 development guest, headless Chromium requires these OS
 packages in addition to Node.js:
 
