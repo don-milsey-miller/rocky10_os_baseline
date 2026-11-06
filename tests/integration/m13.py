@@ -9,6 +9,7 @@ import copy
 import hashlib
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -59,6 +60,8 @@ def assert_report(report, catalog, failures=(), excluded=(), changed=0):
 
 def main():
     lab = GuestLab(__doc__)
+    assert lab.args.recovery_evidence, "A current recovery receipt is required"
+    assert not Path(hardener.__file__).resolve().is_relative_to(ROOT), "Use the installed wheel"
     catalog = load_catalog()
     assert len(catalog) == 102
     profile = yaml.safe_load((ROOT / "profiles/examples/server-combined-lab.yaml").read_text())
@@ -101,7 +104,7 @@ def main():
     # Execute the download itself, not a reserialized copy.
     for mode in ["apply", "verify"]:
         argv = [
-            __import__("sys").executable,
+            sys.executable,
             "-m",
             "hardener.cli",
             mode,

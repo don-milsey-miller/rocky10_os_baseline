@@ -1,5 +1,6 @@
 """Check tracked files and built artifacts before tagging a candidate."""
 
+import html
 import json
 import re
 import subprocess
@@ -30,6 +31,27 @@ def check_bytes(name, data):
         raise ValueError("Credential pattern found in " + name)
 
 
+def check_bundled_notices(root, dependencies):
+    """Check complete bundled notices against installed packages and the inventory."""
+    assert dependencies == ["ajv", "yaml"]
+    inventory = {
+        row["name"]: row
+        for row in json.loads((root / "docs/web-dependency-licenses.json").read_text())
+        if row["bundled"]
+    }
+    assert set(inventory) == set(dependencies)
+    notices = (root / "web/dist/THIRD-PARTY-NOTICES.txt").read_text()
+    editor = html.unescape((root / "web/dist/index.html").read_text())
+    for name in dependencies:
+        package = root / "web/node_modules" / name
+        metadata = json.loads((package / "package.json").read_text())
+        assert metadata["version"] == inventory[name]["version"]
+        assert metadata["license"] == inventory[name]["license"]
+        license_text = (package / "LICENSE").read_text().strip()
+        assert license_text and license_text in notices and license_text in editor
+        assert name + " " + metadata["version"] in notices
+
+
 def main():
     tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
     for name in filter(None, tracked):
@@ -53,9 +75,7 @@ def main():
             if item.isfile():
                 check_bytes(item.name, archive.extractfile(item).read())
     manifest = json.loads((ROOT / "web/dist/build-manifest.json").read_text())
-    assert manifest["dependencies"] == ["ajv", "yaml"]
-    notices = (ROOT / "web/dist/THIRD-PARTY-NOTICES.txt").read_text()
-    assert "ajv " in notices and "yaml " in notices and "MIT" in notices
+    check_bundled_notices(ROOT, manifest["dependencies"])
     print("Tracked source, wheel, source distribution and bundled notices passed release checks.")
 
 

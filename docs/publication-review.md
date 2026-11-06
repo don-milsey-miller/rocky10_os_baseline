@@ -30,7 +30,7 @@ separately and are not vendored into the project's wheel.
 
 The editor lockfile's dependencies and licenses are recorded in
 `web-dependency-licenses.json`. Build inspection identifies Ajv and YAML
-as the only dependencies bundled into the standalone HTML. Their MIT license
+as the only dependencies bundled into the standalone HTML. Their MIT and ISC license
 texts and copyright notices are preserved in the HTML and in
 `THIRD-PARTY-NOTICES.txt`. Build and browser-test tools are not bundled.
 The browser binary is downloaded separately by the test tooling.
