@@ -3,9 +3,11 @@
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
 not automatic selection. M5 through M11 are complete. The executable catalog has
-81 controls: 75 remediable and six assessment-only. The 21 entries in M12 remain
-planned. Root PATH and unconfined-service findings have explicit assessment
-dispositions in the [M11 acceptance record](m11-demonstration.md#validation-record).
+87 executable controls: 75 remediable and twelve assessment-only. M12 has six
+assessment controls, five unavailable filesystem drafts and ten planned controls.
+M12 remains incomplete pending Q6 and mutating acceptance. See the
+[M12 checkpoint](m12-review.md). Root PATH and unconfined-service findings retain
+their existing [M11 dispositions](m11-demonstration.md#validation-record).
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -85,14 +87,14 @@ dispositions in the [M11 acceptance record](m11-demonstration.md#validation-reco
 | audit.immutable-rules | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
 | integrity.aide-scheduled | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
 | logging.remote-tls | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
-| filesystem.tmp-restrictions | M12 | Planned | — |
-| filesystem.var-tmp-restrictions | M12 | Planned | — |
-| filesystem.dev-shm-restrictions | M12 | Planned | — |
-| filesystem.home-restrictions | M12 | Planned | — |
-| filesystem.shared-directory-sticky | M12 | Planned | — |
-| filesystem.world-writable-review | M12 | Planned | — |
-| filesystem.unowned-files-review | M12 | Planned | — |
-| filesystem.privileged-files-review | M12 | Planned | — |
+| filesystem.tmp-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
+| filesystem.var-tmp-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
+| filesystem.dev-shm-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
+| filesystem.home-restrictions | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
+| filesystem.shared-directory-sticky | M12 | Planned, unavailable draft | [M12 checkpoint](m12-review.md) |
+| filesystem.world-writable-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
+| filesystem.unowned-files-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
+| filesystem.privileged-files-review | M12 | Assessment | [M12 checkpoint](m12-review.md) |
 | kernel.unused-filesystem-modules | M12 | Planned | — |
 | kernel.unused-network-protocols | M12 | Planned | — |
 | services.legacy-listeners-disabled | M12 | Planned | — |
@@ -103,9 +105,9 @@ dispositions in the [M11 acceptance record](m11-demonstration.md#validation-reco
 | boot.rescue-authentication | M12 | Planned | — |
 | crypto.system-policy | M12 | Planned | — |
 | login.authorized-use-banner | M12 | Planned | — |
-| storage.partition-layout | M12 | Planned | — |
-| storage.disk-encryption | M12 | Planned | — |
-| boot.secure-boot | M12 | Planned | — |
+| storage.partition-layout | M12 | Assessment | [M12 checkpoint](m12-review.md) |
+| storage.disk-encryption | M12 | Assessment | [M12 checkpoint](m12-review.md) |
+| boot.secure-boot | M12 | Assessment | [M12 checkpoint](m12-review.md) |
 | files.passwd-permissions | M1–M4 | Implemented | [M4](m4-release-readiness.md) |
 | kernel.protected-hardlinks | M1–M4 | Implemented | [M4](m4-release-readiness.md) |
 | services.debug-shell-disabled | M1–M4 | Implemented | [M4](m4-release-readiness.md) |

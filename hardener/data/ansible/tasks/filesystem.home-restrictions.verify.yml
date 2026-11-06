@@ -1,0 +1,27 @@
+- name: Inspect selected filesystem policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/filesystem_policy.py'') }}'
+    - home-restrictions
+    - inspect
+    - '{{ control.effective_parameters | to_json }}'
+  register: filesystem_policy
+  changed_when: false
+  no_log: true
+- name: Retain bounded filesystem evidence
+  ansible.builtin.set_fact:
+    filesystem_state: '{{ filesystem_policy.stdout | from_json }}'
+  no_log: true
+- name: Record independent filesystem inspection
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not filesystem_state.supported else (''pass'' if filesystem_state.matches
+        else ''fail'') }}'
+      observed: '{{ filesystem_state }}'
+      expected: Enforce explicitly selected flags on the existing /home filesystem.
+      changed: '{{ hardener_changed }}'
+      reason: Independent effective mount and persistent configuration inspection.
+      reboot_required: false

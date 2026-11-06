@@ -1,0 +1,30 @@
+id: boot.secure-boot
+title: Assess effective Secure Boot state
+summary: Assess effective Secure Boot state. Changes belong to provisioning, not automatic hardening.
+rationale: Record requested storage and boot protection gaps before planning migration.
+benefits:
+- Separate observed protection from a deferred provisioning decision.
+tradeoffs:
+- No disks, partitions, encryption keys or firmware settings are modified.
+- BIOS Secure Boot is reported as a finding. UEFI behavior requires separate guest acceptance.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Read-only native metadata inspection. Migration is outside this engine.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+supported_modes:
+- audit
+- verify
+implementation:
+  audit: ansible/tasks/boot.secure-boot.audit.yml
+  verify: ansible/tasks/boot.secure-boot.verify.yml
