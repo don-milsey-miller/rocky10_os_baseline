@@ -1,0 +1,42 @@
+id: auth.sudo-authentication
+title: Require passwords for selected local administrators
+summary: Require authentication for explicitly named existing unrestricted local administrators.
+rationale: Require an existing local administrator to authenticate without adding command privileges.
+benefits:
+- Require an existing local administrator to authenticate without adding command privileges.
+tradeoffs:
+- Automatic policy changes support standard local unrestricted administrators only. Domain sources, restricted
+  command grants, special authentication defaults, and changes to the active recovery identity require
+  operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.sudo-config-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    users:
+      type: array
+      minItems: 1
+      maxItems: 16
+      uniqueItems: true
+      items:
+        type: string
+        maxLength: 32
+        pattern: ^[a-z_][a-z0-9_-]*[$]?$
+  required:
+  - users
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.sudo-authentication.audit.yml
+  apply: ansible/tasks/auth.sudo-authentication.apply.yml
+  verify: ansible/tasks/auth.sudo-authentication.verify.yml
+  preflight: ansible/tasks/auth.sudo-authentication.preflight.yml

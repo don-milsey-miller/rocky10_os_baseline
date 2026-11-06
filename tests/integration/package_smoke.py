@@ -9,6 +9,7 @@ from pathlib import Path
 
 from hardener import __version__
 from hardener.reporting import source_digest
+from hardener.validation import load_catalog
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -41,7 +42,7 @@ import hardener
 from hardener.reporting import source_digest
 from hardener.validation import DATA, load_catalog
 catalog = load_catalog()
-assert len(catalog) == 5
+assert catalog
 assert (DATA / 'ansible.cfg').is_file()
 assert (DATA / 'ansible/callback_plugins/hardener_json.py').is_file()
 print(json.dumps({'version':hardener.__version__,'path':hardener.__file__,
@@ -52,6 +53,7 @@ print(json.dumps({'version':hardener.__version__,'path':hardener.__file__,
             env=env,
         )
         result = json.loads(probe)
+        assert result["controls"] == sorted(load_catalog())
         assert result["version"] == __version__
         assert result["engine_sha256"] == source_digest()
         assert Path(result["path"]).is_relative_to(directory)

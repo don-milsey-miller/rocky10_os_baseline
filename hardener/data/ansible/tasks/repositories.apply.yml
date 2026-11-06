@@ -1,0 +1,28 @@
+- name: Reinspect selected repository file paths
+  ansible.builtin.include_tasks: repositories.inspect.yml
+- name: Read repository configuration privately
+  ansible.builtin.slurp:
+    src: '{{ repository_path }}'
+  loop: '{{ repository_state | map(attribute="path") | unique | list }}'
+  loop_control:
+    loop_var: repository_path
+  register: repository_files
+  no_log: true
+- name: Set only selected repository options
+  ansible.builtin.copy:
+    dest: '{{ repository_file.repository_path }}'
+    content: '{{ repository_file.content | b64decode | hardener_repository_edit(repository_state, repository_file.repository_path,
+      repository_option) }}'
+    owner: root
+    group: '{{ (repository_state | selectattr("path", "equalto", repository_file.repository_path) | first).gid
+      }}'
+    mode: '{{ (repository_state | selectattr("path", "equalto", repository_file.repository_path) | first).mode
+      }}'
+  loop: '{{ repository_files.results }}'
+  loop_control:
+    loop_var: repository_file
+  register: repository_updates
+  no_log: true
+- name: Retain repository change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ repository_updates.changed }}'

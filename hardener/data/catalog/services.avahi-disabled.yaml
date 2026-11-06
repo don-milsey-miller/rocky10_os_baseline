@@ -1,0 +1,27 @@
+id: services.avahi-disabled
+title: Disable optional multicast discovery
+summary: Stop and persistently mask installed avahi-daemon.socket, avahi-daemon.service.
+rationale: Remove explicitly unneeded network listeners and activation paths.
+benefits:
+- Limits service exposure when the workload does not need this feature.
+tradeoffs:
+- Breaks workloads that require this service. No packages are removed.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Optional. Confirm that the server does not require this service.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/services.avahi-disabled.audit.yml
+  apply: ansible/tasks/services.avahi-disabled.apply.yml
+  verify: ansible/tasks/services.avahi-disabled.verify.yml
+  preflight: ansible/tasks/services.avahi-disabled.preflight.yml

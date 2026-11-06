@@ -1,0 +1,30 @@
+---
+- name: Inspect managed sysctl configuration path
+  ansible.builtin.stat:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: protected_regular_path
+
+- name: Require absent or regular single-link managed sysctl file
+  ansible.builtin.assert:
+    that:
+      - not protected_regular_path.stat.exists or (protected_regular_path.stat.isreg | default(false) and protected_regular_path.stat.nlink | default(0) == 1)
+    fail_msg: Restore a regular managed sysctl file before applying this control.
+  when: hardener_mode in ['preflight', 'apply']
+
+- name: Check kernel protected-regular parameter availability
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_regular]
+  changed_when: false
+
+- name: Inspect effective sysctl file ordering
+  ansible.builtin.include_tasks: kernel.protected-regular.inspect.yml
+
+- name: Refuse later conflicting protected-regular assignments
+  ansible.builtin.assert:
+    that: protected_regular_config.blockers | length == 0
+    fail_msg: Remove or reconcile later protected-regular assignments before applying this profile.
+  when: hardener_mode in ['preflight', 'apply']

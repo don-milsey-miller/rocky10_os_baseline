@@ -1,0 +1,28 @@
+id: kernel.ptrace-scope
+title: Restrict tracing to approved process relationships
+summary: Set kernel.yama.ptrace_scope=1 in runtime and persistent configuration.
+rationale: Restrict tracing to approved process relationships.
+benefits:
+- Restrict tracing to approved process relationships.
+tradeoffs:
+- May restrict debugging or application behavior. Select only after workload validation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: May restrict debugging or application behavior. Select only after workload
+  validation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.ptrace-scope.audit.yml
+  apply: ansible/tasks/kernel.ptrace-scope.apply.yml
+  verify: ansible/tasks/kernel.ptrace-scope.verify.yml
+  preflight: ansible/tasks/kernel.ptrace-scope.preflight.yml

@@ -1,0 +1,15 @@
+- name: Require validated controller recovery evidence
+  ansible.builtin.assert:
+    that:
+      - hardener_recovery | default({}) | length > 0
+    fail_msg: High-impact remediation requires recent target-bound recovery-test evidence. Run the CLI with --recovery-evidence.
+- name: Inspect recovery target identity
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /etc/machine-id]
+  changed_when: false
+  register: recovery_identity
+  no_log: true
+- name: Require recovery evidence for this guest
+  ansible.builtin.assert:
+    that: recovery_identity.stdout | trim == hardener_recovery.machine_id
+    fail_msg: Recovery evidence belongs to another guest. Repeat recovery-test for the actual target.

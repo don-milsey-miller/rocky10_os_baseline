@@ -1,0 +1,99 @@
+schema_version: 1
+id: server-general
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: files.account-backup-permissions
+  enabled: true
+- id: files.group-permissions
+  enabled: true
+- id: files.gshadow-permissions
+  enabled: true
+- id: files.passwd-permissions
+  enabled: true
+- id: files.shadow-permissions
+  enabled: true
+- id: kernel.protected-hardlinks
+  enabled: true
+- id: kernel.protected-symlinks
+  enabled: true
+- id: kernel.randomize-address-space
+  enabled: true
+- id: kernel.suid-dumpable
+  enabled: true
+- id: packages.local-signature-check
+  enabled: true
+- id: packages.telnet-client-absent
+  enabled: true
+- id: services.debug-shell-disabled
+  enabled: true
+- id: time.chrony-enabled
+  enabled: true
+- id: logging.journal-persistent
+  enabled: true
+- id: logging.journal-retention
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: logging.logfile-permissions
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: logging.rotation-policy
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-metadata-signature
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-signature-check
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.repository-tls-verification
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: services.avahi-disabled
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: services.cups-disabled
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: time.approved-sources
+  enabled: false
+  reason: Requires explicit repository, clock, workload, or log policy.
+- id: packages.security-update-status
+  enabled: false
+  reason: Assessment-only, requires an explicit repository list.
+- id: auth.ssh-access-policy
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-config-permissions
+  enabled: true
+- id: auth.ssh-empty-passwords
+  enabled: true
+- id: auth.ssh-forwarding-policy
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-hostbased-auth
+  enabled: true
+- id: auth.ssh-hostkey-permissions
+  enabled: true
+- id: auth.ssh-password-login
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-root-login
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.ssh-session-limits
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-authentication
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-config-permissions
+  enabled: true
+- id: auth.sudo-timeout
+  enabled: false
+  reason: Requires an explicit access policy and tested independent recovery.
+- id: auth.sudo-use-pty
+  enabled: true

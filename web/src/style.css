@@ -4,3 +4,5 @@
 @media(min-width:1500px){.workspace{grid-template-columns:minmax(0,1fr) 390px}}
 @media(max-width:1050px){.topbar{padding:0 28px}main{padding:30px 28px}.workspace{grid-template-columns:minmax(0,1fr) 330px;gap:20px}.profile-panel{padding:18px}.filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:29px}}
 @media(max-width:800px){.workspace{grid-template-columns:1fr}.profile-panel{position:static}.catalog-note{display:none}.intro{margin-bottom:28px}.profile-panel{order:2}.topbar{height:76px;padding:0 20px}main{padding:26px 20px}.local-badge{display:none}.brand{font-size:15px}.top-actions{gap:8px}.button{padding:9px 13px}h1{font-size:28px}.detail-grid{grid-template-columns:1fr;gap:10px}.yaml-details textarea{height:200px}.control-card{padding:17px}.control-card.included,.control-card.excluded{padding-left:15px}}
+
+.parameter-fields textarea { width:100%; min-height:5rem; box-sizing:border-box; }

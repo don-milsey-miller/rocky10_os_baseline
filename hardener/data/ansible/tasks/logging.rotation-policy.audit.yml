@@ -1,0 +1,13 @@
+- name: Inspect rotation independently
+  ansible.builtin.include_tasks: rotation.inspect.yml
+- name: Record rotation evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if rotation_state.safe and rotation_state.native_valid and rotation_state.matches
+        and rotation_state.timer_active and rotation_state.timer_enabled else ''fail'' }}'
+      observed: '{{ rotation_state }}'
+      expected: Selected rotation policy accepted by logrotate and scheduled by its active enabled timer.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

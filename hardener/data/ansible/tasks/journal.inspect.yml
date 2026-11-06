@@ -1,0 +1,55 @@
+- name: Inspect effective journal configuration and running service
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import json,os,stat,subprocess,sys,time
+      from pathlib import Path
+      wanted=json.loads(sys.argv[1]);managed=Path('/etc/systemd/journald.conf.d/99-rocky10-hardener.conf')
+      result=subprocess.run(['/usr/bin/systemd-analyze','cat-config','systemd/journald.conf'],capture_output=True,text=True,check=True,env={**os.environ,'SYSTEMD_COLORS':'0'})
+      values={};source='';section='';blockers=[];newest=0
+      for raw in result.stdout.splitlines():
+       line=raw.strip()
+       if line.startswith('# /'):
+          source=line[2:].strip()
+          if Path(source).is_file():newest=max(newest,Path(source).stat().st_mtime)
+       if not line or line.startswith(('#',';')):continue
+       if line.startswith('['):section=line;continue
+       if section=='[Journal]' and '=' in line:
+          key,value=(p.strip() for p in line.split('=',1))
+          if key in wanted:
+              values[key]=value
+              if source!=str(managed) and Path(source).name>managed.name and value!=wanted[key]:blockers.append(key)
+      safe=True
+      if os.path.lexists(managed):
+       s=managed.lstat()
+       safe=managed.resolve()==managed and stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==0 and 'system.posix_acl_access' not in os.listxattr(managed)
+       if safe:
+          import configparser
+          c=configparser.ConfigParser(interpolation=None,strict=True);c.read_string(managed.read_text())
+          safe=c.sections()==['Journal'] and not c.defaults()
+      parent=managed.parent
+      if parent.exists():safe=safe and parent.resolve()==parent and parent.is_dir() and parent.stat().st_uid==0 and not(parent.stat().st_mode & 0o022)
+      state=subprocess.check_output(['/usr/bin/systemctl','show','systemd-journald.service','-p','ActiveState','-p','ActiveEnterTimestampMonotonic'],text=True)
+      parts=dict(line.split('=',1) for line in state.splitlines() if '=' in line)
+      started=(time.time()-time.clock_gettime(time.CLOCK_BOOTTIME))+int(parts.get('ActiveEnterTimestampMonotonic','0'))/1e6
+      persistent=False
+      for folder in Path('/var/log/journal').glob('*'):
+       if folder.is_dir() and list(folder.glob('*.journal')):
+          probe=subprocess.run(['/usr/bin/journalctl','--directory='+str(folder),'--list-boots','--no-pager'],capture_output=True,text=True)
+          persistent=probe.returncode==0 and bool(probe.stdout.strip())
+          if persistent:break
+      v=os.statvfs('/var/log')
+      budget_ok=True
+      if 'SystemMaxUse' in wanted:
+       use=int(wanted['SystemMaxUse'][:-1])*1024**2;free=int(wanted['SystemKeepFree'][:-1])*1024**2
+       budget_ok=use+free<=v.f_blocks*v.f_frsize and free<=v.f_bavail*v.f_frsize
+      print(json.dumps({'values_match':all(values.get(k)==v for k,v in wanted.items()),'safe':safe,'blockers':sorted(set(blockers)),
+      'active':parts.get('ActiveState')=='active','loaded':started>=newest-0.005,'persistent':persistent,'budget_ok':budget_ok}))
+    - '{{ journal_values | to_json }}'
+  changed_when: false
+  register: journal_inspection
+- name: Read journal evidence
+  ansible.builtin.set_fact:
+    journal_state: '{{ journal_inspection.stdout | from_json }}'

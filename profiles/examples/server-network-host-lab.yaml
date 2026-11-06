@@ -1,0 +1,29 @@
+schema_version: 1
+id: server-network-host-lab
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: network.ipv4-redirects-disabled
+  enabled: true
+  parameters:
+    network_role: non-routing
+- id: network.ipv6-redirects-disabled
+  enabled: true
+  parameters:
+    network_role: non-routing
+- id: network.ipv4-send-redirects-disabled
+  enabled: true
+  parameters:
+    network_role: non-routing
+- id: network.reverse-path-filter
+  enabled: true
+  parameters:
+    mode: strict
+- id: network.ip-forwarding-disabled
+  enabled: true
+  parameters:
+    network_role: non-routing
+    container_networking: absent

@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/fs/suid_dumpable]
+  register: suid_dumpable_verified
+  changed_when: false
+
+- name: Independently reinspect persistent suid-dumpable policy
+  ansible.builtin.include_tasks: kernel.suid-dumpable.inspect.yml
+
+- name: Report suid-dumpable policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if suid_dumpable_verified.stdout == '0' and suid_dumpable_config.persistent == '0' else 'fail' }}"
+      observed: "live={{ suid_dumpable_verified.stdout }} persistent={{ suid_dumpable_config.persistent }}"
+      expected: live=0 persistent=0
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

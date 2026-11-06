@@ -1,0 +1,45 @@
+- name: Inspect configured and running clock policy
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import json,os,re,shlex,stat,subprocess,sys,time
+      from pathlib import Path
+      p=Path('/etc/chrony.conf');policy=json.loads(sys.argv[1]);s=p.lstat()
+      safe=p.resolve()==p and stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==0 and not(s.st_mode & 0o022) and 'system.posix_acl_access' not in os.listxattr(p)
+      directives=[line.split() for line in p.read_text().splitlines() if line.strip() and not line.lstrip().startswith(('#','!',';','%'))]
+      sources=[d for d in directives if d[0] in ('server','pool','peer')]
+      wanted=[[policy['source_type'],source,'iburst'] for source in policy['sources']]
+      unsupported=any(d[0] in ('include','confdir','refclock') for d in directives)
+      state=dict(line.split('=',1) for line in subprocess.check_output(['/usr/bin/systemctl','show','chronyd','-p','MainPID','-p','ActiveState','-p','ActiveEnterTimestampMonotonic'],text=True).splitlines())
+      pid=int(state['MainPID'])
+      args=Path('/proc/'+str(pid)+'/cmdline').read_bytes().split(b'\0') if pid else []
+      # Only the distribution's ordinary seccomp/address-family switches are accepted.
+      args=[x.decode() for x in args if x]
+      invocation=subprocess.check_output(['/usr/bin/systemctl','show','chronyd','--value','-p','ExecStart'],text=True)
+      config_args=Path('/etc/sysconfig/chronyd').read_text()
+      options=[line.strip() for line in config_args.splitlines() if line.strip() and not line.lstrip().startswith('#')]
+      configured=len(options)==1 and re.fullmatch(r'OPTIONS="[-A-Za-z0-9 ]*"',options[0]) is not None
+      configured=configured and 'argv[]=/usr/sbin/chronyd -n $OPTIONS ;' in invocation
+      if not args and configured:args=['/usr/sbin/chronyd','-n']+shlex.split(options[0][9:-1])
+      command_ok=configured and bool(args) and args[0] in ('/usr/sbin/chronyd','chronyd')
+      i=1
+      while i<len(args):
+       if args[i] in ('-4','-6','-n'):i+=1
+       elif args[i]=='-F' and i+1<len(args) and args[i+1].isdigit():i+=2
+       else:command_ok=False;break
+      started=time.time()-time.clock_gettime(time.CLOCK_BOOTTIME)+int(state['ActiveEnterTimestampMonotonic'])/1e6
+      tracking=subprocess.run(['/usr/bin/chronyc','-n','tracking'],capture_output=True,text=True)
+      synced=tracking.returncode==0 and any(line.startswith('Leap status') and line.split(':',1)[1].strip()=='Normal' for line in tracking.stdout.splitlines())
+      live=subprocess.run(['/usr/bin/chronyc','-N','-c','sources','-a'],capture_output=True,text=True)
+      rows=[line.split(',') for line in live.stdout.splitlines() if line]
+      runtime_match=live.returncode==0 and bool(rows) and all(len(row)>2 and row[0]=='^' for row in rows) and {row[2] for row in rows}==set(policy['sources'])
+      synced=synced and any(len(row)>2 and row[0]=='^' and row[1]=='*' and row[2] in policy['sources'] for row in rows)
+      print(json.dumps({'runtime_match':runtime_match,'safe':safe,'supported':not unsupported and command_ok,'sources_match':sources==wanted and not any(d[0]=='sourcedir' for d in directives),'loaded':pid>0 and started>=s.st_mtime-0.005,'synchronized':synced,'source_count':len(sources)}))
+    - '{{ control.effective_parameters | to_json }}'
+  changed_when: false
+  register: chrony_inspection
+- name: Read clock evidence
+  ansible.builtin.set_fact:
+    chrony_state: '{{ chrony_inspection.stdout | from_json }}'

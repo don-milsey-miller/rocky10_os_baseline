@@ -1,0 +1,20 @@
+---
+- name: Read current randomize-address-space protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.randomize_va_space]
+  register: randomize_address_space_live
+  changed_when: false
+
+- name: Inspect persistent randomize-address-space policy
+  ansible.builtin.include_tasks: kernel.randomize-address-space.inspect.yml
+
+- name: Report randomize-address-space policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if randomize_address_space_live.stdout == '2' and randomize_address_space_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ randomize_address_space_live.stdout }} persistent={{ randomize_address_space_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: false
+      reason: null
+      reboot_required: false

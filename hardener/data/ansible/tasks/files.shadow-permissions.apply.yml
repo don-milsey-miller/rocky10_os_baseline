@@ -1,0 +1,11 @@
+- name: Apply selected identity file metadata
+  ansible.builtin.file:
+    path: /etc/shadow
+    owner: root
+    group: root
+    mode: '0000'
+    follow: false
+  register: identity_update
+- name: Preserve identity change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ identity_update.changed }}'

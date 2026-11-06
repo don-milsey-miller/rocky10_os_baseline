@@ -54,3 +54,48 @@ def test_release_checks_reject_private_assets_and_credential_patterns():
         checks.check_bytes("private", b"-----BEGIN " + b"PRIVATE KEY-----")
     with pytest.raises(ValueError):
         checks.check_bytes("token", b"ghp_" + b"x" * 36)
+
+
+def test_bundled_license_check_rejects_missing_text_and_stale_inventory(tmp_path):
+    import html
+    import importlib.util
+
+    import pytest
+
+    spec = importlib.util.spec_from_file_location(
+        "release_checks", ROOT / "tests/release_checks.py"
+    )
+    checks = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checks)
+    (tmp_path / "docs").mkdir()
+    dist = tmp_path / "web/dist"
+    dist.mkdir(parents=True)
+    inventory = []
+    texts = []
+    for name, license_name in [("ajv", "MIT"), ("yaml", "ISC")]:
+        package = tmp_path / "web/node_modules" / name
+        package.mkdir(parents=True)
+        metadata = {"name": name, "version": "1.0", "license": license_name}
+        (package / "package.json").write_text(json.dumps(metadata))
+        text = license_name + " complete notice <copyright & permission>"
+        (package / "LICENSE").write_text(text)
+        inventory.append({**metadata, "bundled": True})
+        texts.append(name + " 1.0\n" + text)
+    inventory_file = tmp_path / "docs/web-dependency-licenses.json"
+    inventory_file.write_text(json.dumps(inventory))
+    full = "\n".join(texts)
+    (dist / "THIRD-PARTY-NOTICES.txt").write_text(full)
+    (dist / "index.html").write_text(html.escape(full))
+    checks.check_bundled_notices(tmp_path, ["ajv", "yaml"])
+    (dist / "index.html").write_text(html.escape(texts[0]))
+    with pytest.raises(AssertionError):
+        checks.check_bundled_notices(tmp_path, ["ajv", "yaml"])
+    (dist / "index.html").write_text(html.escape(full))
+    (dist / "THIRD-PARTY-NOTICES.txt").write_text(texts[0])
+    with pytest.raises(AssertionError):
+        checks.check_bundled_notices(tmp_path, ["ajv", "yaml"])
+    (dist / "THIRD-PARTY-NOTICES.txt").write_text(full)
+    inventory[1]["license"] = "incorrect"
+    inventory_file.write_text(json.dumps(inventory))
+    with pytest.raises(AssertionError):
+        checks.check_bundled_notices(tmp_path, ["ajv", "yaml"])

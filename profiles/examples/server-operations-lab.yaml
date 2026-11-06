@@ -1,0 +1,63 @@
+# Disposable fixture example. Replace all site policies before production use.
+schema_version: 1
+id: server-operations-lab
+name: Disposable M7 operations example
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: logging.journal-persistent
+  enabled: true
+- id: logging.journal-retention
+  enabled: true
+  parameters:
+    max_use_mib: 128
+    keep_free_mib: 256
+    retention_days: 7
+- id: logging.logfile-permissions
+  enabled: true
+  parameters:
+    paths:
+    - /var/log/hardener-m7-probe.log
+    mode: '0640'
+- id: logging.rotation-policy
+  enabled: true
+  parameters:
+    paths:
+    - /var/log/hardener-m7-probe.log
+    mode: '0640'
+    frequency: daily
+    retain: 3
+    reopen: none
+- id: packages.repository-metadata-signature
+  enabled: true
+  parameters:
+    repositories:
+    - hardener-m7
+- id: packages.repository-signature-check
+  enabled: true
+  parameters:
+    repositories:
+    - hardener-m7
+- id: packages.repository-tls-verification
+  enabled: true
+  parameters:
+    repositories:
+    - hardener-m7
+- id: services.avahi-disabled
+  enabled: true
+- id: services.cups-disabled
+  enabled: true
+- id: time.approved-sources
+  enabled: true
+  parameters:
+    sources:
+    - 2.rocky.pool.ntp.org
+    source_type: pool
+- id: time.chrony-enabled
+  enabled: true
+- id: packages.security-update-status
+  enabled: false
+  reason: Assessment-only. Select in a separate audit or verify profile.

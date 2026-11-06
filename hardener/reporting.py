@@ -59,6 +59,10 @@ def make_report(mode, target, profile, profile_digest, catalog, evidence):
                     "reason": "No control evidence. Preflight or execution did not complete.",
                     "reboot_required": catalog[cid]["reboot_required"],
                 }
+        record = {
+            **record,
+            "supported_modes": catalog[cid].get("supported_modes", ["audit", "apply", "verify"]),
+        }
         records.append(record)
     counts = Counter(r["status"] for r in records)
     return {
@@ -94,7 +98,11 @@ def write_report(report, output):
         f"evidence={r['observed']} reason={r['reason']}"
         for r in report["controls"]
     ]
-    text += [f"error: {e['task']} ({e['kind']})" for e in report["errors"]]
+    for error in report["errors"]:
+        text.append(f"error: {error['task']} ({error['kind']})")
+        if error.get("reason"):
+            text.append("reason: " + error["reason"])
+        text.extend("detail: " + detail for detail in error.get("details", []))
     summary = "\n".join(text) + "\n"
     (directory / "report.json").write_text(json.dumps(report, indent=2) + "\n")
     (directory / "summary.txt").write_text(summary)
@@ -108,6 +116,10 @@ def exit_code(evidence, report, process_code):
         return 3
     if process_code or evidence.get("errors") or report["summary"]["error"]:
         return 4
-    if report["summary"]["fail"]:
+    if (
+        report["summary"]["fail"]
+        or report["summary"]["unsupported"]
+        or (report["mode"] != "preflight" and report["summary"]["skipped"])
+    ):
         return 5
     return 0

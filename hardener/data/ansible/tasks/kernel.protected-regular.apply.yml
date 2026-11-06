@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected protected-regular setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?fs[./]protected_regular\s*='
+    line: fs.protected_regular = 2
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: protected_regular_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ protected_regular_file.changed }}"
+
+- name: Read current protected-regular setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_regular]
+  register: protected_regular_before
+  changed_when: false
+
+- name: Activate only the selected protected-regular setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, fs.protected_regular=2]
+  when: protected_regular_before.stdout != '2'
+  changed_when: true
+  register: protected_regular_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or protected_regular_activation.changed }}"

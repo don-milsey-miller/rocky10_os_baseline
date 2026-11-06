@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import Ajv2020 from "ajv/dist/2020.js";
-import { data, available, validateProfile, exportProfile, importProfile, normalize, parameterValue } from "../src/core.mjs";
+import { data, available, validateProfile, exportProfile, importProfile, normalize, parameterValue, parameterDefaults } from "../src/core.mjs";
 
 const base = () => ({schema_version:1,id:"test-profile",name:"Test profile",revision:1,
   target:{os:"rocky",major_version:10,role:"server"},controls:[]});
@@ -15,7 +15,18 @@ test("empty selection warns and never auto-enables controls",()=>{
   assert.deepEqual(importProfile(exportProfile(p)),p);
 });
 test("all catalog controls validate and exported YAML passes independent CLI",()=>{
-  const p=base(); p.controls=data.controls.map(c=>entry(c.id));
+  const p=base(); p.controls=data.controls.map(c=>entry(c.id, !(c.parameters.required?.length)));
+  let changed=true;
+  while(changed) {
+    changed=false;
+    for(const control of data.controls) {
+      const item=p.controls.find(c=>c.id===control.id);
+      if(item.enabled && control.requires.some(id=>!p.controls.find(c=>c.id===id)?.enabled)) {
+        item.enabled=false;
+        changed=true;
+      }
+    }
+  }
   const yaml=exportProfile(p); valid(p);
   const result=spawnSync("../.venv/bin/python",["-c",
     "import sys; from hardener.validation import parse_yaml,validate,load_catalog; validate(parse_yaml(sys.stdin.read()),load_catalog())"],
@@ -23,7 +34,7 @@ test("all catalog controls validate and exported YAML passes independent CLI",()
   assert.equal(result.status,0,result.stderr);
 });
 test("ordering and exclusions round-trip deterministically",()=>{
-  const p=base(); p.controls=[entry(data.controls[4].id),{...entry(data.controls[0].id,false),reason:"on"}];
+  const p=base(); p.controls=[entry("kernel.protected-hardlinks"),{...entry("files.passwd-permissions",false),reason:"on"}];
   const first=exportProfile(p); p.controls.reverse();
   assert.equal(exportProfile(p),first);
   assert.equal(exportProfile(importProfile(first)),first);
@@ -53,7 +64,7 @@ for (const [label,raw] of [
   ["deep nesting","[".repeat(100)+"0"+"]".repeat(100)],
 ]) test("rejects "+label,()=>assert.throws(()=>importProfile(raw)));
 test("availability, dependencies, conflicts and high impact use catalog metadata",()=>{
-  const controls=structuredClone(data.controls),p=base();
+  const controls=structuredClone(["files.passwd-permissions","kernel.protected-hardlinks"].map(id=>data.controls.find(c=>c.id===id))),p=base();
   p.controls=[entry(controls[0].id)];
   controls[0].implemented=false;
   assert.equal(available(controls[0],p.target),false);
@@ -71,7 +82,7 @@ test("availability, dependencies, conflicts and high impact use catalog metadata
   assert.equal(validateProfile(p,controls).warnings.length,2);
 });
 test("typed parameters validate without coercion or invented defaults",()=>{
-  const controls=structuredClone(data.controls),p=base(),id=controls[0].id;
+  const controls=structuredClone([data.controls.find(c=>c.id==="files.passwd-permissions")]),p=base(),id=controls[0].id;
   const schema={type:"object",additionalProperties:false,required:["port"],properties:{
     port:{type:"integer",minimum:1,maximum:65535},strict:{type:"boolean"},mode:{enum:["one","two"]}}};
   const check=new Ajv2020().compile(schema);
@@ -108,4 +119,54 @@ test("YAML strings preserve their types and values in the Python parser",()=>{
   assert.equal(result.status,0,result.stderr);
   assert.deepEqual(JSON.parse(result.stdout),p);
   assert.throws(()=>importProfile(exportProfile(base()).replace("revision: 1","revision: 9007199254740993")));
+});
+
+test("defaults preserve explicit zero and false without mutating input",()=>{
+  const schema={type:"object",properties:{count:{type:"integer",default:7},
+    enabled:{type:"boolean",default:true}, list:{type:"array",default:[1]}}};
+  const supplied={count:0,enabled:false};
+  const result=parameterDefaults(schema,supplied);
+  assert.deepEqual(result,{count:0,enabled:false,list:[1]});
+  result.list.push(2);
+  assert.deepEqual(schema.properties.list.default,[1]);
+  assert.deepEqual(supplied,{count:0,enabled:false});
+});
+test("selection bounds match CLI at 128 and 129",()=>{
+  const schema=JSON.parse(readFileSync("../hardener/data/schemas/profile.schema.json","utf8"));
+  const check=new Ajv2020({strict:false}).compile(schema);
+  const p=base();
+  p.controls=Array.from({length:128},(_,i)=>entry("fixture.item-"+i,false));
+  assert.equal(check(p),true);
+  p.controls.push(entry("fixture.extra",false));
+  assert.equal(check(p),false);
+});
+test("dependency cycles cannot be exported",()=>{
+  const controls=structuredClone(data.controls.slice(0,2));
+  controls[0].requires=[controls[1].id]; controls[1].requires=[controls[0].id];
+  const p=base(); p.controls=controls.map(c=>entry(c.id));
+  assert.match(validateProfile(p,controls).errors.join(),/cycle/);
+});
+
+test("excluded controls do not require absent site policies",()=>{
+  const controls=structuredClone(data.controls.slice(0,1));
+  controls[0].parameters={type:"object",additionalProperties:false,
+    required:["policy"],properties:{policy:{type:"string"}}};
+  const ajv=new Ajv2020({strict:false});
+  const params={[controls[0].id]:ajv.compile(controls[0].parameters)};
+  const p=base();p.controls=[entry(controls[0].id,false)];
+  assert.deepEqual(validateProfile(p,controls,params).errors,[]);
+  p.controls[0].enabled=true;
+  assert.ok(validateProfile(p,controls,params).errors.length);
+});
+
+test("bounded list parameters preserve values and assessment warnings",()=>{
+  const schema={type:"array",items:{type:"string"}};
+  assert.deepEqual(parameterValue(schema,"baseos\r\nappstream\n"),["baseos","appstream"]);
+  const p=base();
+  p.controls=[{id:"packages.security-update-status",enabled:true,parameters:{repositories:["baseos","appstream"]}}];
+  valid(p);
+  assert.match(validateProfile(p).warnings.join(),/assessment only/);
+  assert.deepEqual(importProfile(exportProfile(p)).controls,p.controls);
+  p.controls[0].parameters.repositories=["baseos","baseos"];
+  assert.ok(validateProfile(p).errors.length);
 });

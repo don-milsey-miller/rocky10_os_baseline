@@ -1,0 +1,29 @@
+id: selinux.enforcing
+title: Enforce the active SELinux policy
+summary: Require enforcing runtime and boot configuration without migrating a disabled installation.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- 'Disabled or non-targeted running policy requires a separately reviewed relabel and reboot. Recovery:
+  restore the independently rehearsed guest snapshot.'
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires independently rehearsed recovery and explicit workload policy.
+requires:
+- selinux.targeted-policy
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/selinux.enforcing.audit.yml
+  apply: ansible/tasks/selinux.enforcing.apply.yml
+  verify: ansible/tasks/selinux.enforcing.verify.yml
+  preflight: ansible/tasks/selinux.enforcing.preflight.yml

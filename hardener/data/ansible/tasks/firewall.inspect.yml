@@ -1,0 +1,33 @@
+- name: Inspect installed firewall prerequisites
+  ansible.builtin.command:
+    argv: [/usr/bin/rpm, -q, firewalld, nftables, python3-firewall]
+  register: firewall_packages
+  changed_when: false
+  failed_when: false
+- name: Require provisioned native firewall tools
+  ansible.builtin.assert:
+    that: firewall_packages.rc == 0
+    fail_msg: Provision firewalld, nftables and python3-firewall in this guest before selecting firewall controls.
+- name: Read fresh administrative connection context
+  ansible.builtin.include_tasks: access-context.inspect.yml
+- name: Collect selected firewall policies
+  ansible.builtin.set_fact:
+    firewall_plan: "{{ dict(hardener_controls | selectattr('id', 'match', '^firewall[.]') | map(attribute='id') | zip(hardener_controls | selectattr('id', 'match', '^firewall[.]') | map(attribute='effective_parameters'))) }}"
+  no_log: true
+- name: Inspect native firewall ownership and policy
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/python3
+      - -c
+      - "{{ lookup('ansible.builtin.file', playbook_dir ~ '/helpers/firewall_policy.py') }}"
+      - "{{ firewall_probe_mode | default(hardener_mode) }}"
+      - "{{ control.id }}"
+      - "{{ firewall_plan | to_json }}"
+      - "{{ access_context | to_json }}"
+  changed_when: false
+  register: firewall_inspection
+  no_log: true
+- name: Retain private firewall inspection
+  ansible.builtin.set_fact:
+    firewall_state: "{{ firewall_inspection.stdout | from_json }}"
+  no_log: true

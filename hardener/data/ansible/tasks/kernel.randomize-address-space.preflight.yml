@@ -1,0 +1,30 @@
+---
+- name: Inspect managed sysctl configuration path
+  ansible.builtin.stat:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: randomize_address_space_path
+
+- name: Require absent or regular single-link managed sysctl file
+  ansible.builtin.assert:
+    that:
+      - not randomize_address_space_path.stat.exists or (randomize_address_space_path.stat.isreg | default(false) and randomize_address_space_path.stat.nlink | default(0) == 1)
+    fail_msg: Restore a regular managed sysctl file before applying this control.
+  when: hardener_mode in ['preflight', 'apply']
+
+- name: Check kernel randomize-address-space parameter availability
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.randomize_va_space]
+  changed_when: false
+
+- name: Inspect effective sysctl file ordering
+  ansible.builtin.include_tasks: kernel.randomize-address-space.inspect.yml
+
+- name: Refuse later conflicting randomize-address-space assignments
+  ansible.builtin.assert:
+    that: randomize_address_space_config.blockers | length == 0
+    fail_msg: Remove or reconcile later randomize-address-space assignments before applying this profile.
+  when: hardener_mode in ['preflight', 'apply']

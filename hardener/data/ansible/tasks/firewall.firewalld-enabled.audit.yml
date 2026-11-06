@@ -1,0 +1,2 @@
+- name: Run selected firewall audit
+  ansible.builtin.include_tasks: firewall.audit.yml

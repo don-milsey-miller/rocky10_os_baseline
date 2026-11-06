@@ -1,0 +1,54 @@
+schema_version: 1
+id: rocky10-security-lab
+name: Disposable audit and integrity lab
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: selinux.targeted-policy
+  enabled: true
+- id: selinux.enforcing
+  enabled: true
+- id: audit.service-enabled
+  enabled: true
+- id: audit.early-boot
+  enabled: true
+  parameters:
+    backlog_limit: 8192
+- id: audit.storage-policy
+  enabled: true
+  parameters:
+    max_log_file_mib: 20
+    num_logs: 5
+    space_left_mib: 75
+    admin_space_left_mib: 50
+    space_left_action: syslog
+    admin_space_left_action: syslog
+    disk_full_action: syslog
+    disk_error_action: syslog
+- id: audit.identity-changes
+  enabled: true
+- id: audit.privilege-use
+  enabled: true
+- id: audit.security-config-changes
+  enabled: true
+- id: audit.session-events
+  enabled: true
+- id: audit.immutable-rules
+  enabled: true
+- id: integrity.aide-scheduled
+  enabled: true
+  parameters:
+    paths:
+    - /srv/m11-baseline
+    initialize_baseline: true
+    schedule: daily
+- id: logging.remote-tls
+  enabled: true
+  parameters:
+    host: 192.0.2.30
+    port: 6514
+    peer_name: logs.lab.test
+    ca_file: /etc/pki/rsyslog/lab-ca.pem

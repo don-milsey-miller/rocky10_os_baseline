@@ -122,8 +122,24 @@
         },
         "verify": {
           "type": "string"
+        },
+        "preflight": {
+          "type": "string"
         }
       }
+    },
+    "supported_modes": {
+      "enum": [
+        [
+          "audit",
+          "verify"
+        ],
+        [
+          "audit",
+          "apply",
+          "verify"
+        ]
+      ]
     }
   },
   "allOf": [
@@ -140,7 +156,6 @@
           "implementation": {
             "required": [
               "audit",
-              "apply",
               "verify"
             ]
           }

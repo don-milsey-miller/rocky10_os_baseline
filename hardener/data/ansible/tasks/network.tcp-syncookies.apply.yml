@@ -1,0 +1,2 @@
+- name: Apply network.tcp-syncookies
+  ansible.builtin.include_tasks: network-sysctl.apply.yml

@@ -1,0 +1,40 @@
+id: services.legacy-listeners-disabled
+title: Disable selected obsolete listeners
+summary: Stop, disable and mask explicitly selected listener and activation units while refusing active
+  workload dependencies.
+rationale: Stop, disable and mask explicitly selected listener and activation units while refusing active
+  workload dependencies.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    units:
+      type: array
+      items:
+        type: string
+        pattern: ^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,80}\.(service|socket)$
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+  required:
+  - units
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/services.legacy-listeners-disabled.preflight.yml
+  audit: ansible/tasks/services.legacy-listeners-disabled.audit.yml
+  apply: ansible/tasks/services.legacy-listeners-disabled.apply.yml
+  verify: ansible/tasks/services.legacy-listeners-disabled.verify.yml

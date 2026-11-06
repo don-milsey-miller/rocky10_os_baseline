@@ -1,0 +1,2 @@
+- name: Run selected network verify
+  ansible.builtin.include_tasks: network-sysctl.verify.yml

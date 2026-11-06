@@ -10,6 +10,19 @@ export function available(control, target) {
     control.applies_to.role === target.role;
 }
 
+export function parameterDefaults(schema, supplied) {
+  const value = structuredClone(supplied);
+  if (value && !Array.isArray(value) && typeof value === "object") {
+    for (const [key, child] of Object.entries(schema.properties || {})) {
+      if (!(key in value) && "default" in child) value[key] = structuredClone(child.default);
+      if (key in value) value[key] = parameterDefaults(child, value[key]);
+    }
+  } else if (Array.isArray(value)) {
+    return value.map(item => parameterDefaults(schema.items || {}, item));
+  }
+  return value;
+}
+
 export function validateProfile(profile, controls = data.controls,
   params = parameterValidators, schemaValidator = profileValidator) {
   const errors = [], warnings = [];
@@ -35,7 +48,8 @@ export function validateProfile(profile, controls = data.controls,
     const control = catalog.get(item.id);
     if (!control) { errors.push("Unknown control: " + item.id); continue; }
     const check = params[item.id];
-    if (!check || !check(item.parameters || {})) {
+    if ((item.enabled || Object.keys(item.parameters || {}).length) &&
+        (!check || !check(parameterDefaults(control.parameters, item.parameters || {})))) {
       errors.push(item.id + ": invalid parameters" +
         (check?.errors?.[0]?.message ? " (" + check.errors[0].message + ")" : ""));
     }
@@ -47,8 +61,16 @@ export function validateProfile(profile, controls = data.controls,
     for (const conflict of control.conflicts_with) {
       if (selected.has(conflict)) errors.push(item.id + ": conflicts with " + conflict);
     }
+    if (control.supported_modes && !control.supported_modes.includes("apply"))
+      warnings.push(control.title + ": assessment only. Use audit or verify. Apply refuses this selection.");
     if (control.impact === "high") warnings.push(control.title + ": " + control.impact_note);
     if (control.reboot_required) warnings.push(control.title + ": may require a reboot");
+  }
+  const pending = new Set([...selected].filter(id => catalog.has(id)));
+  while (pending.size) {
+    const ready = [...pending].filter(id => !catalog.get(id).requires.some(dep => pending.has(dep)));
+    if (!ready.length) { errors.push("Catalog dependency cycle"); break; }
+    ready.forEach(id => pending.delete(id));
   }
   if (!selected.size) warnings.push("No controls are included. This profile will make no changes.");
   return { errors, warnings };
@@ -110,6 +132,8 @@ export function importProfile(raw) {
 
 export function parameterValue(schema, text) {
   if (text === "") return undefined;
+  if (schema.type === "array" && schema.items?.type === "string")
+    return text.split(/\r?\n/).map(value => value.trim()).filter(Boolean);
   if (schema.enum) return schema.enum[Number(text)];
   if (schema.type === "boolean") return text === "true";
   if (schema.type === "integer" || schema.type === "number") {

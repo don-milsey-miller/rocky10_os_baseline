@@ -1,0 +1,2 @@
+- name: Run selected firewall preflight
+  ansible.builtin.include_tasks: firewall.preflight.yml

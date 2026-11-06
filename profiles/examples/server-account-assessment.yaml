@@ -1,0 +1,17 @@
+schema_version: 1
+id: rocky10-local-account-assessment
+name: Rocky Linux 10 local account assessment
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: accounts.no-empty-passwords
+  enabled: true
+- id: accounts.root-only-uid-zero
+  enabled: true
+- id: accounts.root-path-integrity
+  enabled: true
+- id: accounts.unique-identities
+  enabled: true

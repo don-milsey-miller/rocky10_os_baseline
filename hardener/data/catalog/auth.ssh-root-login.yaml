@@ -1,0 +1,32 @@
+id: auth.ssh-root-login
+title: Disable direct root SSH login
+summary: Disable direct root SSH login.
+rationale: Attribute remote administration to named accounts with separately controlled privilege escalation.
+benefits:
+- Attribute remote administration to named accounts with separately controlled privilege escalation.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.ssh-config-permissions
+- auth.ssh-hostkey-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-root-login.audit.yml
+  apply: ansible/tasks/auth.ssh-root-login.apply.yml
+  verify: ansible/tasks/auth.ssh-root-login.verify.yml
+  preflight: ansible/tasks/auth.ssh-root-login.preflight.yml

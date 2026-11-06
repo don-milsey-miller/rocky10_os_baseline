@@ -1,0 +1,36 @@
+id: boot.rescue-authentication
+title: Require authenticated rescue access
+summary: Use a private external root credential and native sulogin without forced bypass for rescue and
+  emergency entry points.
+rationale: Use a private external root credential and native sulogin without forced bypass for rescue
+  and emergency entry points.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Credential material remains in private target files outside profiles and reports.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    hash_file:
+      type: string
+      pattern: ^/[^\\\n\r]*$
+      maxLength: 256
+  required:
+  - hash_file
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/boot.rescue-authentication.preflight.yml
+  audit: ansible/tasks/boot.rescue-authentication.audit.yml
+  apply: ansible/tasks/boot.rescue-authentication.apply.yml
+  verify: ansible/tasks/boot.rescue-authentication.verify.yml

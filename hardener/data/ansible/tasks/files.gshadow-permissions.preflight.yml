@@ -1,0 +1,27 @@
+- name: Inspect identity file metadata
+  ansible.builtin.stat:
+    path: /etc/gshadow
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: identity_file
+- name: Require a regular single-link identity file
+  ansible.builtin.assert:
+    that:
+    - identity_file.stat.isreg | default(false)
+    - identity_file.stat.nlink | default(0) == 1
+    fail_msg: Restore a regular single-link identity file before applying.
+- name: Inspect extended access ACL presence
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - import os,sys; print('system.posix_acl_access' in os.listxattr(sys.argv[1],follow_symlinks=False))
+    - /etc/gshadow
+  register: identity_acl
+  changed_when: false
+- name: Preserve custom identity ACL policy
+  ansible.builtin.assert:
+    that: identity_acl.stdout == 'False'
+    fail_msg: Resolve the extended access ACL explicitly before applying.

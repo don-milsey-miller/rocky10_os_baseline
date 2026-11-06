@@ -1,0 +1,36 @@
+id: audit.immutable-rules
+title: Lock verified audit rules until reboot
+summary: Finalize all selected audit groups only after their independent checks pass.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- 'Only modeled native units and watch rules are supported. Rule suppression and unknown finalization
+  are refused. Recovery: restore the guest snapshot, or remove the owned rule files and reboot through
+  the recovery console.'
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires independently rehearsed recovery and explicit workload policy.
+requires:
+- audit.service-enabled
+- audit.early-boot
+- audit.storage-policy
+- audit.identity-changes
+- audit.privilege-use
+- audit.security-config-changes
+- audit.session-events
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: true
+implementation:
+  audit: ansible/tasks/audit.immutable-rules.audit.yml
+  apply: ansible/tasks/audit.immutable-rules.apply.yml
+  verify: ansible/tasks/audit.immutable-rules.verify.yml
+  preflight: ansible/tasks/audit.immutable-rules.preflight.yml

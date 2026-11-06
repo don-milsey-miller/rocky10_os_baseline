@@ -1,0 +1,5 @@
+- name: Manage the explicitly selected SSH policy
+  ansible.builtin.include_tasks: ssh-policy.preflight.yml
+  vars:
+    ssh_values:
+      PermitRootLogin: 'no'

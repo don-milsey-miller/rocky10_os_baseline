@@ -1,0 +1,43 @@
+id: filesystem.dev-shm-restrictions
+title: Restrict the shared-memory mount
+summary: Enforce explicitly selected flags on the existing /dev/shm filesystem.
+rationale: Limit filesystem behavior only where the operator confirms application compatibility.
+benefits:
+- Preserve unselected options, ownership and file contents.
+tradeoffs:
+- Mount restrictions can prevent applications from executing temporary files or using devices and privileged
+  binaries.
+- Only existing whole tmpfs, XFS and ext4 mounts with one matching fstab entry and unmodified generated
+  systemd units are supported.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Confirm workload compatibility and use snapshot recovery.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    flags:
+      type: array
+      minItems: 1
+      maxItems: 3
+      uniqueItems: true
+      items:
+        enum:
+        - nodev
+        - nosuid
+        - noexec
+        type: string
+  required:
+  - flags
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/filesystem.dev-shm-restrictions.preflight.yml
+  audit: ansible/tasks/filesystem.dev-shm-restrictions.audit.yml
+  apply: ansible/tasks/filesystem.dev-shm-restrictions.apply.yml
+  verify: ansible/tasks/filesystem.dev-shm-restrictions.verify.yml

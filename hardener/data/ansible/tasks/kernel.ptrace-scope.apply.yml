@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected ptrace-scope setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?kernel[./]yama[./]ptrace_scope\s*='
+    line: kernel.yama.ptrace_scope = 1
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: ptrace_scope_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ ptrace_scope_file.changed }}"
+
+- name: Read current ptrace-scope setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.yama.ptrace_scope]
+  register: ptrace_scope_before
+  changed_when: false
+
+- name: Activate only the selected ptrace-scope setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, kernel.yama.ptrace_scope=1]
+  when: ptrace_scope_before.stdout != '1'
+  changed_when: true
+  register: ptrace_scope_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or ptrace_scope_activation.changed }}"

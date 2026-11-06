@@ -1,0 +1,35 @@
+id: network.ipv4-redirects-disabled
+title: Reject IPv4 redirects
+summary: Reject redirect messages on a server whose routes are administered explicitly.
+rationale: Reject redirect messages on a server whose routes are administered explicitly.
+benefits:
+- Reject redirect messages on a server whose routes are administered explicitly.
+tradeoffs:
+- Only select for an approved non-routing server. Workloads that depend on redirects or forwarding require
+  exclusion.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Only select for an approved non-routing server. Workloads that depend on redirects or forwarding
+  require exclusion.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    network_role:
+      type: string
+      enum:
+      - non-routing
+  required:
+  - network_role
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.ipv4-redirects-disabled.audit.yml
+  apply: ansible/tasks/network.ipv4-redirects-disabled.apply.yml
+  verify: ansible/tasks/network.ipv4-redirects-disabled.verify.yml
+  preflight: ansible/tasks/network.ipv4-redirects-disabled.preflight.yml

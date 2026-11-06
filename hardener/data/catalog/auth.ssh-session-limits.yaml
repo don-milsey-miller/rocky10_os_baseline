@@ -1,0 +1,59 @@
+id: auth.ssh-session-limits
+title: Bound SSH authentication and sessions
+summary: Apply explicit authentication, concurrent-session, unauthenticated-connection, and idle-channel
+  limits.
+rationale: Bound authentication attempts, concurrent channels, unauthenticated connections and inactive
+  sessions.
+benefits:
+- Bound authentication attempts, concurrent channels, unauthenticated connections and inactive sessions.
+tradeoffs:
+- Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
+  path. Custom Match, include, or service overrides require operator review.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: May affect new administrative sessions. A fresh public-key connection and noninteractive
+  sudo are checked before and after remediation.
+requires:
+- auth.ssh-config-permissions
+- auth.ssh-hostkey-permissions
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    max_auth_tries:
+      type: integer
+      minimum: 1
+      maximum: 6
+    max_sessions:
+      type: integer
+      minimum: 1
+      maximum: 32
+    max_startups:
+      type: integer
+      minimum: 1
+      maximum: 100
+    login_grace_seconds:
+      type: integer
+      minimum: 10
+      maximum: 120
+    idle_session_seconds:
+      type: integer
+      minimum: 30
+      maximum: 86400
+  required:
+  - max_auth_tries
+  - max_sessions
+  - max_startups
+  - login_grace_seconds
+  - idle_session_seconds
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/auth.ssh-session-limits.audit.yml
+  apply: ansible/tasks/auth.ssh-session-limits.apply.yml
+  verify: ansible/tasks/auth.ssh-session-limits.verify.yml
+  preflight: ansible/tasks/auth.ssh-session-limits.preflight.yml

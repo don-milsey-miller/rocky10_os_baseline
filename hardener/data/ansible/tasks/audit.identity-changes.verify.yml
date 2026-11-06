@@ -1,0 +1,27 @@
+- name: Inspect selected M11 policy privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/audit_policy.py'') }}'
+    - identity-changes
+    - '{{ control.effective_parameters | to_json }}'
+    - inspect
+  register: m11_result
+  no_log: true
+  changed_when: false
+- name: Retain bounded M11 evidence
+  ansible.builtin.set_fact:
+    m11_state: '{{ m11_result.stdout | from_json }}'
+  no_log: true
+- name: Record independently inspected audit.identity-changes
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not m11_state.supported else (''pass'' if m11_state.matches else
+        ''fail'') }}'
+      observed: '{{ m11_state }}'
+      expected: Watch local passwd, group, shadow and gshadow writes and metadata changes.
+      changed: '{{ hardener_changed }}'
+      reason: Independent native inspection. Raw security events and certificate material are excluded.
+      reboot_required: '{{ control.reboot_required }}'

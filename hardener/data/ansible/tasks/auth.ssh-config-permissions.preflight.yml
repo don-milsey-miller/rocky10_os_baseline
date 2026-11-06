@@ -1,0 +1,13 @@
+- name: Check independent administrative recovery
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Inspect SSH file safety
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+  vars:
+    ssh_values: {}
+- name: Require supported regular single-link files without custom ACLs
+  ansible.builtin.assert:
+    that:
+    - ssh_state.files_supported
+    - ssh_state.files | rejectattr('safe') | list | length == 0
+    - ssh_state.safe
+    fail_msg: Resolve custom key paths, includes, symlinks, hardlinks, or ACLs before modifying SSH metadata.

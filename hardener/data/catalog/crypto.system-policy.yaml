@@ -1,0 +1,35 @@
+id: crypto.system-policy
+title: Select a supported system cryptographic policy
+summary: Apply an explicit built-in policy and require a subsequent boot before claiming effective state.
+rationale: Apply an explicit built-in policy and require a subsequent boot before claiming effective state.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    policy:
+      type: string
+      enum:
+      - DEFAULT
+      - FUTURE
+  required:
+  - policy
+implemented: true
+reboot_required: true
+implementation:
+  preflight: ansible/tasks/crypto.system-policy.preflight.yml
+  audit: ansible/tasks/crypto.system-policy.audit.yml
+  apply: ansible/tasks/crypto.system-policy.apply.yml
+  verify: ansible/tasks/crypto.system-policy.verify.yml

@@ -1,0 +1,47 @@
+id: filesystem.unowned-files-review
+title: Assess files with unresolved owners or groups
+summary: Review bounded, explicitly selected local directory trees without following symbolic links or
+  crossing filesystems.
+rationale: Expose unsafe metadata for operator review without changing application files.
+benefits:
+- Report bounded findings without reading file contents.
+tradeoffs:
+- Only selected trees are covered. Nested filesystem boundaries are reported and skipped. Incomplete scans
+  fail.
+- Findings require an operator disposition. No recursive repair is performed.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Read-only metadata inspection with explicit entry and time limits.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    paths:
+      type: array
+      minItems: 1
+      maxItems: 16
+      uniqueItems: true
+      items:
+        type: string
+        pattern: ^/[^\\\n\r]*$
+        maxLength: 256
+    max_entries:
+      type: integer
+      minimum: 1
+      maximum: 200000
+      default: 50000
+  required:
+  - paths
+implemented: true
+reboot_required: false
+supported_modes:
+- audit
+- verify
+implementation:
+  audit: ansible/tasks/filesystem.unowned-files-review.audit.yml
+  verify: ansible/tasks/filesystem.unowned-files-review.verify.yml

@@ -1,0 +1,18 @@
+- name: Inspect network prerequisites
+  ansible.builtin.include_tasks: network-sysctl.inspect.yml
+- name: Retain bounded network refusal details
+  ansible.builtin.set_fact:
+    hardener_diagnostic:
+      code: network-policy-conflict
+      control_id: '{{ control.id }}'
+      blockers: '{{ network_state.blockers }}'
+      unsafe_file: '{{ not network_state.safe }}'
+  when: network_state.applicable and (not network_state.safe or network_state.blockers | length > 0)
+- name: Require safe network policy file and conflict-free boot precedence
+  ansible.builtin.assert:
+    that:
+    - network_state.safe
+    - network_state.blockers | length == 0
+    fail_msg: Reconcile conflicting sysctl assignments or unsafe managed configuration
+      before applying.
+  when: network_state.applicable

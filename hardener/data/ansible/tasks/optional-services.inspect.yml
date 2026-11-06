@@ -1,0 +1,24 @@
+- name: Inspect optional service and persistent mask state
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - |
+      import json,os,subprocess,sys
+      names=json.loads(sys.argv[1]);out=[]
+      for name in names:
+       r=subprocess.run(['/usr/bin/systemctl','show',name,'-p','LoadState','-p','ActiveState','-p','UnitFileState'],capture_output=True,text=True)
+       state=dict(line.split('=',1) for line in r.stdout.splitlines() if '=' in line)
+       if not state or state.get('LoadState') not in ['loaded','masked','not-found']:raise ValueError('Service state unavailable')
+       path='/etc/systemd/system/'+name
+       exists=os.path.lexists(path)
+       mask=exists and os.path.islink(path) and os.readlink(path)=='/dev/null'
+       out.append({'unit':name,'present':state['LoadState']!='not-found','safe':not exists or mask,
+       'protected':state.get('ActiveState')=='inactive' and state.get('UnitFileState')=='masked' and mask})
+      print(json.dumps(out))
+    - '{{ optional_units | to_json }}'
+  register: optional_inspection
+  changed_when: false
+- name: Read optional service evidence
+  ansible.builtin.set_fact:
+    optional_state: '{{ optional_inspection.stdout | from_json }}'

@@ -1,0 +1,12 @@
+- name: Set explicit log modes without changing service ownership
+  ansible.builtin.file:
+    path: '{{ log_path }}'
+    mode: '{{ control.effective_parameters.mode }}'
+    state: file
+  loop: '{{ control.effective_parameters.paths }}'
+  loop_control:
+    loop_var: log_path
+  register: logfiles_write
+- name: Retain log metadata changes
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ logfiles_write.changed }}'

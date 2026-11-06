@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected suid-dumpable setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?fs[./]suid_dumpable\s*='
+    line: fs.suid_dumpable = 0
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: suid_dumpable_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ suid_dumpable_file.changed }}"
+
+- name: Read current suid-dumpable setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.suid_dumpable]
+  register: suid_dumpable_before
+  changed_when: false
+
+- name: Activate only the selected suid-dumpable setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, fs.suid_dumpable=0]
+  when: suid_dumpable_before.stdout != '0'
+  changed_when: true
+  register: suid_dumpable_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or suid_dumpable_activation.changed }}"

@@ -1,0 +1,11 @@
+- name: Check independent administrative recovery
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Inspect sudo file safety
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+  vars:
+    sudo_kind: permissions
+- name: Require supported regular single-link sudo files without ACLs
+  ansible.builtin.assert:
+    that:
+    - sudo_state.layout_supported
+    - sudo_state.safe

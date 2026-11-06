@@ -127,7 +127,9 @@ def test_no_implicit_enablement(profile, catalog):
 def test_catalog_paths_exist(catalog):
     for control in catalog.values():
         if control["implemented"]:
-            assert set(control["implementation"]) == {"audit", "apply", "verify"}
+            assert set(control.get("supported_modes", ["audit", "apply", "verify"])) <= set(
+                control["implementation"]
+            )
             for relative in control["implementation"].values():
                 assert (DATA / relative).is_file()
 

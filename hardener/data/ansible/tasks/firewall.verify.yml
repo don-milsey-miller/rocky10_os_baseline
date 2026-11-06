@@ -1,0 +1,14 @@
+- name: Independently inspect firewall verify
+  ansible.builtin.include_tasks: firewall.inspect.yml
+  vars:
+    firewall_probe_mode: verify
+- name: Report firewall policy evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'unsupported' if firewall_state.blockers else ('pass' if firewall_state.matches else 'fail') }}"
+      observed: "{{ {'active': firewall_state.active, 'enabled': firewall_state.enabled, 'default_zone': firewall_state.default, 'native_verified': firewall_state.native_verified, 'zone_bound': firewall_state.zone_bound, 'blockers': firewall_state.blockers} }}"
+      expected: "{{ control.summary }}"
+      changed: "{{ hardener_changed }}"
+      reason: Firewall state includes runtime, permanent configuration and independent native rule checks.
+      reboot_required: false

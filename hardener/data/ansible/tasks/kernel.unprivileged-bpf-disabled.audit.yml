@@ -1,0 +1,20 @@
+---
+- name: Read current unprivileged-bpf-disabled protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.unprivileged_bpf_disabled]
+  register: unprivileged_bpf_disabled_live
+  changed_when: false
+
+- name: Inspect persistent unprivileged-bpf-disabled policy
+  ansible.builtin.include_tasks: kernel.unprivileged-bpf-disabled.inspect.yml
+
+- name: Report unprivileged-bpf-disabled policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if unprivileged_bpf_disabled_live.stdout == '2' and unprivileged_bpf_disabled_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ unprivileged_bpf_disabled_live.stdout }} persistent={{ unprivileged_bpf_disabled_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: false
+      reason: null
+      reboot_required: false

@@ -1,0 +1,35 @@
+# Read-only example. These paths do not define production storage policy.
+schema_version: 1
+id: server-storage-review
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+  - id: filesystem.world-writable-review
+    enabled: true
+    parameters:
+      paths: [/etc, /srv, /boot]
+      max_entries: 50000
+  - id: filesystem.unowned-files-review
+    enabled: true
+    parameters:
+      paths: [/etc, /srv, /boot]
+      max_entries: 50000
+  - id: filesystem.privileged-files-review
+    enabled: true
+    parameters:
+      paths: [/etc, /srv, /boot]
+      max_entries: 50000
+      approved_paths: []
+  - id: storage.partition-layout
+    enabled: true
+    parameters:
+      paths: [/boot, /tmp, /var/tmp, /home]
+  - id: storage.disk-encryption
+    enabled: true
+    parameters:
+      paths: [/]
+  - id: boot.secure-boot
+    enabled: true

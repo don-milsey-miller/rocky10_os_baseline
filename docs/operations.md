@@ -48,6 +48,7 @@ disposable guest to its known snapshot. There is no automatic OS rollback.
 Read-only modes do not change managed configuration. SSH, sudo, and Ansible
 can still create ordinary authentication logs and transient execution files.
 
-The laboratory sudo setup is for disposable guests. Production authentication
-design and access-changing controls are outside this milestone. Credentials,
+The laboratory sudo setup is for disposable guests. The procedure above records the
+original five-control lab. Current high-impact controls require the observed rehearsal
+and authenticated receipt described in [recovery enforcement](recovery-enforcement.md). Credentials,
 private keys, runtime inventories, and generated reports are excluded from Git.

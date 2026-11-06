@@ -31,6 +31,7 @@ jobs:
           ruff check hardener tests web/prepare.py
           ruff format --check hardener tests web/prepare.py
           ansible-playbook -i inventory.example.ini hardener/data/ansible/run.yml --syntax-check -e hardener_target=test-vm
+          ansible-playbook -i inventory.example.ini hardener/data/ansible/recovery.yml --syntax-check -e hardener_target=test-vm
       - name: Build and test offline editor
         working-directory: web
         run: |

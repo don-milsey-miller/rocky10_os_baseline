@@ -1,0 +1,20 @@
+---
+- name: Read current protected-fifos protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_fifos]
+  register: protected_fifos_live
+  changed_when: false
+
+- name: Inspect persistent protected-fifos policy
+  ansible.builtin.include_tasks: kernel.protected-fifos.inspect.yml
+
+- name: Report protected-fifos policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if protected_fifos_live.stdout == '2' and protected_fifos_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ protected_fifos_live.stdout }} persistent={{ protected_fifos_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: false
+      reason: null
+      reboot_required: false

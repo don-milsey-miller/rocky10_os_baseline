@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected protected-symlinks setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?fs[./]protected_symlinks\s*='
+    line: fs.protected_symlinks = 1
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: protected_symlinks_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ protected_symlinks_file.changed }}"
+
+- name: Read current protected-symlinks setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_symlinks]
+  register: protected_symlinks_before
+  changed_when: false
+
+- name: Activate only the selected protected-symlinks setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, fs.protected_symlinks=1]
+  when: protected_symlinks_before.stdout != '1'
+  changed_when: true
+  register: protected_symlinks_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or protected_symlinks_activation.changed }}"

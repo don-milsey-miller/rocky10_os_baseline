@@ -1,0 +1,20 @@
+---
+- name: Read current protected-symlinks protection
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, fs.protected_symlinks]
+  register: protected_symlinks_live
+  changed_when: false
+
+- name: Inspect persistent protected-symlinks policy
+  ansible.builtin.include_tasks: kernel.protected-symlinks.inspect.yml
+
+- name: Report protected-symlinks policy audit
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if protected_symlinks_live.stdout == '1' and protected_symlinks_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ protected_symlinks_live.stdout }} persistent={{ protected_symlinks_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: false
+      reason: null
+      reboot_required: false

@@ -1,0 +1,36 @@
+- name: Inspect existing identity backups
+  ansible.builtin.stat:
+    path: '{{ backup.path }}'
+    follow: false
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  loop:
+  - path: /etc/passwd-
+    mode: '0644'
+  - path: /etc/group-
+    mode: '0644'
+  - path: /etc/shadow-
+    mode: '0000'
+  - path: /etc/gshadow-
+    mode: '0000'
+  loop_control:
+    loop_var: backup
+    label: '{{ backup.path }}'
+  register: backup_files
+- name: Summarize backup metadata without file content
+  ansible.builtin.set_fact:
+    backup_state: '{{ backup_files.results | hardener_backup_state }}'
+- name: Record backup protection evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''not_applicable'' if backup_state | length == 0 else (''pass''
+        if backup_state | rejectattr(''ok'') | list | length == 0 else ''fail'') }}'
+      observed: '{{ backup_state }}'
+      expected: Existing passwd/group backups root:root 0644. Existing shadow/gshadow
+        backups root:root 0000.
+      changed: '{{ hardener_changed }}'
+      reason: '{{ ''No standard identity backups exist.'' if backup_state | length
+        == 0 else none }}'
+      reboot_required: false

@@ -1,0 +1,29 @@
+id: files.gshadow-permissions
+title: Protect gshadow file metadata
+summary: Set /etc/gshadow to root:root 0000.
+rationale: Prevent unauthorized modification or disclosure of local identity records.
+benefits:
+- Prevent unauthorized modification or disclosure of local identity records.
+tradeoffs:
+- Rejects extended ACLs and non-regular or multiply-linked files. File contents are
+  preserved.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Rejects extended ACLs and non-regular or multiply-linked files. File
+  contents are preserved.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/files.gshadow-permissions.audit.yml
+  apply: ansible/tasks/files.gshadow-permissions.apply.yml
+  verify: ansible/tasks/files.gshadow-permissions.verify.yml
+  preflight: ansible/tasks/files.gshadow-permissions.preflight.yml

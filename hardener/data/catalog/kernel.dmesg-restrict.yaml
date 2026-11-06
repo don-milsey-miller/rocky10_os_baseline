@@ -1,0 +1,28 @@
+id: kernel.dmesg-restrict
+title: Restrict unprivileged kernel log access
+summary: Set kernel.dmesg_restrict=1 in runtime and persistent configuration.
+rationale: Restrict unprivileged kernel log access.
+benefits:
+- Restrict unprivileged kernel log access.
+tradeoffs:
+- May restrict debugging or application behavior. Select only after workload validation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: May restrict debugging or application behavior. Select only after workload
+  validation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.dmesg-restrict.audit.yml
+  apply: ansible/tasks/kernel.dmesg-restrict.apply.yml
+  verify: ansible/tasks/kernel.dmesg-restrict.verify.yml
+  preflight: ansible/tasks/kernel.dmesg-restrict.preflight.yml

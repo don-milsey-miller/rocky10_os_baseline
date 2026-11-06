@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/kernel/unprivileged_bpf_disabled]
+  register: unprivileged_bpf_disabled_verified
+  changed_when: false
+
+- name: Independently reinspect persistent unprivileged-bpf-disabled policy
+  ansible.builtin.include_tasks: kernel.unprivileged-bpf-disabled.inspect.yml
+
+- name: Report unprivileged-bpf-disabled policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if unprivileged_bpf_disabled_verified.stdout == '2' and unprivileged_bpf_disabled_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ unprivileged_bpf_disabled_verified.stdout }} persistent={{ unprivileged_bpf_disabled_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

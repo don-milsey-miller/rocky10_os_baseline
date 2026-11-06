@@ -1,0 +1,46 @@
+---
+- name: Observe independently restored disposable guest
+  hosts: "{{ hardener_target }}"
+  gather_facts: false
+  become: true
+  vars:
+    ansible_ssh_args: -o ControlMaster=no -o ControlPath=none -o BatchMode=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o StrictHostKeyChecking=yes -o ConnectTimeout=5
+  tasks:
+    - name: Validate target before recovery rehearsal
+      ansible.builtin.import_tasks: preflight.yml
+    - name: Inspect original login identity
+      ansible.builtin.command:
+        argv: [/usr/bin/id, -u]
+      become: false
+      changed_when: false
+      register: recovery_login
+    - name: Require non-root administrative login
+      ansible.builtin.assert:
+        that: recovery_login.stdout != '0'
+        fail_msg: Recovery rehearsal requires a non-root key-based SSH login with working sudo.
+    - name: Observe recovery challenge and guest identity
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/python3
+          - -c
+          - |
+            import json, os, re, sys
+            from pathlib import Path
+            nonce, prepare = sys.argv[1:]
+            assert re.fullmatch('[a-f0-9]{32}', nonce)
+            marker = Path('/var/lib/rocky10-hardener-recovery-' + nonce)
+            if prepare == 'True':
+                fd = os.open(marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+                with os.fdopen(fd, 'w') as stream:
+                    stream.write(nonce)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            print(json.dumps({'machine_id': Path('/etc/machine-id').read_text().strip(), 'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(), 'marker_present': marker.exists() or marker.is_symlink()}))
+          - "{{ recovery_nonce }}"
+          - "{{ recovery_prepare | bool }}"
+      changed_when: recovery_prepare | bool
+      register: recovery_probe
+      no_log: true
+    - name: Retain recovery observation
+      ansible.builtin.set_fact:
+        hardener_recovery_observation: "{{ recovery_probe.stdout | from_json }}"

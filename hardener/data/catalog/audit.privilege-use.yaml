@@ -1,0 +1,30 @@
+id: audit.privilege-use
+title: Record privilege tool execution
+summary: Watch execution of the installed sudo and su binaries.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- 'Only modeled native units and watch rules are supported. Rule suppression and unknown finalization
+  are refused. Recovery: restore the guest snapshot, or remove the owned rule files and reboot through
+  the recovery console.'
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: Inspect native state and preserve unrelated policy.
+requires:
+- audit.service-enabled
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/audit.privilege-use.audit.yml
+  apply: ansible/tasks/audit.privilege-use.apply.yml
+  verify: ansible/tasks/audit.privilege-use.verify.yml
+  preflight: ansible/tasks/audit.privilege-use.preflight.yml

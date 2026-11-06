@@ -1,0 +1,49 @@
+id: logging.remote-tls
+title: Forward logs to an authenticated TLS collector
+summary: Configure TLS log forwarding to an explicit trusted peer and verify loaded configuration and
+  peer authentication.
+rationale: Make selected server security state independently observable and reproducible.
+benefits:
+- Reports native state without publishing raw security event payloads.
+tradeoffs:
+- 'Requires externally provisioned CA trust, collector access and rsyslog TLS support. Unknown active
+  routing drop-ins require review. Collector receipt must be demonstrated externally. Recovery: remove
+  the owned forwarding drop-in, validate rsyslogd -N1 and restart rsyslog.'
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires independently rehearsed recovery and explicit workload policy.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    host:
+      type: string
+      pattern: ^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$
+    peer_name:
+      type: string
+      pattern: ^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$
+    port:
+      type: integer
+      minimum: 1
+      maximum: 65535
+    ca_file:
+      type: string
+      maxLength: 255
+      pattern: ^/etc/pki/([A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+\.pem$
+  required:
+  - host
+  - peer_name
+  - port
+  - ca_file
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/logging.remote-tls.audit.yml
+  apply: ansible/tasks/logging.remote-tls.apply.yml
+  verify: ansible/tasks/logging.remote-tls.verify.yml
+  preflight: ansible/tasks/logging.remote-tls.preflight.yml

@@ -1,0 +1,28 @@
+id: kernel.protected-fifos
+title: Restrict FIFO creation through unsafe shared-directory paths
+summary: Set fs.protected_fifos=2 in runtime and persistent configuration.
+rationale: Restrict FIFO creation through unsafe shared-directory paths.
+benefits:
+- Restrict FIFO creation through unsafe shared-directory paths.
+tradeoffs:
+- May restrict debugging or application behavior. Select only after workload validation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: May restrict debugging or application behavior. Select only after workload
+  validation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.protected-fifos.audit.yml
+  apply: ansible/tasks/kernel.protected-fifos.apply.yml
+  verify: ansible/tasks/kernel.protected-fifos.verify.yml
+  preflight: ansible/tasks/kernel.protected-fifos.preflight.yml

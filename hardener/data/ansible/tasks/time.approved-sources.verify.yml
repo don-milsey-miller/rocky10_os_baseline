@@ -1,0 +1,13 @@
+- name: Inspect time policy independently
+  ansible.builtin.include_tasks: chrony.inspect.yml
+- name: Record approved time source evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if chrony_state.sources_match and chrony_state.runtime_match and chrony_state.supported
+        and chrony_state.loaded and chrony_state.synchronized else ''fail'' }}'
+      observed: '{{ chrony_state }}'
+      expected: Only approved sources, loaded by chronyd, with a synchronized clock.
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

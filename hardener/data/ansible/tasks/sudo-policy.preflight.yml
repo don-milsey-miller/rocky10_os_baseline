@@ -1,0 +1,19 @@
+- name: Check independent administrative recovery
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Inspect complete sudo candidate
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+- name: Require a safe local policy without broadening privileges or disabling recovery
+  ansible.builtin.assert:
+    that:
+    - sudo_state.layout_supported
+    - sudo_state.safe
+    - sudo_state.eligible
+    - sudo_state.candidate_valid
+    fail_msg: Resolve custom sudo sources, scopes, tags, conflicting later rules, or attempts to change
+      the recovery identity.
+- name: Require authentication coverage for every timeout subject
+  ansible.builtin.assert:
+    that: (control.effective_parameters.users | difference((hardener_controls | selectattr('id', 'equalto',
+      'auth.sudo-authentication') | first).effective_parameters.users) | length) == 0
+    fail_msg: Timeout subjects must also be selected for authentication policy.
+  when: sudo_kind == 'timeout'

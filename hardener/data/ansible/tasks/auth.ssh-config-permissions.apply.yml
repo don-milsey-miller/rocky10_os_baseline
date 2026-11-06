@@ -1,0 +1,27 @@
+- name: Reinspect selected SSH file metadata
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+  vars:
+    ssh_values: {}
+- name: Recheck file safety immediately before metadata changes
+  ansible.builtin.assert:
+    that:
+    - ssh_state.safe
+    - ssh_state.files_supported
+    - ssh_state.files | rejectattr('safe') | list | length == 0
+- name: Protect existing SSH files without replacing their contents
+  ansible.builtin.file:
+    path: '{{ ssh_file.path }}'
+    owner: root
+    group: root
+    mode: '0600'
+    state: file
+  loop: '{{ ssh_state.files }}'
+  loop_control:
+    loop_var: ssh_file
+    label: '{{ ssh_file.path }}'
+  register: ssh_metadata_write
+- name: Retain SSH metadata changes
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ ssh_metadata_write.changed }}'
+- name: Check recovery after metadata changes
+  ansible.builtin.include_tasks: access-check.inspect.yml

@@ -1,0 +1,13 @@
+- name: Verify independent administrative recovery
+  ansible.builtin.include_tasks: access-check.inspect.yml
+- name: Validate selected SSH policy
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+- name: Require a supported safe candidate that retains the administrator
+  ansible.builtin.assert:
+    that:
+    - ssh_state.layout_supported
+    - ssh_state.safe
+    - ssh_state.candidate_valid
+    - ssh_state.administrator_allowed
+    fail_msg: Resolve custom SSH layout, earlier conflicting directives, unsafe files, or an administrative
+      lockout before applying.

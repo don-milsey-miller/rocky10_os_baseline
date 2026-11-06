@@ -1,0 +1,31 @@
+id: accounts.root-path-integrity
+title: Assess root login command search paths
+summary: Check root login PATH directories and their parents for unsafe ownership
+  or write access.
+rationale: Check root login PATH directories and their parents for unsafe ownership
+  or write access.
+benefits:
+- Expose unsafe local identity state for operator review.
+tradeoffs:
+- Assessment only. Does not delete, renumber, lock accounts, or rewrite login paths.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Read-only assessment. Resolve findings through an approved account maintenance
+  process.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+supported_modes:
+- audit
+- verify
+implementation:
+  audit: ansible/tasks/accounts.root-path-integrity.audit.yml
+  verify: ansible/tasks/accounts.root-path-integrity.verify.yml

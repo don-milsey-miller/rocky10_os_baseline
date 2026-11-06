@@ -1,0 +1,19 @@
+- name: Inspect independently evaluated SSH state
+  ansible.builtin.include_tasks: ssh-policy.inspect.yml
+- name: Record SSH effective policy and load evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''unsupported'' if not ssh_state.layout_supported else (''pass'' if ssh_state.matches
+        and ssh_state.loaded and ssh_state.active else ''fail'') }}'
+      observed:
+        effective: '{{ ssh_state.effective }}'
+        loaded: '{{ ssh_state.loaded }}'
+        active: '{{ ssh_state.active }}'
+        layout_supported: '{{ ssh_state.layout_supported }}'
+      expected: Selected SSH policy loaded by the active daemon.
+      changed: '{{ hardener_changed }}'
+      reason: '{{ ''Review custom Match, include, or daemon configuration.'' if not ssh_state.layout_supported
+        else (''Reload sshd to establish current configuration load evidence.'' if not ssh_state.loaded
+        else none) }}'
+      reboot_required: false

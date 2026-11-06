@@ -1,0 +1,29 @@
+id: boot.config-permissions
+title: Protect BIOS boot configuration
+summary: Require root-only access to GRUB state and BLS entry files while preserving their contents.
+rationale: Require root-only access to GRUB state and BLS entry files while preserving their contents.
+benefits:
+- Make selected server protection explicit and independently inspectable.
+tradeoffs:
+- Requires workload compatibility and a tested independent recovery path.
+- Unknown configuration ownership and unsupported layouts are refused.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Use only after confirming the selected workload and provisioning prerequisites.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+  required: []
+implemented: true
+reboot_required: false
+implementation:
+  preflight: ansible/tasks/boot.config-permissions.preflight.yml
+  audit: ansible/tasks/boot.config-permissions.audit.yml
+  apply: ansible/tasks/boot.config-permissions.apply.yml
+  verify: ansible/tasks/boot.config-permissions.verify.yml

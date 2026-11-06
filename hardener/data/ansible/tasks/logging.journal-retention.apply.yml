@@ -1,0 +1,7 @@
+- name: Manage selected journal policy
+  ansible.builtin.include_tasks: journal.apply.yml
+  vars:
+    journal_values:
+      SystemMaxUse: '{{ control.effective_parameters.max_use_mib }}M'
+      SystemKeepFree: '{{ control.effective_parameters.keep_free_mib }}M'
+      MaxRetentionSec: '{{ control.effective_parameters.retention_days }}day'

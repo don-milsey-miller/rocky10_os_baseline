@@ -1,0 +1,67 @@
+id: firewall.inbound-policy
+title: Enforce explicit inbound host policy
+summary: Enforce explicit inbound host policy.
+rationale: Keep one firewall owner and make allowed inbound traffic explicit.
+benefits:
+- Preserves tested administrative recovery while limiting unexpected exposure.
+tradeoffs:
+- Supports a non-routing NetworkManager Ethernet host with the nftables backend and exclusive firewalld
+  table ownership. Custom zones, policies, direct rules and competing managers require reconciliation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: high
+impact_note: Requires recent recovery evidence. Changes are guarded by a 120-second firewall rollback
+  timer until native verification and fresh SSH/sudo succeed.
+requires:
+- firewall.management-access
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    interfaces:
+      type: array
+      items:
+        type: string
+        pattern: ^[A-Za-z0-9_.:-]{1,15}$
+      minItems: 1
+      maxItems: 32
+      uniqueItems: true
+    services:
+      type: array
+      items:
+        type: string
+        pattern: ^[A-Za-z0-9_-]{1,48}$
+      minItems: 0
+      maxItems: 32
+      uniqueItems: true
+    tcp_ports:
+      type: array
+      items:
+        type: string
+        pattern: ^[1-9][0-9]{0,4}$
+      minItems: 0
+      maxItems: 32
+      uniqueItems: true
+    udp_ports:
+      type: array
+      items:
+        type: string
+        pattern: ^[1-9][0-9]{0,4}$
+      minItems: 0
+      maxItems: 32
+      uniqueItems: true
+  required:
+  - interfaces
+  - services
+  - tcp_ports
+  - udp_ports
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/firewall.inbound-policy.audit.yml
+  apply: ansible/tasks/firewall.inbound-policy.apply.yml
+  verify: ansible/tasks/firewall.inbound-policy.verify.yml
+  preflight: ansible/tasks/firewall.inbound-policy.preflight.yml

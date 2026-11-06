@@ -1,0 +1,28 @@
+id: kernel.unprivileged-bpf-disabled
+title: Disable unprivileged BPF while preserving administrative reversibility
+summary: Set kernel.unprivileged_bpf_disabled=2 in runtime and persistent configuration.
+rationale: Disable unprivileged BPF while preserving administrative reversibility.
+benefits:
+- Disable unprivileged BPF while preserving administrative reversibility.
+tradeoffs:
+- May restrict debugging or application behavior. Select only after workload validation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: May restrict debugging or application behavior. Select only after workload
+  validation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.unprivileged-bpf-disabled.audit.yml
+  apply: ansible/tasks/kernel.unprivileged-bpf-disabled.apply.yml
+  verify: ansible/tasks/kernel.unprivileged-bpf-disabled.verify.yml
+  preflight: ansible/tasks/kernel.unprivileged-bpf-disabled.preflight.yml

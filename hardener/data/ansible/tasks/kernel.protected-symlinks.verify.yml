@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/fs/protected_symlinks]
+  register: protected_symlinks_verified
+  changed_when: false
+
+- name: Independently reinspect persistent protected-symlinks policy
+  ansible.builtin.include_tasks: kernel.protected-symlinks.inspect.yml
+
+- name: Report protected-symlinks policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if protected_symlinks_verified.stdout == '1' and protected_symlinks_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ protected_symlinks_verified.stdout }} persistent={{ protected_symlinks_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

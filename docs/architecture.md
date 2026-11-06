@@ -14,7 +14,10 @@ platform, impact, dependencies, conflicts, parameter schema, reboot requirement,
 availability, and task references. References must remain within the packaged
 task directory and point to existing files.
 
-Implemented controls require separate audit, apply, and verify task files.
+Implemented controls require separate task files for each supported mode.
+The default modes are audit, apply, and verify. Assessment-only controls explicitly
+declare audit and verify. Optional per-control preflight tasks run before all selected
+writes. The CLI rejects assessment-only apply selections before inventory access.
 Audit and verify must inspect effective state without invoking mutation
 handlers. Apply must be idempotent. Verification must run after apply and
 cannot infer compliance from the changed flag. Failures must produce partial
@@ -42,3 +45,8 @@ The additional M2 controls and their configuration boundaries are described in
 [m2-controls.md](m2-controls.md). Read-only filter helpers interpret ordered
 sysctl output and reject ambiguous DNF edits. No additional runtime dependency
 or service was introduced.
+
+M8 access helpers validate complete native SSH and sudo candidates before replacement.
+Fresh administrative probes disable SSH multiplexing. Failure stops subsequent writes.
+Native daemon load evidence distinguishes effective SSH policy from pending reloads.
+See [M8 support boundaries](m8-demonstration.md) for supported local layouts.

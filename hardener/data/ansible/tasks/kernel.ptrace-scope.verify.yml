@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/kernel/yama/ptrace_scope]
+  register: ptrace_scope_verified
+  changed_when: false
+
+- name: Independently reinspect persistent ptrace-scope policy
+  ansible.builtin.include_tasks: kernel.ptrace-scope.inspect.yml
+
+- name: Report ptrace-scope policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if ptrace_scope_verified.stdout == '1' and ptrace_scope_config.persistent == '1' else 'fail' }}"
+      observed: "live={{ ptrace_scope_verified.stdout }} persistent={{ ptrace_scope_config.persistent }}"
+      expected: live=1 persistent=1
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

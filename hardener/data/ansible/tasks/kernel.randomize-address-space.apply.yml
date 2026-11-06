@@ -1,0 +1,32 @@
+---
+- name: Persist only the selected randomize-address-space setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/99-rocky10-hardener.conf
+    regexp: '^\s*-?kernel[./]randomize_va_space\s*='
+    line: kernel.randomize_va_space = 2
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  register: randomize_address_space_file
+
+- name: Preserve persistent-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ randomize_address_space_file.changed }}"
+
+- name: Read current randomize-address-space setting before activation
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -n, kernel.randomize_va_space]
+  register: randomize_address_space_before
+  changed_when: false
+
+- name: Activate only the selected randomize-address-space setting
+  ansible.builtin.command:
+    argv: [/usr/sbin/sysctl, -w, kernel.randomize_va_space=2]
+  when: randomize_address_space_before.stdout != '2'
+  changed_when: true
+  register: randomize_address_space_activation
+
+- name: Preserve live-setting change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: "{{ hardener_changed or randomize_address_space_activation.changed }}"

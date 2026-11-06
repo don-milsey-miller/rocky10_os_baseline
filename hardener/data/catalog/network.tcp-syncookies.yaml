@@ -1,0 +1,27 @@
+id: network.tcp-syncookies
+title: Enable TCP SYN cookies
+summary: Set net.ipv4.tcp_syncookies=1 in runtime and boot configuration.
+rationale: Provides kernel fallback when the TCP SYN backlog overflows.
+benefits:
+- Provides kernel fallback when the TCP SYN backlog overflows.
+tradeoffs:
+- This setting does not replace capacity planning or traffic filtering.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: This setting does not replace capacity planning or traffic filtering.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/network.tcp-syncookies.audit.yml
+  apply: ansible/tasks/network.tcp-syncookies.apply.yml
+  verify: ansible/tasks/network.tcp-syncookies.verify.yml
+  preflight: ansible/tasks/network.tcp-syncookies.preflight.yml

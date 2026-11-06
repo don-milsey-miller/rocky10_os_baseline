@@ -1,0 +1,41 @@
+id: storage.partition-layout
+title: Assess requested separate filesystems
+summary: Assess requested separate filesystems. Changes belong to provisioning, not automatic hardening.
+rationale: Record requested storage and boot protection gaps before planning migration.
+benefits:
+- Separate observed protection from a deferred provisioning decision.
+tradeoffs:
+- No disks, partitions, encryption keys or firmware settings are modified.
+- Only selected local block filesystems are assessed. Encryption reports dm-crypt ancestry, not key-management
+  strength.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: low
+impact_note: Read-only native metadata inspection. Migration is outside this engine.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties:
+    paths:
+      type: array
+      minItems: 1
+      maxItems: 16
+      uniqueItems: true
+      items:
+        type: string
+        pattern: ^/[^\\\n\r]*$
+        maxLength: 256
+  required:
+  - paths
+implemented: true
+reboot_required: false
+supported_modes:
+- audit
+- verify
+implementation:
+  audit: ansible/tasks/storage.partition-layout.audit.yml
+  verify: ansible/tasks/storage.partition-layout.verify.yml

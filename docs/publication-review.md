@@ -2,7 +2,7 @@
 
 The owner requested that the project remain unlicensed. No project license
 is granted, and no open-source release or certification is claimed.
-The M4 output is a tagged evaluation candidate in the already public repository.
+The M13 output is a tagged evaluation candidate in the already public repository.
 
 ## Source and assets
 
@@ -12,7 +12,7 @@ consulted for tool behavior. No external guide, PDF, control table, numbering
 crosswalk, credential file, source specification, or local instruction file
 is included in the published tree.
 
-M4 checks the tracked source, wheel, and source distribution for private
+Release checks cover the tracked source, wheel, and source distribution for private
 inventory paths, VM images, keys, reports, and common credential patterns.
 The release review also scans historical Git blobs. These checks supplement
 diff review and cannot prove absence of every possible secret.
@@ -30,7 +30,7 @@ separately and are not vendored into the project's wheel.
 
 The editor lockfile's dependencies and licenses are recorded in
 `web-dependency-licenses.json`. Build inspection identifies Ajv and YAML
-as the only dependencies bundled into the standalone HTML. Their MIT license
+as the only dependencies bundled into the standalone HTML. Their MIT and ISC license
 texts and copyright notices are preserved in the HTML and in
 `THIRD-PARTY-NOTICES.txt`. Build and browser-test tools are not bundled.
 The browser binary is downloaded separately by the test tooling.

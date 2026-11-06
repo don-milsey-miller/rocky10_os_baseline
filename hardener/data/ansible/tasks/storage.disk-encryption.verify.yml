@@ -1,0 +1,25 @@
+- name: Inspect selected provisioning assessment privately
+  ansible.builtin.command:
+    argv:
+    - /usr/bin/python3
+    - -c
+    - '{{ lookup(''ansible.builtin.file'', playbook_dir ~ ''/helpers/storage_assessment.py'') }}'
+    - disk-encryption
+    - '{{ control.effective_parameters | to_json }}'
+  register: filesystem_review
+  changed_when: false
+  no_log: true
+- name: Retain bounded metadata evidence
+  ansible.builtin.set_fact:
+    filesystem_state: '{{ filesystem_review.stdout | from_json }}'
+  no_log: true
+- name: Record filesystem assessment
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if filesystem_state.matches else ''fail'' }}'
+      observed: '{{ filesystem_state }}'
+      expected: Assess encryption beneath selected filesystems
+      changed: false
+      reason: Assessment only. Resolve findings through an approved maintenance or provisioning procedure.
+      reboot_required: false

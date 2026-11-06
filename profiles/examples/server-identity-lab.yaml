@@ -1,0 +1,65 @@
+schema_version: 1
+id: rocky10-local-identity-lab
+name: Approved disposable local identity policy
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: accounts.home-permissions
+  enabled: true
+  parameters:
+    users:
+    - m10human
+    mode: '0700'
+- id: accounts.system-login-disabled
+  enabled: true
+  parameters:
+    users:
+    - m10service
+- id: auth.default-umask
+  enabled: true
+  parameters:
+    users:
+    - m10human
+    mask: '0027'
+- id: auth.failed-login-lockout
+  enabled: true
+  parameters:
+    attempts: 5
+    interval_seconds: 900
+    unlock_seconds: 900
+    exempt_group: wheel
+- id: auth.inactive-account-lock
+  enabled: true
+  parameters:
+    users:
+    - m10human
+    days: 30
+- id: auth.password-aging
+  enabled: true
+  parameters:
+    users:
+    - m10human
+    minimum_days: 0
+    maximum_days: 90
+    warning_days: 14
+- id: auth.password-history
+  enabled: true
+  parameters:
+    remember: 5
+- id: auth.password-quality
+  enabled: true
+  parameters:
+    minimum_length: 14
+- id: auth.shell-idle-timeout
+  enabled: true
+  parameters:
+    users:
+    - m10human
+    seconds: 900
+- id: auth.su-access-policy
+  enabled: true
+  parameters:
+    group: wheel

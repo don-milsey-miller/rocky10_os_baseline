@@ -1,0 +1,28 @@
+id: kernel.protected-regular
+title: Restrict file creation through unsafe shared-directory paths
+summary: Set fs.protected_regular=2 in runtime and persistent configuration.
+rationale: Restrict file creation through unsafe shared-directory paths.
+benefits:
+- Restrict file creation through unsafe shared-directory paths.
+tradeoffs:
+- May restrict debugging or application behavior. Select only after workload validation.
+applies_to:
+  os: rocky
+  major_version: 10
+  role: server
+impact: medium
+impact_note: May restrict debugging or application behavior. Select only after workload
+  validation.
+requires: []
+conflicts_with: []
+parameters:
+  type: object
+  additionalProperties: false
+  properties: {}
+implemented: true
+reboot_required: false
+implementation:
+  audit: ansible/tasks/kernel.protected-regular.audit.yml
+  apply: ansible/tasks/kernel.protected-regular.apply.yml
+  verify: ansible/tasks/kernel.protected-regular.verify.yml
+  preflight: ansible/tasks/kernel.protected-regular.preflight.yml

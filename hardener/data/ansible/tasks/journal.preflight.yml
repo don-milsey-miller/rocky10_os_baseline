@@ -1,0 +1,10 @@
+- name: Inspect journal prerequisites
+  ansible.builtin.include_tasks: journal.inspect.yml
+- name: Refuse unsafe journal files conflicting overrides or unavailable space
+  ansible.builtin.assert:
+    that:
+    - journal_state.safe
+    - journal_state.blockers | length == 0
+    - journal_state.budget_ok
+    fail_msg: Resolve unsafe journal configuration, later conflicting policy, or unavailable disk budget
+      before applying.

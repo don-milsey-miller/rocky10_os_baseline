@@ -1,0 +1,87 @@
+# Disposable example. Credentials are external, and prerequisites must be provisioned.
+schema_version: 1
+id: server-storage-boot-lab
+revision: 1
+target:
+  os: rocky
+  major_version: 10
+  role: server
+controls:
+- id: filesystem.tmp-restrictions
+  enabled: true
+  parameters:
+    flags:
+    - nodev
+    - nosuid
+    - noexec
+- id: filesystem.var-tmp-restrictions
+  enabled: true
+  parameters:
+    flags:
+    - nodev
+    - nosuid
+    - noexec
+- id: filesystem.dev-shm-restrictions
+  enabled: true
+  parameters:
+    flags:
+    - nodev
+    - nosuid
+    - noexec
+- id: filesystem.home-restrictions
+  enabled: true
+  parameters:
+    flags:
+    - nodev
+    - nosuid
+- id: filesystem.shared-directory-sticky
+  enabled: true
+  parameters:
+    paths:
+    - /srv/hardener-m12-shared
+- id: kernel.unused-filesystem-modules
+  enabled: true
+  parameters:
+    modules:
+    - udf
+- id: kernel.unused-network-protocols
+  enabled: true
+  parameters:
+    modules:
+    - sctp
+- id: services.legacy-listeners-disabled
+  enabled: true
+  parameters:
+    units:
+    - m12-obsolete.socket
+    - m12-obsolete.service
+- id: services.cron-access
+  enabled: true
+  parameters:
+    users:
+    - root
+    - m12allowed
+- id: services.at-access
+  enabled: true
+  parameters:
+    users:
+    - root
+    - m12allowed
+- id: boot.config-permissions
+  enabled: true
+- id: boot.loader-authentication
+  enabled: true
+  parameters:
+    hash_file: /root/.hardener-m12/grub.hash
+- id: boot.rescue-authentication
+  enabled: true
+  parameters:
+    hash_file: /root/.hardener-m12/root.hash
+- id: crypto.system-policy
+  enabled: true
+  parameters:
+    policy: DEFAULT
+- id: login.authorized-use-banner
+  enabled: true
+  parameters:
+    text: Authorized laboratory access only.

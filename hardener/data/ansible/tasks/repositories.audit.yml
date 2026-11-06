@@ -1,0 +1,22 @@
+- name: Inspect actual repository settings
+  ansible.builtin.include_tasks: repositories.inspect.yml
+- name: Check actual repository metadata signatures
+  ansible.builtin.include_tasks: repositories.signature.inspect.yml
+  when: repository_option == 'repo_gpgcheck' and repository_state | rejectattr('repo_gpgcheck') | list
+    | length == 0
+- name: Record repository policy evidence
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''pass'' if (repository_state | rejectattr(''enabled'') | list | length == 0) and (repository_state
+        | rejectattr(repository_option) | list | length == 0) and (repository_option != ''sslverify''
+        or (repository_state | rejectattr(''https'') | list | length == 0)) else ''fail'' }}'
+      observed:
+        selected: '{{ repository_state | length }}'
+        enabled: '{{ repository_state | selectattr("enabled") | list | length }}'
+        enforced: '{{ repository_state | selectattr(repository_option) | list | length }}'
+        https_endpoints: '{{ repository_state | selectattr(''https'') | list | length }}'
+      expected: '{{ repository_option }} enabled for every selected repository'
+      changed: '{{ hardener_changed }}'
+      reason: null
+      reboot_required: false

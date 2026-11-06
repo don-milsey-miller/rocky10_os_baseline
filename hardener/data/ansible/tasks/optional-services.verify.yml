@@ -1,0 +1,15 @@
+- name: Inspect actual optional service state
+  ansible.builtin.include_tasks: optional-services.inspect.yml
+- name: Record optional service restrictions
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: '{{ control.id }}'
+      status: '{{ ''not_applicable'' if optional_state | selectattr(''present'') | list | length == 0
+        else (''pass'' if optional_state | selectattr(''present'') | rejectattr(''protected'') | list
+        | length == 0 else ''fail'') }}'
+      observed: '{{ optional_state }}'
+      expected: Installed selected units inactive and persistently masked.
+      changed: '{{ hardener_changed }}'
+      reason: '{{ ''No matching service units are installed.'' if optional_state | selectattr(''present'')
+        | list | length == 0 else none }}'
+      reboot_required: false

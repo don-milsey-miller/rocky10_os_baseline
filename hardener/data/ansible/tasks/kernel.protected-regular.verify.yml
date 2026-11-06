@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/fs/protected_regular]
+  register: protected_regular_verified
+  changed_when: false
+
+- name: Independently reinspect persistent protected-regular policy
+  ansible.builtin.include_tasks: kernel.protected-regular.inspect.yml
+
+- name: Report protected-regular policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if protected_regular_verified.stdout == '2' and protected_regular_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ protected_regular_verified.stdout }} persistent={{ protected_regular_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false

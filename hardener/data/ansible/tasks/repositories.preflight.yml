@@ -1,0 +1,34 @@
+- name: Inspect repository prerequisites
+  ansible.builtin.include_tasks: repositories.inspect.yml
+- name: Require enabled repositories and safe editable configuration
+  ansible.builtin.assert:
+    that:
+    - repository.enabled
+    - repository.safe_file
+  loop: '{{ repository_state }}'
+  loop_control:
+    loop_var: repository
+    label: '{{ repository.id }}'
+- name: Read selected repository configuration for candidate validation
+  ansible.builtin.slurp:
+    src: '{{ repository_path }}'
+  loop: '{{ repository_state | map(attribute="path") | unique | list }}'
+  loop_control:
+    loop_var: repository_path
+  register: repository_candidates
+  no_log: true
+- name: Validate all selected repository edits before any changes
+  ansible.builtin.set_fact:
+    repository_candidate: '{{ repository_file.content | b64decode | hardener_repository_edit(repository_state,
+      repository_file.repository_path, repository_option) }}'
+  loop: '{{ repository_candidates.results }}'
+  loop_control:
+    loop_var: repository_file
+  no_log: true
+- name: Require HTTPS repository endpoints for certificate validation
+  ansible.builtin.assert:
+    that: repository_state | rejectattr('https') | list | length == 0
+  when: repository_option == 'sslverify'
+- name: Check available trusted repository metadata before enabling enforcement
+  ansible.builtin.include_tasks: repositories.signature.inspect.yml
+  when: repository_option == 'repo_gpgcheck'

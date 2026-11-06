@@ -1,14 +1,27 @@
 # Rocky Linux 10 OS baseline
 
-An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The five-control engine audits and hardens account-file permissions, hard-link
-protection, the debug console, Telnet presence, and local RPM signature checks.
-Each control has independent verification and can be selected or excluded.
-See [exact behaviors and restoration](docs/m2-controls.md).
+**M13 release candidate:** The catalog contains 102 executable controls, with 90 remediations and twelve read-only assessments. The release matrix covers the combined catalog, repeated snapshot runs, an independently installed wheel and unchanged browser exports. See the [M13 release record](docs/m13-release-readiness.md) for acceptance, reproduction and the four explicit lab findings.
 
-The project currently has **no license grant**, by owner decision. This is an
+An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
+The catalog contains 102 executable controls covering account files, kernel safeguards, package
+trust, optional services, time, local logging, SSH, sudo, network, firewall, and local
+identity, SELinux, audit, integrity, remote logging, filesystem, boot and cryptographic
+policy. Each can be selected
+or excluded. Security-update status, four identity assessments and the unconfined-service
+assessment and six filesystem/storage/boot assessments are read-only. The 90 remediable controls support
+independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
+[M6 file and kernel controls](docs/m6-demonstration.md), and
+[M7 operations controls](docs/m7-demonstration.md), and
+[M8 access controls](docs/m8-demonstration.md), and
+[M9 baseline network controls](docs/m9-demonstration.md), and
+[M9 host routing policy](docs/m9-routing-demonstration.md), and
+[M9 firewall policy](docs/m9-firewall-demonstration.md), and
+[M10 local identity policy](docs/m10-demonstration.md), and
+[M11 SELinux, audit and integrity policy](docs/m11-demonstration.md) for behavior and recovery.
+
+The project currently has **no license grant**, by owner decision. This is a
 release candidate, not an open-source release or certification.
-See [M4 checks and complete reproduction](docs/m4-release-readiness.md).
+See [M13 checks and complete reproduction](docs/m13-release-readiness.md).
 
 ## Install on a development guest
 
@@ -17,7 +30,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch v0.4.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch v0.13.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
@@ -92,3 +105,7 @@ builds to one offline HTML file and exports YAML for this same CLI. See the
 See [profile format](docs/profile-format.md), [operations](docs/operations.md),
 [architecture and authoring](docs/architecture.md), and
 [M2 demonstration evidence](docs/m2-demonstration.md).
+
+High-impact apply/preflight requires a recent target-bound recovery receipt. Follow
+[recovery enforcement](docs/recovery-enforcement.md) before running access-changing profiles.
+Audit and verify remain available without recovery evidence.

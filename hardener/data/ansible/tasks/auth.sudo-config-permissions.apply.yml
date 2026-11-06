@@ -1,0 +1,26 @@
+- name: Inspect selected sudo files again
+  ansible.builtin.include_tasks: sudo-policy.inspect.yml
+  vars:
+    sudo_kind: permissions
+- name: Recheck file safety immediately before metadata changes
+  ansible.builtin.assert:
+    that:
+    - sudo_state.safe
+    - sudo_state.layout_supported
+- name: Protect local sudo files without replacing content
+  ansible.builtin.file:
+    path: '{{ sudo_file.path }}'
+    owner: root
+    group: root
+    mode: '0440'
+    state: file
+  loop: '{{ sudo_state.files }}'
+  loop_control:
+    loop_var: sudo_file
+    label: '{{ sudo_file.path }}'
+  register: sudo_metadata_write
+- name: Retain sudo metadata changes
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ sudo_metadata_write.changed }}'
+- name: Verify independent recovery after sudo metadata changes
+  ansible.builtin.include_tasks: access-check.inspect.yml

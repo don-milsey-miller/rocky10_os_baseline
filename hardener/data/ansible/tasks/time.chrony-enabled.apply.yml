@@ -1,0 +1,17 @@
+- name: Install the supported time service
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+  register: chrony_package
+- name: Retain package change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ chrony_package.changed }}'
+- name: Enable and start chrony
+  ansible.builtin.systemd_service:
+    name: chronyd.service
+    enabled: true
+    state: started
+  register: chrony_start
+- name: Retain chrony service change evidence
+  ansible.builtin.set_fact:
+    hardener_changed: '{{ hardener_changed or chrony_start.changed }}'

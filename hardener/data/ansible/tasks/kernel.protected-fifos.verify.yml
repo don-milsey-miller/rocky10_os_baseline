@@ -1,0 +1,20 @@
+---
+- name: Read effective kernel state directly from procfs
+  ansible.builtin.command:
+    argv: [/usr/bin/cat, /proc/sys/fs/protected_fifos]
+  register: protected_fifos_verified
+  changed_when: false
+
+- name: Independently reinspect persistent protected-fifos policy
+  ansible.builtin.include_tasks: kernel.protected-fifos.inspect.yml
+
+- name: Report protected-fifos policy verification
+  ansible.builtin.set_fact:
+    hardener_record:
+      id: "{{ control.id }}"
+      status: "{{ 'pass' if protected_fifos_verified.stdout == '2' and protected_fifos_config.persistent == '2' else 'fail' }}"
+      observed: "live={{ protected_fifos_verified.stdout }} persistent={{ protected_fifos_config.persistent }}"
+      expected: live=2 persistent=2
+      changed: "{{ hardener_changed }}"
+      reason: null
+      reboot_required: false
