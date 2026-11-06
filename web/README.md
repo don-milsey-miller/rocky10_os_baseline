@@ -24,7 +24,7 @@ digest, and bundled dependency names. `HARDENER_PYTHON` can override the default
 
 ## Editing profiles
 
-1. Search or filter the catalog and inspect benefits, trade-offs, and requirements.
+1. Choose **Target distribution**, then search or filter the catalog and inspect benefits, trade-offs, and requirements.
 2. Choose **Include**, **Exclude**, or **Not selected** for each control.
    Exclusions may retain a reason. Nothing is included automatically.
 3. Set a stable ID, optional name, and positive integer revision.
@@ -35,7 +35,7 @@ Import accepts a local YAML file or pasted YAML. Invalid imports leave the
 current draft unchanged. Export sorts controls by ID and parameter keys
 alphabetically. Include/exclude state, explicit parameter values, and reasons
 round-trip. Comments and input formatting are not preserved.
-The editor accepts only schema v1 Rocky 10 server profiles. Unknown fields,
+The editor accepts schema v1 Rocky Linux 10 and RHEL 10 server profiles. Unknown fields,
 duplicates, aliases, custom tags, incompatible controls, and oversized YAML
 are rejected. For predictable browser parsing, input is capped at 64 KiB,
 YAML directives are refused, and integers must fit JavaScript's safe integer

@@ -1,6 +1,8 @@
 # Disposable guest operations
 
-Development and testing are separate guests. The tested lab uses Rocky 10.2
+The KVM lab described here uses separate development and test guests. For native
+RHEL/Rocky EC2 tests and their different topology, see [the platform validation
+report](dual-os-validation.md). The KVM lab uses Rocky 10.2
 minimal x86_64, BIOS boot, virtio disk/network, SELinux enforcing, and the
 default libvirt NAT network. Development uses 2 vCPUs, 4 GiB RAM, and a 30 GiB
 qcow2 disk. The test guest uses 2 vCPUs, 2 GiB RAM, and a 20 GiB qcow2 disk.
