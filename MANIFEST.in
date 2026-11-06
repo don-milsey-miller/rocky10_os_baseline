@@ -1,6 +1,6 @@
 include README.md requirements-tested.txt
 recursive-include profiles *.yaml
-recursive-include docs *.md *.json
+recursive-include docs *.md *.json *.png
 recursive-include tests *.py *.spec
 include web/package.json web/package-lock.json web/build.mjs web/prepare.py web/playwright.config.mjs web/README.md
 recursive-include web/src *.mjs *.html *.css
