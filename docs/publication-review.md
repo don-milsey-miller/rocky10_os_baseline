@@ -2,7 +2,7 @@
 
 The owner requested that the project remain unlicensed. No project license
 is granted, and no open-source release or certification is claimed.
-The M4 output is a tagged evaluation candidate in the already public repository.
+The M13 output is a tagged evaluation candidate in the already public repository.
 
 ## Source and assets
 
@@ -12,7 +12,7 @@ consulted for tool behavior. No external guide, PDF, control table, numbering
 crosswalk, credential file, source specification, or local instruction file
 is included in the published tree.
 
-M4 checks the tracked source, wheel, and source distribution for private
+Release checks cover the tracked source, wheel, and source distribution for private
 inventory paths, VM images, keys, reports, and common credential patterns.
 The release review also scans historical Git blobs. These checks supplement
 diff review and cannot prove absence of every possible secret.

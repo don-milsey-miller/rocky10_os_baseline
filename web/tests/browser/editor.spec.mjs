@@ -361,3 +361,36 @@ test("approved M12 mount boot and optional policy exports without credentials",a
   await page.locator("#confirm-import").click();
   await expect(page.locator("#yaml-preview")).toHaveValue(raw);
 });
+
+test("complete release profile preserves all selections and exports unchanged",async({page,context})=>{
+  await context.setOffline(true);
+  const profile=importProfile(await readFile("../profiles/examples/server-combined-lab.yaml","utf8"));
+  const assessments=new Set(["packages.security-update-status","accounts.no-empty-passwords","accounts.root-only-uid-zero","accounts.root-path-integrity","accounts.unique-identities","selinux.no-unconfined-services","filesystem.world-writable-review","filesystem.unowned-files-review","filesystem.privileged-files-review","storage.partition-layout","storage.disk-encryption","boot.secure-boot"]);
+  for(const control of profile.controls){
+    if(assessments.has(control.id)){
+      control.enabled=false;
+      control.reason="Assessment is verified separately. No remediation is defined.";
+    }
+  }
+  await page.goto(url);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(exportProfile(profile));
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#included-count")).toHaveText("90");
+  await expect(page.locator("#export")).toBeEnabled();
+  const download=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const directory=path.resolve("../reports/m13");
+  await mkdir(directory,{recursive:true});
+  const filename=path.join(directory,"browser-combined.yaml");
+  await (await download).saveAs(filename);
+  const raw=await readFile(filename,"utf8");
+  expect(raw).toBe(exportProfile(profile));
+  expect(importProfile(raw)).toEqual(profile);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.locator("#open-import").click();
+  await page.locator("#import-file").setInputFiles(filename);
+  await page.locator("#confirm-import").click();
+  await expect(page.locator("#yaml-preview")).toHaveValue(raw);
+});

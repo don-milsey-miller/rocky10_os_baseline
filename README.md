@@ -1,6 +1,6 @@
 # Rocky Linux 10 OS baseline
 
-**M12 complete:** All 21 storage, boot and optional-policy entries are validated under the approved disposable-lab policy. The catalog contains 90 remediations and twelve read-only assessments. Combined verification passes 98 controls and retains four documented findings. All 90 remediations repeat with zero changes. See the [M12 acceptance record](docs/m12-demonstration.md#validation-record). M13 release acceptance remains pending.
+**M13 release candidate:** The catalog contains 102 executable controls, with 90 remediations and twelve read-only assessments. The release matrix covers the combined catalog, repeated snapshot runs, an independently installed wheel and unchanged browser exports. See the [M13 release record](docs/m13-release-readiness.md) for acceptance, reproduction and the four explicit lab findings.
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
 The catalog contains 102 executable controls covering account files, kernel safeguards, package
@@ -21,7 +21,7 @@ independent audit, apply, and verification. See the [original controls](docs/m2-
 
 The project currently has **no license grant**, by owner decision. This is a
 release candidate, not an open-source release or certification.
-See [M4 checks and complete reproduction](docs/m4-release-readiness.md).
+See [M13 checks and complete reproduction](docs/m13-release-readiness.md).
 
 ## Install on a development guest
 
@@ -30,7 +30,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m11-audit-integrity https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch v0.13.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate

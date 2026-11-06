@@ -8,7 +8,7 @@ and six assessments under the approved disposable policy. See the
 [M12 acceptance record](m12-demonstration.md#validation-record). The combined run
 retains root PATH, unconfined-service, root encryption and BIOS Secure Boot findings.
 The first two retain their [M11 dispositions](m11-demonstration.md#validation-record).
-Encryption and firmware changes remain provisioning decisions. M13 remains pending.
+Encryption and firmware changes remain provisioning decisions. M13 release validation and the four combined-lab dispositions are documented in [the release record](m13-release-readiness.md).
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
