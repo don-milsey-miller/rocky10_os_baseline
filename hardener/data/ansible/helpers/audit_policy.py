@@ -157,6 +157,10 @@ def audit_state():
     return state
 
 
+def native_daemon(kernel_pid, unit_pid, commandline):
+    return kernel_pid == unit_pid and commandline == [b"/usr/sbin/auditd", b""]
+
+
 def inspect_rules():
     safe_directory(RULES)
     for path in RULES.glob("*.rules"):
@@ -223,6 +227,11 @@ def inspect(kind, parameters):
         if fragment != "/usr/lib/systemd/system/" + unit:
             raise ValueError("Review replaced audit service units")
     state = audit_state()
+    if int(state["pid"]) > 0:
+        unit_pid = run(["/usr/bin/systemctl", "show", "auditd", "-p", "MainPID", "--value"])
+        commandline = Path("/proc/" + state["pid"] + "/cmdline").read_bytes().split(bytes([0]))
+        if not native_daemon(state["pid"], unit_pid, commandline):
+            raise ValueError("Review alternate audit daemon ownership or configuration")
     if kind == "service-enabled":
         ok = (
             enabled("auditd")

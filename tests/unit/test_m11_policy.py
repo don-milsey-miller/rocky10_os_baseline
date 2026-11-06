@@ -300,3 +300,19 @@ def test_unconfined_service_assessment_cannot_be_applied():
     }
     with pytest.raises(ValidationError, match="assessment-only"):
         validate(profile, load_catalog(), mode="apply")
+
+
+@pytest.mark.parametrize(
+    "kernel,unit,argv",
+    [
+        ("12", "13", [b"/usr/sbin/auditd", b""]),
+        ("12", "12", [b"/usr/sbin/auditd", b"-c", b"/tmp/other", b""]),
+        ("12", "0", [b"/usr/sbin/auditd", b""]),
+    ],
+)
+def test_alternate_audit_daemon_cannot_claim_standard_configuration(kernel, unit, argv):
+    assert not audit.native_daemon(kernel, unit, argv)
+
+
+def test_native_audit_daemon_requires_matching_unit_process():
+    assert audit.native_daemon("12", "12", [b"/usr/sbin/auditd", b""])
