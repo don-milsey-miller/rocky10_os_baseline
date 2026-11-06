@@ -109,7 +109,39 @@ target. On the accepted M11 target, the three filesystem reviews pass. Separate
 /tmp, /var/tmp and /home mounts, root encryption and Secure Boot are absent.
 Those are assessment findings, not false passes or authorized migration work.
 
-Final executed results and source identity are recorded below after validation.
+## Validation record
+
+Runtime source: `3b1a393128ebd965395a9ca1a91e14dd35a1b794`,
+version `0.12.0.dev1`. Runtime SHA-256:
+`3971feaf9ddf1257ffac9d3946fe3be7b33a0aa43d96c1822922a58eb5df3bff`.
+
+| Executed check | Result | Private evidence under reports/m12-live |
+| --- | --- | --- |
+| Python, style, Ansible syntax | 393 tests, Ruff and both syntax checks passed | checks/*-final.log |
+| Editor | 31 unit and 14 browser tests passed | checks/editor-final.log |
+| Independent installed wheel and publication assets | Passed | checks/build-final.log, checks/wheel-final.log, checks/release-final.log |
+| Two isolated filesystem fault suites | Each found 2 writable, 1 unowned and 2 privileged entries, preserved contents/metadata/xattrs, rejected apply and incomplete scans | assessments-final-a, assessments-final-b |
+| Two native block fixtures | Plain encryption failed, separate mount passed, LUKS encryption passed, fixtures removed | native-storage-final-a.json, native-storage-final-b.json |
+| Unchanged browser export against target | Three filesystem passes and three provisioning findings, zero changes | browser-verify-final |
+| Final combined catalog verification | 82 passes, five findings, zero changes | combined-verify-final |
+| tmpfs metadata review | Passed with zero changes | tmpfs-audit |
+| Original regression suites | VS1, VS2, VS4 and VS5 passed on the separate probe guest | regression/summary.json |
+| Fresh administration | Independent IPv4/IPv6 SSH and sudo passed | assessment-acceptance.json |
+
+The native fault suites use helper bytes identical to the published source.
+The final catalog correction only added the explicit string type to the disabled
+mount flag schemas. Final combined and browser verification ran after that change.
+Helper digests and commands are retained in assessment-acceptance.json.
+
+The five combined findings are accounts.root-path-integrity,
+selinux.no-unconfined-services, storage.partition-layout, storage.disk-encryption
+and boot.secure-boot. The first two retain their M11 dispositions. The latter three
+describe existing provisioning gaps awaiting Q6. No migration was attempted.
+The target remains on its accepted M11 configuration after fixture cleanup.
+
+[Implementation CI](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42145024680)
+tracks this checkpoint. CI status is recorded in the project journal.
+M12 mutating acceptance and M13 release acceptance have **not** passed.
 
 ## Native references
 
