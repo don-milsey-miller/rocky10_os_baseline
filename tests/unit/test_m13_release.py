@@ -110,3 +110,15 @@ def test_report_gate_fails_closed(fault):
         report["controls"][1]["status"] = "pass"
     with pytest.raises(AssertionError):
         release.assert_report(report, {"repair": {}, "assessment": {}}, {"assessment"})
+
+
+def test_only_explicit_unsupported_prerequisites_are_accepted_during_fault_audit():
+    report = sample_report()
+    report["controls"][1]["status"] = "unsupported"
+    release.assert_report(report, {"repair": {}, "assessment": {}}, unsupported={"assessment"})
+    with pytest.raises(AssertionError):
+        release.assert_report(report, {"repair": {}, "assessment": {}})
+    with pytest.raises(AssertionError):
+        release.assert_report(
+            report, {"repair": {}, "assessment": {}}, {"assessment"}, unsupported={"assessment"}
+        )

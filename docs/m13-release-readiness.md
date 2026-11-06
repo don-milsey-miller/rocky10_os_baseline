@@ -69,7 +69,7 @@ separate probe guest.
 | Fresh-checkout Python, schema, static and editor tests | All pass on the candidate commit |
 | Independent wheel | Packaged assets/digest match source, examples validate, guest execution imports from the wheel environment |
 | Combined baseline audit/verify | 98 pass, exactly four named assessment findings, zero changes |
-| Deliberate faults and exclusion | Account-file mode and hardlink faults are detected. Excluded faults stay unchanged. Selected remediation repairs both and preserves account-file contents |
+| Deliberate faults and exclusion | Account-file and hardlink faults are detected, including dependent identity and filesystem findings. Unsafe combined apply refuses all writes. Excluded faults stay unchanged. A limited selection repairs both prerequisites and preserves account-file contents |
 | Complete remediation | All 90 pass, twelve explicit exclusions, zero changes on repeated apply |
 | Unchanged browser YAML | Actual downloaded bytes execute in apply and verify without editing, with zero changes |
 | Reboot and snapshot repetition | Complete state and fresh IPv4/IPv6 SSH/sudo survive reboot. Two independent restored-snapshot runs have equivalent outcomes |
@@ -80,7 +80,7 @@ separate probe guest.
 
 Get a new [recovery receipt](recovery-enforcement.md) using the wheel runtime.
 The receipt must bind the same inventory bytes, target and runtime used below.
-Changing the engine version changes the runtime digest and invalidates older receipts.
+Wait for fresh SSH and sudo after each snapshot restoration before starting a suite.\nChanging the engine version changes the runtime digest and invalidates older receipts.
 
 ~~~bash
 /home/zero/m13-wheel/bin/hardener recovery-test --inventory /absolute/inventory.local.m9.ini --target test-vm --output /absolute/reports/m13/recovery

@@ -27,6 +27,12 @@ FINDINGS = {
     "boot.secure-boot",
 }
 FAULTS = {"files.passwd-permissions", "kernel.protected-hardlinks"}
+UNTRUSTED_IDENTITIES = {
+    "accounts.home-permissions",
+    "accounts.system-login-disabled",
+    "auth.inactive-account-lock",
+    "auth.password-aging",
+}
 
 
 def remediation_profile(profile, catalog):
@@ -39,16 +45,22 @@ def remediation_profile(profile, catalog):
     return result
 
 
-def assert_report(report, catalog, failures=(), excluded=(), changed=0):
+def assert_report(report, catalog, failures=(), excluded=(), changed=0, unsupported=()):
     """Reject omissions, duplicates, unexpected statuses and hidden changes."""
     records = report["controls"]
     assert len(records) == len(catalog)
     assert {r["id"] for r in records} == set(catalog)
-    failures, excluded = set(failures), set(excluded)
-    assert not failures & excluded
+    failures, excluded, unsupported = set(failures), set(excluded), set(unsupported)
+    assert not (failures & excluded or failures & unsupported or excluded & unsupported)
     for row in records:
         expected = (
-            "fail" if row["id"] in failures else "excluded" if row["id"] in excluded else "pass"
+            "fail"
+            if row["id"] in failures
+            else "excluded"
+            if row["id"] in excluded
+            else "unsupported"
+            if row["id"] in unsupported
+            else "pass"
         )
         assert row["status"] == expected, (row["id"], row["status"], expected)
         if changed == 0:
@@ -79,21 +91,37 @@ def main():
     before = lab.remote("sudo sha256sum /etc/passwd").split()[0]
     lab.remote("sudo chmod 0666 /etc/passwd && sudo sysctl -w fs.protected_hardlinks=0")
     report = lab.execute("audit", "fault-audit", profile, expected=5)
-    assert_report(report, catalog, FINDINGS | FAULTS)
+    assert_report(
+        report,
+        catalog,
+        FINDINGS | FAULTS | {"filesystem.world-writable-review"},
+        unsupported=UNTRUSTED_IDENTITIES,
+    )
+    # Unsafe identity input blocks the whole combined apply before any write.
+    report = lab.execute("apply", "unsafe-combined-refused", apply, expected=3)
+    assert not report["preflight_passed"] and report["changed_tasks"] == 0
+    assert all(row["changed"] is not True for row in report["controls"])
+    assert lab.remote("stat -c %a /etc/passwd").strip() == "666"
+    assert lab.remote("sysctl -n fs.protected_hardlinks").strip() == "0"
     partial = copy.deepcopy(apply)
     for item in partial["controls"]:
-        if item["id"] in FAULTS:
+        if item["id"] != "files.group-permissions":
             item["enabled"] = False
             item["reason"] = "Release selection-boundary fixture"
     report = lab.execute("apply", "excluded-faults", partial)
-    assert_report(report, catalog, excluded=excluded | FAULTS)
+    assert_report(report, catalog, excluded=set(catalog) - {"files.group-permissions"})
     assert lab.remote("stat -c %a /etc/passwd").strip() == "666"
     assert lab.remote("sysctl -n fs.protected_hardlinks").strip() == "0"
-    report = lab.execute("apply", "repair", apply)
+    repair = copy.deepcopy(apply)
+    for item in repair["controls"]:
+        if item["id"] not in FAULTS:
+            item["enabled"] = False
+            item["reason"] = "Repair only the deliberately corrupted prerequisites"
+    report = lab.execute("apply", "repair", repair)
     # Ansible counts may evolve. Require real repair evidence for exactly these IDs.
     assert report["changed_tasks"] > 0
     assert {r["id"] for r in report["controls"] if r["changed"]} == FAULTS
-    assert_report(report, catalog, excluded=excluded, changed=report["changed_tasks"])
+    assert_report(report, catalog, excluded=set(catalog) - FAULTS, changed=report["changed_tasks"])
     assert lab.remote("sudo sha256sum /etc/passwd").split()[0] == before
     for mode, name, selected, failures, omissions in [
         ("verify", "all-controls", profile, FINDINGS, ()),
@@ -167,6 +195,8 @@ else: raise AssertionError('kdump did not settle')
             "findings": sorted(FINDINGS),
             "faults_repaired": sorted(FAULTS),
             "exclusions_preserved": True,
+            "unsafe_combined_apply_refused": True,
+            "identity_prerequisites_repaired_separately": True,
             "zero_change_repeats": True,
             "reboot_verified": True,
             "fresh_dual_stack_admin": True,
