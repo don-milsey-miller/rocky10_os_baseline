@@ -2,10 +2,10 @@
 
 The inventory below reconciles the approved plan with implemented catalog entries.
 Workload-dependent controls remain optional. A supported mode describes execution capability,
-not automatic selection. M5 through M10 are complete. The executable catalog has
-68 controls: 63 remediable and five assessment-only. The 34 entries in M11 and M12
-remain planned. M10's existing root PATH finding has an explicit assessment
-disposition in its acceptance record.
+not automatic selection. M5 through M11 are complete. The executable catalog has
+81 controls: 75 remediable and six assessment-only. The 21 entries in M12 remain
+planned. Root PATH and unconfined-service findings have explicit assessment
+dispositions in the [M11 acceptance record](m11-demonstration.md#validation-record).
 
 | ID | Milestone | Disposition | Evidence |
 | --- | --- | --- | --- |
@@ -72,19 +72,19 @@ disposition in its acceptance record.
 | accounts.root-only-uid-zero | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
 | accounts.no-empty-passwords | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
 | accounts.root-path-integrity | M10 | Assessment | [M10](m10-demonstration.md#validation-record) |
-| selinux.enforcing | M11 | Planned | — |
-| selinux.targeted-policy | M11 | Planned | — |
-| selinux.no-unconfined-services | M11 | Planned | — |
-| audit.service-enabled | M11 | Planned | — |
-| audit.early-boot | M11 | Planned | — |
-| audit.storage-policy | M11 | Planned | — |
-| audit.identity-changes | M11 | Planned | — |
-| audit.privilege-use | M11 | Planned | — |
-| audit.security-config-changes | M11 | Planned | — |
-| audit.session-events | M11 | Planned | — |
-| audit.immutable-rules | M11 | Planned | — |
-| integrity.aide-scheduled | M11 | Planned | — |
-| logging.remote-tls | M11 | Planned | — |
+| selinux.enforcing | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| selinux.targeted-policy | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| selinux.no-unconfined-services | M11 | Assessment | [M11](m11-demonstration.md#validation-record) |
+| audit.service-enabled | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.early-boot | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.storage-policy | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.identity-changes | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.privilege-use | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.security-config-changes | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.session-events | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| audit.immutable-rules | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| integrity.aide-scheduled | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
+| logging.remote-tls | M11 | Implemented | [M11](m11-demonstration.md#validation-record) |
 | filesystem.tmp-restrictions | M12 | Planned | — |
 | filesystem.var-tmp-restrictions | M12 | Planned | — |
 | filesystem.dev-shm-restrictions | M12 | Planned | — |

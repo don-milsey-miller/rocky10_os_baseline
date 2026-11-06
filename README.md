@@ -1,12 +1,13 @@
 # Rocky Linux 10 OS baseline
 
-**M10 complete:** Ten local authentication/account controls and four read-only assessments are validated. Combined verification passes 67 controls and reports one existing root PATH finding. All 63 remediable controls repeat with zero changes. See the [M10 acceptance record](docs/m10-demonstration.md#validation-record).
+**M11 complete:** Twelve SELinux, audit, integrity and TLS logging controls plus one read-only assessment are validated under the approved disposable-lab policy. Combined verification passes 79 controls and retains root PATH and unconfined-service assessment findings. All 75 remediable controls repeat with zero changes. See the [M11 acceptance record](docs/m11-demonstration.md#validation-record).
 
 An installable, profile-driven CLI for Rocky Linux 10 **KVM server guests**.
-The catalog contains 68 controls covering account files, kernel safeguards, package
+The catalog contains 81 controls covering account files, kernel safeguards, package
 trust, optional services, time, local logging, SSH, sudo, network, firewall, and local
-identity policy. Each can be selected or excluded. Security-update status and four
-identity assessments are read-only. The 63 remediable controls support
+identity, SELinux, audit, integrity and remote logging policy. Each can be selected
+or excluded. Security-update status, four identity assessments and the unconfined-service
+assessment are read-only. The 75 remediable controls support
 independent audit, apply, and verification. See the [original controls](docs/m2-controls.md),
 [M6 file and kernel controls](docs/m6-demonstration.md), and
 [M7 operations controls](docs/m7-demonstration.md), and
@@ -14,7 +15,8 @@ independent audit, apply, and verification. See the [original controls](docs/m2-
 [M9 baseline network controls](docs/m9-demonstration.md), and
 [M9 host routing policy](docs/m9-routing-demonstration.md), and
 [M9 firewall policy](docs/m9-firewall-demonstration.md), and
-[M10 local identity policy](docs/m10-demonstration.md) for behavior and recovery.
+[M10 local identity policy](docs/m10-demonstration.md), and
+[M11 SELinux, audit and integrity policy](docs/m11-demonstration.md) for behavior and recovery.
 
 The project currently has **no license grant**, by owner decision. This is a
 release candidate, not an open-source release or certification.
@@ -27,7 +29,7 @@ Use a separate disposable test guest and a tested snapshot recovery path.
 
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch codex/m10-local-identity https://github.com/don-milsey-miller/rocky10_os_baseline.git
+git clone --branch codex/m11-audit-integrity https://github.com/don-milsey-miller/rocky10_os_baseline.git
 cd rocky10_os_baseline
 python3 -m venv .venv
 source .venv/bin/activate
