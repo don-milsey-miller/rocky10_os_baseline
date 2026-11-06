@@ -61,7 +61,25 @@
       ],
       "properties": {
         "os": {
-          "const": "rocky"
+          "oneOf": [
+            {
+              "enum": [
+                "rocky",
+                "rhel"
+              ]
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "rocky",
+                  "rhel"
+                ]
+              }
+            }
+          ]
         },
         "major_version": {
           "type": "integer",

@@ -8,7 +8,7 @@ tradeoffs:
 - The writer must reopen rotated files. Choose the fixed rsyslog HUP action only for rsyslog-owned logs,
   or explicitly manage application reopening externally.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

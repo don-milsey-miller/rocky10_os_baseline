@@ -8,7 +8,7 @@ tradeoffs:
 - Requires a NetworkManager-managed host without routing/container services, shared connections, or conflicting
   forwarding configuration. Preserves redirect acceptance during the kernel transition.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

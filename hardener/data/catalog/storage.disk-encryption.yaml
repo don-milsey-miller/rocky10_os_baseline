@@ -10,7 +10,7 @@ tradeoffs:
 - Only selected local block filesystems are assessed. Encryption reports dm-crypt ancestry, not key-management
   strength.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

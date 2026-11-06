@@ -9,7 +9,7 @@ benefits:
 tradeoffs:
 - Assessment only. Does not delete, renumber, lock accounts, or rewrite login paths.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

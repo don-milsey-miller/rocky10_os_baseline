@@ -7,7 +7,7 @@ benefits:
 tradeoffs:
 - Changes only the named kernel setting. Privileged dump policy can affect diagnostics.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: low

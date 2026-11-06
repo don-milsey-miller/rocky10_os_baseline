@@ -10,7 +10,7 @@
     "Locally built RPMs must be signed with a trusted key."
   ],
   "applies_to": {
-    "os": "rocky",
+    "os": ["rocky", "rhel"],
     "major_version": 10,
     "role": "server"
   },

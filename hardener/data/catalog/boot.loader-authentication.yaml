@@ -8,7 +8,7 @@ tradeoffs:
 - Requires workload compatibility and a tested independent recovery path.
 - Credential material remains in private target files outside profiles and reports.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

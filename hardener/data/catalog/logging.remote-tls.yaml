@@ -10,7 +10,7 @@ tradeoffs:
   routing drop-ins require review. Collector receipt must be demonstrated externally. Recovery: remove
   the owned forwarding drop-in, validate rsyslogd -N1 and restart rsyslog.'
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

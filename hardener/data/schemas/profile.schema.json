@@ -38,7 +38,11 @@
       ],
       "properties": {
         "os": {
-          "const": "rocky"
+          "enum": [
+            "rocky",
+            "rhel"
+          ],
+          "default": "rocky"
         },
         "major_version": {
           "type": "integer",

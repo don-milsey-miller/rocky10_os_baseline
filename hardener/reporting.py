@@ -71,7 +71,11 @@ def make_report(mode, target, profile, profile_digest, catalog, evidence):
         "timestamp_utc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "mode": mode,
         "target": target,
-        "platform": "rocky-10-server" if evidence.get("preflight_passed") else "unverified",
+        "platform": (
+            f"{profile['target']['os']}-10-server"
+            if evidence.get("preflight_passed")
+            else "unverified"
+        ),
         "profile_id": profile["id"],
         "profile_revision": profile["revision"],
         "profile_sha256": profile_digest,

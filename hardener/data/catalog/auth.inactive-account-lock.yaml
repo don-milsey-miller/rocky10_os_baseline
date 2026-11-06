@@ -10,7 +10,7 @@ tradeoffs:
 - Aging and inactivity limits can deny access after password expiry. System accounts must have UID below
   1000. Home changes support ordinary /home/account directories without ACLs.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

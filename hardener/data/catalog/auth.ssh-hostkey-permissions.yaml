@@ -9,7 +9,7 @@ tradeoffs:
 - Requires the standard local configuration layout and a working independent public-key SSH/sudo recovery
   path. Custom Match, include, or service overrides require operator review.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high

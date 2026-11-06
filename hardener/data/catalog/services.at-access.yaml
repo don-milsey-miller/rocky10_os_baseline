@@ -10,7 +10,7 @@ tradeoffs:
 - Requires workload compatibility and a tested independent recovery path.
 - Unknown configuration ownership and unsupported layouts are refused.
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: medium

@@ -120,6 +120,7 @@ def probe(inventory, target, env, nonce, prepare=False):
     variables = {
         "hardener_target": target,
         "hardener_mode": "preflight",
+        "hardener_expected_os": ["rocky", "rhel"],
         "hardener_selected": [],
         "hardener_controls": [],
         "recovery_nonce": nonce,

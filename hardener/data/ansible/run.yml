@@ -1,5 +1,5 @@
 ---
-- name: Rocky 10 explicit server profile
+- name: Enterprise Linux 10 explicit server profile
   hosts: "{{ hardener_target }}"
   gather_facts: false
   become: true

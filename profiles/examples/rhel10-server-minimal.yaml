@@ -1,0 +1,23 @@
+schema_version: 1
+id: rhel10-server-minimal
+name: RHEL 10 minimal server
+revision: 2
+target:
+  os: rhel
+  major_version: 10
+  role: server
+controls:
+  - id: files.passwd-permissions
+    enabled: true
+  - id: kernel.protected-hardlinks
+    enabled: false
+    reason: Excluded in this one-control example
+  - id: services.debug-shell-disabled
+    enabled: false
+    reason: Excluded in this one-control example
+  - id: packages.telnet-client-absent
+    enabled: false
+    reason: Excluded in this one-control example
+  - id: packages.local-signature-check
+    enabled: false
+    reason: Excluded in this one-control example

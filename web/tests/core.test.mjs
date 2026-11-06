@@ -170,3 +170,13 @@ test("bounded list parameters preserve values and assessment warnings",()=>{
   p.controls[0].parameters.repositories=["baseos","baseos"];
   assert.ok(validateProfile(p).errors.length);
 });
+
+test("RHEL profiles round-trip with explicit applicability and no parameter loss",()=>{
+  const p=base();p.target.os="rhel";p.controls=[{...entry("accounts.home-permissions"),parameters:{users:["operator"],mode:"0700"}}];
+  assert.deepEqual(importProfile(exportProfile(p)),p);
+  const controls=structuredClone(data.controls);
+  controls.find(c=>c.id===p.controls[0].id).applies_to.os="rocky";
+  assert.match(validateProfile(p,controls).errors.join(),/unavailable/);
+  p.target.os="ubuntu";
+  assert.ok(validateProfile(p).errors.length);
+});

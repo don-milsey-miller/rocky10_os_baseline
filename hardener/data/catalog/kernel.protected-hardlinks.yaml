@@ -10,7 +10,7 @@
     "Legacy workflows that link another user's files may fail."
   ],
   "applies_to": {
-    "os": "rocky",
+    "os": ["rocky", "rhel"],
     "major_version": 10,
     "role": "server"
   },

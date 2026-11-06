@@ -74,6 +74,7 @@ def execute(args, profile, digest, catalog):
     variables = {
         "hardener_target": args.target,
         "hardener_mode": args.mode,
+        "hardener_expected_os": [profile["target"]["os"]],
         "hardener_selected": selected,
         "hardener_controls": controls,
     }
@@ -137,7 +138,7 @@ def execute(args, profile, digest, catalog):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Profile-driven Rocky Linux 10 KVM server hardening"
+        description="Profile-driven Rocky Linux 10 and RHEL 10 server hardening"
     )
     parser.add_argument(
         "mode", choices=["validate", "preflight", "audit", "apply", "verify", "recovery-test"]

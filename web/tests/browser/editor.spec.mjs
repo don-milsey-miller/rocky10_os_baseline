@@ -394,3 +394,26 @@ test("complete release profile preserves all selections and exports unchanged",a
   await page.locator("#confirm-import").click();
   await expect(page.locator("#yaml-preview")).toHaveValue(raw);
 });
+
+test("distribution selection survives export and import with selections intact",async({page})=>{
+  await page.goto(url);
+  await select(page,"files.passwd-permissions").selectOption("enabled");
+  await page.getByLabel("Target distribution").selectOption("rhel");
+  const raw=await page.getByLabel("YAML preview").inputValue();
+  const p=importProfile(raw);
+  expect(p.target.os).toBe("rhel");
+  expect(p.id).toBe("rhel10-custom");
+  expect(p.controls).toEqual([{id:"files.passwd-permissions",enabled:true}]);
+  const filename=path.join(evidence,"rhel-browser-profile.yaml");
+  await writeFile(filename,raw);
+  const result=spawnSync("../.venv/bin/hardener",["validate","--profile",filename],{encoding:"utf8"});
+  expect(result.status,result.stdout+result.stderr).toBe(0);
+  await page.getByLabel("Target distribution").selectOption("rocky");
+  expect(importProfile(await page.getByLabel("YAML preview").inputValue()).controls).toEqual(p.controls);
+  await page.locator("#open-import").click();
+  await page.locator("#import-text").fill(raw);
+  await page.locator("#confirm-import").click();
+  await expect(page.getByLabel("Target distribution")).toHaveValue("rhel");
+  await expect(page.getByLabel("YAML preview")).toHaveValue(raw);
+  await page.screenshot({path:path.join(evidence,"rhel-profile-editor.png"),fullPage:true});
+});

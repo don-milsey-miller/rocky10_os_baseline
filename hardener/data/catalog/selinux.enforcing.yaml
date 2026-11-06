@@ -8,7 +8,7 @@ tradeoffs:
 - 'Disabled or non-targeted running policy requires a separately reviewed relabel and reboot. Recovery:
   restore the independently rehearsed guest snapshot.'
 applies_to:
-  os: rocky
+  os: [rocky, rhel]
   major_version: 10
   role: server
 impact: high
