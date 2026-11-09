@@ -130,7 +130,7 @@ hardening was applied to the Windows host, WSL host or office bare-metal server.
 | Combined catalog | All 54 catalog entries verified, all 53 remediable controls applied with zero changes |
 | Exact browser download | Applied and verified unchanged, with zero changes |
 | Original regressions | VS1, VS2, VS4 and VS5 passed on the separate regression guest |
-| Source checkpoint CI | [Passed](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42101939033) |
+| Source checkpoint CI | Passed (run `42101939033`) |
 
 The combined profile retains the signed disposable repository for the assessment-only
 security-update check. Apply omits that assessment. This proves the control against the

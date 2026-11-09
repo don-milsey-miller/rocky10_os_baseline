@@ -100,7 +100,7 @@ Engine SHA-256: `41937cae7a438cca45882cc6caff8061006e7b6bf7dafea44e5e6590035791c
 | Combined state | 51 controls verified, 50 remediable controls repeated with zero changes |
 | Original regressions | VS1, VS2, VS4 and VS5 passed |
 | Installed wheel and release assets | Passed |
-| Implementation CI | [Passed](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42088853381) |
+| Implementation CI | Passed (run `42088853381`) |
 
 Final private evidence is under `reports/m9-recovery/rehearsal-c`, `rehearsal-d`,
 `guards-b`, `guards-c`, the combined reports and `regression`. `acceptance.json`

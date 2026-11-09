@@ -187,7 +187,7 @@ Acceptance source: commit `81f95cac21d1f825641b76529f674b771ddba404`,
 version `0.11.0rc1`. Runtime source SHA-256:
 `eaeac118692911b559d2ad442ba8ea56ba6ee8ec72fb299627727c323e5fdcda`.
 Documentation-only completion commits do not alter that runtime digest.
-[GitHub CI passed for this implementation](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42139506965),
+CI run `42139506965` passed for this implementation,
 including editor/browser checks, installed-wheel checks and candidate artifact upload.
 
 All native work ran inside the local Rocky Linux 10.2 KVM guests hosted by WSL 2.
