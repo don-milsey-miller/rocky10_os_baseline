@@ -3,7 +3,7 @@
 Date: 2026-11-06. **RHEL profile creation and bounded native EC2 execution are validated.
 This is not full acceptance of all 102 catalog controls or configurations.**
 
-Input: [the document comparison at commit 950632c](https://github.com/don-milsey-miller/rocky10_os_baseline/blob/950632c73892737ec720ffde361a6b3e05d99210/docs/rhel10-rocky10-comparison.md).
+Input: [the document comparison](rhel10-rocky10-comparison.md) at commit `950632c`.
 That comparison described the earlier Rocky-only engine. This implementation adds
 explicit RHEL selection without changing the intended shared hardening values.
 
@@ -18,7 +18,7 @@ The prefix **V** identifies validation findings in this report.
    identify `rhel-10-server` or `rocky-10-server` only after successful preflight.
 2. **V2: AWS RHEL repository access needs vendor integration.** Its RHUI advisory
    audit failed because the original inspection skipped the vendor plugin needed
-   for region resolution and identity headers. [Issue #9](https://github.com/don-milsey-miller/rocky10_os_baseline/issues/9)
+   for region resolution and identity headers. Issue #9
    records the defect. The fix permits only the installed `amazon-id` plugin when
    selected repository hosts identify AWS RHUI. Other DNF plugins remain excluded.
    TLS and package-signature settings are preserved. The audit performs no package

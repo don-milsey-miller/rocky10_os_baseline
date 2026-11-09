@@ -18,6 +18,12 @@ def fenced_blocks(language):
     return re.findall(rf"^```{language}\n(.*?)^```", README, re.MULTILINE | re.DOTALL)
 
 
+def test_published_documentation_omits_personal_repository_owner():
+    guides = [ROOT / "README.md", ROOT / "web/README.md", *(ROOT / "docs").rglob("*.md")]
+    for guide in guides:
+        assert "don-milsey-miller" not in guide.read_text(encoding="utf-8").casefold(), guide
+
+
 def test_readme_relative_links_and_heading_targets_exist():
     links = re.findall(r"!?\[[^\]\n]*\]\(([^)\s]+)\)", README)
     assert links, "README must link to its supporting documentation"

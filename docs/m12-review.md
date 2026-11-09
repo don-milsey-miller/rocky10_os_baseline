@@ -141,7 +141,7 @@ and boot.secure-boot. The first two retain their M11 dispositions. The latter th
 describe existing provisioning gaps awaiting Q6. No migration was attempted.
 The target remains on its accepted M11 configuration after fixture cleanup.
 
-[Implementation CI](https://github.com/don-milsey-miller/rocky10_os_baseline/actions/runs/42145024680)
+CI run `42145024680`
 tracks this checkpoint. CI status is recorded in the project journal.
 M12 mutating acceptance and M13 release acceptance have **not** passed.
 

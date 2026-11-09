@@ -14,13 +14,12 @@ cannot be selected for apply. The combined apply explicitly excludes all twelve.
 ## Reproduce the build
 
 Use a Rocky Linux 10.2 x86_64 development KVM guest with Python 3.12 and Node 22.
-Clone the tag into a fresh directory. Before tagging, use the candidate branch
+Start at the root of a fresh project checkout. Before tagging, use the candidate branch
 and record its immutable commit. Never use an existing editable installation as
 proof that the wheel works.
 
 ~~~bash
-git clone --branch v0.13.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
-cd rocky10_os_baseline
+git switch --detach v0.13.0rc1
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements-tested.txt

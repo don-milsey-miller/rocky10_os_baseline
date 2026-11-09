@@ -44,10 +44,10 @@ extending the lab configuration.
 
 ### 1. Install the controller
 
+Start in the root of a local checkout of the project.
+
 ```bash
 sudo dnf install -y git python3-pip
-git clone --branch main https://github.com/don-milsey-miller/rocky10_os_baseline.git
-cd rocky10_os_baseline
 git rev-parse HEAD
 python3 --version
 python3 -m venv .venv
@@ -424,9 +424,8 @@ recorded separately in the release evidence.
 | [Architecture](docs/architecture.md) | Engine design and control authoring. |
 | [Release readiness](docs/m13-release-readiness.md) | Acceptance matrix, reproduction, and limitations. |
 
-Report bugs through [GitHub issues](https://github.com/don-milsey-miller/rocky10_os_baseline/issues).
-Include the commit/version, controller and target OS, mode, exit code, reproduction
-steps, and sanitized error details. Do not publish credentials, recovery keys, or
+When reporting a bug, include the commit/version, controller and target OS, mode, exit code,
+reproduction steps, and sanitized error details. Do not publish credentials, recovery keys, or
 private inventory/report data.
 
 No project license has been granted. Bundled dependencies retain their own

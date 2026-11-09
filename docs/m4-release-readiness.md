@@ -22,12 +22,12 @@ and bundled notices. These CI results do not represent VM integration.
 
 ## Fresh checkout
 
-On a Rocky 10 development guest with Python 3.12 and Node.js 22:
+Start at the root of a fresh project checkout on a Rocky 10 development guest
+with Python 3.12 and Node.js 22.
 
 ```bash
 sudo dnf install -y git python3-pip nodejs nodejs-npm rpm-build
-git clone --branch v0.4.0rc1 https://github.com/don-milsey-miller/rocky10_os_baseline.git
-cd rocky10_os_baseline
+git switch --detach v0.4.0rc1
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-tested.txt
